@@ -13,7 +13,7 @@ public class Subtask extends Task {
         return  "Подзадача" +"\n" +
                 "Название'" + name + '\'' + "," + "\n" +
                 "Описание'" + description + '\'' + "," + "\n" +
-                "Статус'" + status + '\'' + "," + "\n" +
+                "Статус'" + getStatus() + '\'' + "," + "\n" +
                 "id '" + id + '\'';
     }
 }

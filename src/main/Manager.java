@@ -72,15 +72,24 @@ public class Manager {
         return epics.get(inputId);
     }
 
-    public void updateTask(HashMap<Long, Task> tasks, long inputId, Task task) {
+    public void updateTask(long inputId, Task task) {
         tasks.put(inputId, task);
     }
 
-    public void updateSubtask(HashMap<Long, Subtask> subtasks, long inputId, Subtask subtask) {
-        subtasks.put(inputId, subtask);
+    public void updateSubtask(long inputId, Subtask subtask) {
+        ArrayList<Subtask> subtasks1 = epicVsSubtask.get(subtaskVsEpic.get(inputId));
+        subtasks1.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка в менеджере
+        subtasks1.add(subtask); //добавляем новую сабтаску в список в менеджере
+        epicVsSubtask.put(subtaskVsEpic.get(inputId), subtasks1);//а новый список вносим в мапу в менеджере
+        Long idEpic = subtaskVsEpic.get(inputId);
+        Epic epic = epics.get(idEpic);
+        ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
+        subtasks2.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
+        subtasks2.add(subtask);
+        epic.setSubtaskList(subtasks2);//добавляем новую сабтаску в список внутри эпика
     }
 
-    public void updateEpic(HashMap<Long, Epic> epics, long inputId, Epic epic) {
+    public void updateEpic(long inputId, Epic epic) {
         epics.put(inputId, epic);
     }
 
@@ -98,6 +107,10 @@ public class Manager {
             epics.remove(inputId);
             ArrayList<Subtask> subtasks1 = epicVsSubtask.get(inputId);
             subtasks1.clear();
+            Epic epic = epics.get(inputId);
+            ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
+            subtasks2.clear();
+            epic.setSubtaskList(subtasks2);
             System.out.println("Задача удалена");
         } else {
             System.out.println("Эпика с таким id нет");
@@ -109,7 +122,11 @@ public class Manager {
             Long epicId = subtaskVsEpic.get(inputId);
             ArrayList<Subtask> subtasks1 = epicVsSubtask.get(epicId);
             subtasks1.remove(subtasks.get(inputId));
+            subtasks.remove(inputId);
             Epic epic = epics.get(epicId);
+            ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
+            subtasks2.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
+            epic.setSubtaskList(subtasks2);
             int count = 0;
             for (Subtask sub : subtasks1) {
                 if (sub.getStatus().equals("NEW")) {

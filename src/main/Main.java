@@ -5,15 +5,12 @@ import tasktracker.Subtask;
 import tasktracker.Task;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         Manager manager = new Manager();
         Scanner scanner = new Scanner(System.in);
-        /*HashMap<Long, ArrayList<Long>> epicVsSubtask1 = new HashMap<>();
-        HashMap<Long, Long> subtaskVsEpic1 = new HashMap<>();*/
         String inputName;
         String inputDescription;
         String inputAnswer = null;
@@ -126,17 +123,17 @@ public class Main {
                                 Task newTask = manager.getTasks().get(inputId);
                                 newTask.setName(inputName);
                                 newTask.setDescription(inputDescription);
-                                manager.updateTask(manager.getTasks(), inputId, newTask);
+                                manager.updateTask(inputId, newTask);
                             } else if (manager.getSubtasks().containsKey(inputId)) {
                                 Subtask newSubtask = manager.getSubtasks().get(inputId);
                                 newSubtask.setName(inputName);
                                 newSubtask.setDescription(inputDescription);
-                                manager.updateSubtask(manager.getSubtasks(), inputId, newSubtask);
+                                manager.updateSubtask(inputId, newSubtask);
                             } else if (manager.getEpics().containsKey(inputId)) {
                                 Epic newEpic = manager.getEpics().get(inputId);
                                 newEpic.setName(inputName);
                                 newEpic.setDescription(inputDescription);
-                                manager.updateEpic(manager.getEpics(), inputId, newEpic);
+                                manager.updateEpic(inputId, newEpic);
                             }
                         }
                         break;

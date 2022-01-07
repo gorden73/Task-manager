@@ -3,7 +3,7 @@ package tasktracker;
 public class Task {
     protected String name;
     protected String description;
-    protected String status;
+    private String status;
     protected long id;
 
     public Task(String name, String description, long id) {
@@ -18,7 +18,7 @@ public class Task {
         return  "Задача" +"\n" +
                 "Название'" + name + '\'' + "," + "\n" +
                 "Описание'" + description + '\'' + "," + "\n" +
-                "Статус'" + status + '\'' + "," + "\n" +
+                "Статус'" + getStatus() + '\'' + "," + "\n" +
                 "id '" + id + '\'';
     }
 

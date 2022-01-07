@@ -17,35 +17,27 @@ public class Epic extends Task {
         super(name, description, id);
     }
 
+
     @Override
-    public void setStatus(String status) {
-        if (status.equals("NEW")) {
-            int count = 0;
-            for (Subtask sub : subtaskList) {
-                if (sub.getStatus().equals(status)) {
-                    count++;
-                }
+    public String getStatus() {
+        int count = 0;
+        int count1 = 0;
+
+        for (Subtask sub : subtaskList) {
+            if (sub.getStatus().equals("NEW")) {
+                count++;
+            } else if (sub.getStatus().equals("DONE")) {
+                count1++;
             }
-            if (count == subtaskList.size()) {
-                super.setStatus(status);
-            } else {
-                super.setStatus("IN_PROGRESS");
-            }
-        } else if (status.equals("DONE")) {
-            int count = 0;
-            for (Subtask sub : subtaskList) {
-                if (sub.getStatus().equals(status)) {
-                    count++;
-                }
-            }
-            if (count == subtaskList.size()) {
-                super.setStatus(status);
-            } else {
-                super.setStatus("IN_PROGRESS");
-            }
-        } else if (status.equals("IN_PROGRESS")) {
+        }
+        if (count == subtaskList.size()) {
+            super.setStatus("NEW");
+        } else if (count1 == subtaskList.size()) {
+            super.setStatus("DONE");
+        } else {
             super.setStatus("IN_PROGRESS");
         }
+        return super.getStatus();
     }
 
     @Override
@@ -53,7 +45,7 @@ public class Epic extends Task {
         return  "Эпик" + "\n" +
                 "Название'" + name + '\'' + "," + "\n" +
                 "Описание'" + description + '\'' + "," + "\n" +
-                "Статус'" + status + '\'' + "," + "\n" +
+                "Статус'" + getStatus() + '\'' + "," + "\n" +
                 "id '" + id + '\'';
     }
 }
