@@ -1,9 +1,11 @@
-package taskTracker;
+package tasktracker;
 
 public class Subtask extends Task {
+    protected Epic epic;
 
-    public Subtask(String name, String description, long id) {
+    public Subtask(String name, String description, long id, Epic epic) {
         super(name, description, id);
+        this.epic = epic;
     }
 
     @Override

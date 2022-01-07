@@ -1,4 +1,4 @@
-package taskTracker;
+package tasktracker;
 
 public class Task {
     protected String name;

@@ -1,4 +1,8 @@
-package taskTracker;
+package main;
+
+import tasktracker.Epic;
+import tasktracker.Subtask;
+import tasktracker.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,8 +12,8 @@ public class Main {
     public static void main(String[] args) {
         Manager manager = new Manager();
         Scanner scanner = new Scanner(System.in);
-        HashMap<Long, ArrayList<Long>> epicVsSubtask1 = new HashMap<>();
-        HashMap<Long, Long> subtaskVsEpic1 = new HashMap<>();
+        /*HashMap<Long, ArrayList<Long>> epicVsSubtask1 = new HashMap<>();
+        HashMap<Long, Long> subtaskVsEpic1 = new HashMap<>();*/
         String inputName;
         String inputDescription;
         String inputAnswer = null;
@@ -33,7 +37,6 @@ public class Main {
                     scanner.nextLine();
                     if (inputAnswer.equals("Да")) {
                         Epic epic = manager.createNewEpic(inputName, inputDescription, id);
-                        ArrayList<Long> subtaskList = epic.getSubtaskList();
                         do {
                             System.out.println("Введите название подзадачи");
                             inputName = scanner.nextLine();
@@ -43,13 +46,7 @@ public class Main {
                             System.out.println("Введите краткое описание подзадачи");
                             inputDescription = scanner.nextLine();
                             id++;
-                            manager.createNewSubtask(inputName, inputDescription, id);
-                            subtaskList.add(id);
-                            epic.setSubtaskList(subtaskList);
-                            epicVsSubtask1.put(epic.getId(), subtaskList);
-                            manager.setEpicVsSubtask(epicVsSubtask1);
-                            subtaskVsEpic1.put(id, epic.getId());
-                            manager.setSubtaskVsEpic(subtaskVsEpic1);
+                            manager.createNewSubtask(inputName, inputDescription, id, epic);
                             System.out.println("Если хотите закончить, введите Всё");
                         } while (true);
                     } else if (inputAnswer.equals("Нет")) {
@@ -58,13 +55,13 @@ public class Main {
                     break;
                 case "2": //получаем список задач
                 case "3": //получаем список эпиков
-                    manager.printTasks(command, inputId);
+                    printTasks(command, inputId, manager);
                     break;
                 case "4":
                     System.out.println("Введите id эпика для просмотра его подзадач");
                     inputId = scanner.nextLong();
                     if (manager.getEpics().containsKey(inputId)) {
-                        manager.printTasks(command, inputId);
+                        printTasks(command, inputId, manager);
                     } else {
                         System.out.println("Эпика с таким id нет");
                     }
@@ -116,7 +113,7 @@ public class Main {
                                 System.out.println("Статус изменён на " + answer);
                                 Long epicId = manager.getSubtaskVsEpic().get(inputId);
                                 Epic epic = manager.getEpics().get(epicId);
-                                epic.setStatus(epic.getStatus(manager, inputId, answer));
+                                epic.setStatus(answer);
                             } else {
                                 System.out.println("Нельзя изменять статус у эпиков");
                             }
@@ -147,23 +144,31 @@ public class Main {
                         System.out.println("Нет задач для обновления");
                         break;
                     }
-                case "7": //удаляем любую задачу по id
+                case "7": //удаляем задачу по id
                     System.out.println("Введите id");
                     inputId = scanner.nextLong();
-                    manager.removeSomeTask(inputId);
-
-                    System.out.println("Задача удалена");
+                    manager.removeTask(inputId);
                     break;
-                case "8": //удаляем все задачи
+                case "8": //удаляем подзадачу по id
+                    System.out.println("Введите id");
+                    inputId = scanner.nextLong();
+                    manager.removeSubtask(inputId);
+                    break;
+                case "9": //удаляем эпик по id
+                    System.out.println("Введите id");
+                    inputId = scanner.nextLong();
+                    manager.removeEpic(inputId);
+                    break;
+                case "10": //удаляем все задачи
                     manager.removeAllTasks(manager.getTasks(), manager.getSubtasks(), manager.getEpics(),
                         manager.getEpicVsSubtask(), manager.getSubtaskVsEpic());
                     System.out.println("Все задачи удалены");
                     break;
-                case "9":
+                case "0":
                     System.out.println("Выход" + "\n" + "До свидания!");
                     break;
             }
-        } while (!command.equals("9")); //выход
+        } while (!command.equals("0")); //выход
     }
 
     public static void printMenu () {
@@ -176,7 +181,47 @@ public class Main {
             + "5. Получить задачу по id" + "\n"
             + "6. Обновить задачу по id" + "\n"
             + "7. Удалить задачу по id" + "\n"
-            + "8. Удалить все задачи" + "\n"
-            + "9. Выйти из приложения");
+            + "8. Удалить подзадачу по id" + "\n"
+            + "9. Удалить эпик по id" + "\n"
+            + "10. Удалить все задачи" + "\n"
+            + "0. Выйти из приложения");
+    }
+
+    public static void printTasks(String command, Long inputId, Manager manager) { //выводим в консоль списки задач
+        switch (command) {
+            case "2": // получение всех задач
+                if (!manager.getTasks().isEmpty()) {
+                    System.out.println(manager.getTasks().values());
+                    System.out.println("Это все задачи");
+                    break;
+                } else {
+                    System.out.println("Задач пока нет");
+                    break;
+                }
+            case "3": //получение всех эпиков
+                if (!manager.getEpics().isEmpty()) {
+                    System.out.println(manager.getEpics().values());
+                    System.out.println("Это все эпики");
+                    break;
+                } else {
+                    System.out.println("Эпиков пока нет");
+                    break;
+                }
+            case "4": //получение подзадач по id эпика
+                System.out.println(manager.getEpics().get(inputId));
+                ArrayList<Subtask> subtaskId = manager.getEpicVsSubtask().get(inputId);
+                for (Subtask sub : subtaskId) {
+                    try {
+                        if (sub != null) {
+                            System.out.println(sub); //вроде работает как надо
+                        }
+                    } catch (NullPointerException e) {
+                    }
+                }
+                System.out.println("Это все подзадачи эпика");
+                break;
+            default:
+                System.out.println("--------------------------------------");
+        }
     }
 }
