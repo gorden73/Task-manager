@@ -210,7 +210,7 @@ public class Main {
                 for (Subtask sub : subtaskId) {
                     try {
                         if (sub != null) {
-                            System.out.println(sub); //вроде работает как надо
+                            System.out.println(sub);
                         }
                     } catch (NullPointerException e) {
                     }

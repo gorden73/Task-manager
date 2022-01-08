@@ -127,29 +127,6 @@ public class Manager {
             ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
             subtasks2.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
             epic.setSubtaskList(subtasks2);
-            int count = 0;
-            for (Subtask sub : subtasks1) {
-                if (sub.getStatus().equals("NEW")) {
-                            count++;
-                }
-            }
-            if (count == subtasks1.size()) {
-                epic.setStatus("NEW");
-            }
-            for (Subtask sub : subtasks1) {
-                if (sub.getStatus().equals("IN_PROGRESS")) {
-                    epic.setStatus("IN_PROGRESS");
-                }
-            }
-            count = 0;
-            for (Subtask sub : subtasks1) {
-                if (sub.getStatus().equals("DONE")) {
-                    count++;
-                }
-            }
-            if (count == subtasks1.size()) {
-                epic.setStatus("DONE");
-            }
             if (subtasks1.isEmpty()) {
                 epics.remove(subtaskVsEpic.get(inputId));
             }

@@ -31,13 +31,16 @@ public class Epic extends Task {
             }
         }
         if (count == subtaskList.size()) {
-            super.setStatus("NEW");
+            return "NEW";
         } else if (count1 == subtaskList.size()) {
-            super.setStatus("DONE");
+            return"DONE";
         } else {
-            super.setStatus("IN_PROGRESS");
+            return "IN_PROGRESS";
         }
-        return super.getStatus();
+    }
+
+    @Override
+    public void setStatus(String status) {
     }
 
     @Override
