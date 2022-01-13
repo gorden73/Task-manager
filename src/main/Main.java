@@ -16,7 +16,7 @@ public class Main {
         String inputAnswer = null;
         String command;
         long inputId = 0;
-        long id = 0;
+        long id;
 
         do {
             printMenu();
@@ -28,7 +28,8 @@ public class Main {
                     inputName = scanner.nextLine();
                     System.out.println("Введите краткое описание задачи");
                     inputDescription = scanner.nextLine();
-                    id++;
+                    System.out.println("Введите Id");
+                    id = scanner.nextLong();
                     System.out.println("Задача требует разделения?");
                     inputAnswer = scanner.next();
                     scanner.nextLine();

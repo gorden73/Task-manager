@@ -35,29 +35,62 @@ public class Manager {
     }
 
     public Epic createNewEpic(String inputName, String inputDescription, long id) {
-        Epic epic = new Epic(inputName, inputDescription, id);
-        epics.put(id, epic);
+        long id1 = id;
+        if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
+            System.out.println("Такой id уже используется");
+            System.out.println("Он будет изменён автоматически");
+            while (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
+                id1 *= 13;
+            }
+        }
+        Epic epic = new Epic(inputName, inputDescription, id1);
+        epics.put(id1, epic);
         System.out.println("Задача добавлена");
         return epic;
     }
 
     public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) {
-        Subtask subtask = new Subtask(inputName, inputDescription, id, epic);
-        subtasks.put(id, subtask);
+        long id1 = id;
+        if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
+            System.out.println("Такой id уже используется");
+            System.out.println("Он будет изменён автоматически");
+            while (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
+                id1 *= 13;
+            }
+            Subtask subtask = new Subtask(inputName, inputDescription, id1, epic);
+            subtasks.put(id1, subtask);
+            ArrayList<Subtask> subtaskList = epic.getSubtaskList();
+            subtaskList.add(subtask);
+            epic.setSubtaskList(subtaskList);
+            epicVsSubtask.put(epic.getId(), subtaskList);
+            subtaskVsEpic.put(id1, epic.getId());
+            System.out.println("Задача добавлена");
+            return subtask;
+        }
+        Subtask subtask = new Subtask(inputName, inputDescription, id1, epic);
+        subtasks.put(id1, subtask);
         ArrayList<Subtask> subtaskList = epic.getSubtaskList();
         subtaskList.add(subtask);
         epic.setSubtaskList(subtaskList);
         epicVsSubtask.put(epic.getId(), subtaskList);
-        subtaskVsEpic.put(id, epic.getId());
+        subtaskVsEpic.put(id1, epic.getId());
         System.out.println("Задача добавлена");
         return subtask;
     }
 
     public Task createNewTask(String inputName, String inputDescription, long id) {
-        Task task = new Task(inputName, inputDescription, id);
-        tasks.put(id, task);
-        System.out.println("Задача добавлена");
-        return task;
+        long id1 = id;
+        if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
+            System.out.println("Такой id уже используется");
+            System.out.println("Он будет изменён автоматически");
+            while (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
+                id1 *= 13;
+            }
+        }
+            Task task = new Task(inputName, inputDescription, id1);
+            tasks.put(id1, task);
+            System.out.println("Задача добавлена");
+            return task;
     }
 
     public Task getTask(long inputId) {
@@ -104,13 +137,13 @@ public class Manager {
 
     public void removeEpic(long inputId) {
         if (epics.containsKey(inputId)) {
-            epics.remove(inputId);
             ArrayList<Subtask> subtasks1 = epicVsSubtask.get(inputId);
             subtasks1.clear();
             Epic epic = epics.get(inputId);
             ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
             subtasks2.clear();
             epic.setSubtaskList(subtasks2);
+            epics.remove(inputId);
             System.out.println("Задача удалена");
         } else {
             System.out.println("Эпика с таким id нет");
