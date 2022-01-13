@@ -3,14 +3,14 @@ package tasktracker;
 public class Task {
     protected String name;
     protected String description;
-    private String status;
+    private StatusOfTasks status;
     protected long id;
 
     public Task(String name, String description, long id) {
         this.name = name;
         this.description = description;
         this.id = id;
-        status = "NEW";
+        this.status = StatusOfTasks.NEW;
     }
 
     @Override
@@ -34,11 +34,23 @@ public class Task {
         return id;
     }
 
-    public String getStatus() {
+    public StatusOfTasks getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
-        this.status = status;
+        switch (status) {
+            case "NEW":
+                this.status = StatusOfTasks.NEW;
+                break;
+            case "IN_PROGRESS":
+                this.status = StatusOfTasks.IN_PROGRESS;
+                break;
+            case "DONE":
+                this.status = StatusOfTasks.DONE;
+                break;
+            default:
+                System.out.println("Такого статуса нет");
+        }
     }
 }

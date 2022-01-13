@@ -19,23 +19,23 @@ public class Epic extends Task {
 
 
     @Override
-    public String getStatus() {
+    public StatusOfTasks getStatus() {
         int count = 0;
         int count1 = 0;
 
         for (Subtask sub : subtaskList) {
-            if (sub.getStatus().equals("NEW")) {
+            if (sub.getStatus().equals(StatusOfTasks.NEW)) {
                 count++;
-            } else if (sub.getStatus().equals("DONE")) {
+            } else if (sub.getStatus().equals(StatusOfTasks.DONE)) {
                 count1++;
             }
         }
         if (count == subtaskList.size()) {
-            return "NEW";
+            return StatusOfTasks.NEW;
         } else if (count1 == subtaskList.size()) {
-            return"DONE";
+            return StatusOfTasks.DONE;
         } else {
-            return "IN_PROGRESS";
+            return StatusOfTasks.IN_PROGRESS;
         }
     }
 
