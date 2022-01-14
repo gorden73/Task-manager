@@ -168,12 +168,13 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public void removeEpic(long inputId) {
         if (epics.containsKey(inputId)) {
-            ArrayList<Subtask> subtasks1 = epicVsSubtask.get(inputId);
-            subtasks1.clear();
             Epic epic = epics.get(inputId);
-            ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
-            subtasks2.clear();
-            epic.setSubtaskList(subtasks2);
+            ArrayList<Subtask> subtasks1 = epic.getSubtaskList();
+            for (Subtask sub : subtasks1) {
+                subtasks.remove(sub.getId()); //удаляем сабтаски из мапы, чтобы после удаления эпика нельзя
+            }                                 // было получить по id сабтаску удаленного эпика
+            subtasks1.clear();
+            epic.setSubtaskList(subtasks1);
             epics.remove(inputId);
             System.out.println("Задача удалена");
         } else {
