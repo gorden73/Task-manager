@@ -7,33 +7,50 @@ import tasktracker.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Manager {
-    private HashMap<Long, Task> tasks = new HashMap<>();
-    private HashMap<Long, Subtask> subtasks = new HashMap<>();
-    private HashMap<Long, Epic> epics = new HashMap<>();
-    private HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
-    private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
+public class InMemoryTasksManager implements TaskManager {
+    private final HashMap<Long, Task> tasks = new HashMap<>();
+    private final HashMap<Long, Subtask> subtasks = new HashMap<>();
+    private final HashMap<Long, Epic> epics = new HashMap<>();
+    private final HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
+    private final HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
+    private final ArrayList<Task> listOfHistory = new ArrayList<>();
 
+    @Override
+    public ArrayList<Task> history() {
+        return listOfHistory;
+    }
+
+    @Override
+    public ArrayList<Task> getListOfHistory() {
+        return listOfHistory;
+    }
+
+    @Override
     public HashMap<Long, Task> getTasks() {
         return tasks;
     }
 
+    @Override
     public HashMap<Long, Subtask> getSubtasks() {
         return subtasks;
     }
 
+    @Override
     public HashMap<Long, Epic> getEpics() {
         return epics;
     }
 
+    @Override
     public HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask() {
         return epicVsSubtask;
     }
 
+    @Override
     public HashMap<Long, Long> getSubtaskVsEpic() {
         return subtaskVsEpic;
     }
 
+    @Override
     public Epic createNewEpic(String inputName, String inputDescription, long id) {
         long id1 = id;
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
@@ -49,6 +66,7 @@ public class Manager {
         return epic;
     }
 
+    @Override
     public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) {
         long id1 = id;
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
@@ -57,15 +75,6 @@ public class Manager {
             while (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
                 id1 *= 13;
             }
-            Subtask subtask = new Subtask(inputName, inputDescription, id1, epic);
-            subtasks.put(id1, subtask);
-            ArrayList<Subtask> subtaskList = epic.getSubtaskList();
-            subtaskList.add(subtask);
-            epic.setSubtaskList(subtaskList);
-            epicVsSubtask.put(epic.getId(), subtaskList);
-            subtaskVsEpic.put(id1, epic.getId());
-            System.out.println("Задача добавлена");
-            return subtask;
         }
         Subtask subtask = new Subtask(inputName, inputDescription, id1, epic);
         subtasks.put(id1, subtask);
@@ -78,8 +87,10 @@ public class Manager {
         return subtask;
     }
 
+    @Override
     public Task createNewTask(String inputName, String inputDescription, long id) {
         long id1 = id;
+
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
             System.out.println("Такой id уже используется");
             System.out.println("Он будет изменён автоматически");
@@ -93,22 +104,39 @@ public class Manager {
             return task;
     }
 
+    @Override
     public Task getTask(long inputId) {
         return tasks.get(inputId);
     }
 
+    @Override
     public Subtask getSubtask(long inputId) {
+        if (listOfHistory.size() < 10) {
+            listOfHistory.add(subtasks.get(inputId));
+        } else {
+            listOfHistory.remove(0);
+            listOfHistory.add(subtasks.get(inputId));
+        }
         return subtasks.get(inputId);
     }
 
+    @Override
     public Epic getEpic(long inputId) {
+        if (listOfHistory.size() < 10) {
+            listOfHistory.add(epics.get(inputId));
+        } else {
+            listOfHistory.remove(0);
+            listOfHistory.add(epics.get(inputId));
+        }
         return epics.get(inputId);
     }
 
+    @Override
     public void updateTask(long inputId, Task task) {
         tasks.put(inputId, task);
     }
 
+    @Override
     public void updateSubtask(long inputId, Subtask subtask) {
         ArrayList<Subtask> subtasks1 = epicVsSubtask.get(subtaskVsEpic.get(inputId));
         subtasks1.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка в менеджере
@@ -122,10 +150,12 @@ public class Manager {
         epic.setSubtaskList(subtasks2);//добавляем новую сабтаску в список внутри эпика
     }
 
+    @Override
     public void updateEpic(long inputId, Epic epic) {
         epics.put(inputId, epic);
     }
 
+    @Override
     public void removeTask(long inputId) {
         if (tasks.containsKey(inputId)) {
             tasks.remove(inputId);
@@ -135,6 +165,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void removeEpic(long inputId) {
         if (epics.containsKey(inputId)) {
             ArrayList<Subtask> subtasks1 = epicVsSubtask.get(inputId);
@@ -150,6 +181,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void removeSubtask(long inputId) {
         if (subtasks.containsKey(inputId)) {
             Long epicId = subtaskVsEpic.get(inputId);
@@ -169,6 +201,7 @@ public class Manager {
         }
     }
 
+    @Override
     public void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics,
         HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic) {
         tasks.clear();

@@ -4,7 +4,7 @@ public class Task {
     protected String name;
     protected String description;
     private StatusOfTasks status;
-    protected long id;
+    protected final long id;
 
     public Task(String name, String description, long id) {
         this.name = name;
