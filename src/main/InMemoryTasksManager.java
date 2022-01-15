@@ -111,23 +111,31 @@ public class InMemoryTasksManager implements TaskManager {
 
     @Override
     public Subtask getSubtask(long inputId) {
-        if (listOfHistory.size() < 10) {
-            listOfHistory.add(subtasks.get(inputId));
-        } else {
-            listOfHistory.remove(0);
-            listOfHistory.add(subtasks.get(inputId));
-        }
+        addTaskToHistory(inputId);
         return subtasks.get(inputId);
     }
 
     @Override
-    public Epic getEpic(long inputId) {
+    public void addTaskToHistory(long inputId) { 
         if (listOfHistory.size() < 10) {
-            listOfHistory.add(epics.get(inputId));
+            if (epics.containsKey(inputId)) {
+                listOfHistory.add(epics.get(inputId));
+            } else if (subtasks.containsKey(inputId)) {
+                listOfHistory.add(subtasks.get(inputId));
+            }
         } else {
             listOfHistory.remove(0);
-            listOfHistory.add(epics.get(inputId));
+            if (epics.containsKey(inputId)) {
+                listOfHistory.add(epics.get(inputId));
+            } else if (subtasks.containsKey(inputId)) {
+                listOfHistory.add(subtasks.get(inputId));
+            }
         }
+    }
+
+    @Override
+    public Epic getEpic(long inputId) {
+        addTaskToHistory(inputId);
         return epics.get(inputId);
     }
 

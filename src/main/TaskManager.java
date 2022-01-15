@@ -12,6 +12,8 @@ public interface TaskManager {
 
     ArrayList<Task> getListOfHistory();
 
+    void addTaskToHistory(long inputId);
+
     HashMap<Long, Task> getTasks();
 
     HashMap<Long, Subtask> getSubtasks();

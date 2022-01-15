@@ -67,22 +67,13 @@ public class Main {
                 case "5": //получаем любую задачу по id
                     System.out.println("Введите id");
                     inputId = scanner.nextLong();
-                    if ((taskManager.getTasks().containsKey(inputId) && taskManager.getEpics().containsKey(inputId))
-                        || (taskManager.getTasks().containsKey(inputId) && taskManager.getSubtasks().containsKey(inputId))
-                        || (taskManager.getEpics().containsKey(inputId) && taskManager.getSubtasks().containsKey(inputId))
-                        || (taskManager.getTasks().containsKey(inputId) && taskManager.getSubtasks().containsKey(inputId)
-                        && taskManager.getEpics().containsKey(inputId))) {
-                        System.out.println("К какому типу относится задача?");
-                        System.out.println("Введите task, subtask или epic");
-                        inputAnswer = scanner.next();
-                    }
-                    if (taskManager.getTasks().containsKey(inputId) || inputAnswer.equals("task")) {
+                    if (taskManager.getTasks().containsKey(inputId)) {
                         Task task1 = taskManager.getTask(inputId);
                         System.out.println(task1);
-                    } else if (taskManager.getEpics().containsKey(inputId) || inputAnswer.equals("epic")) {
+                    } else if (taskManager.getEpics().containsKey(inputId)) {
                         Epic epic1 = taskManager.getEpic(inputId);
                         System.out.println(epic1);
-                    } else if (taskManager.getSubtasks().containsKey(inputId) || inputAnswer.equals("subtask")) {
+                    } else if (taskManager.getSubtasks().containsKey(inputId)) {
                         Subtask subtask1 = taskManager.getSubtask(inputId);
                         System.out.println(subtask1);
                         Long epicId = taskManager.getSubtaskVsEpic().get(inputId);
