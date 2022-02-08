@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public interface TaskManager {
-    ArrayList<Task> history();
+    //ArrayList<Task> history();
 
-    ArrayList<Task> getListOfHistory();
+    //ArrayList<Task> getListOfHistory();
 
-    void addTaskToHistory(long inputId);
+    //void addTaskToHistory(long inputId);
 
     HashMap<Long, Task> getTasks();
 

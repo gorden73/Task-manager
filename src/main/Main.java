@@ -10,6 +10,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
+        HistoryManager historyManager = Managers.getHist();
         Scanner scanner = new Scanner(System.in);
         String inputName;
         String inputDescription;
@@ -18,7 +19,29 @@ public class Main {
         long inputId = 0;
         long id;
 
-        do {
+
+        Task task1 = taskManager.createNewTask("qwe", "ewq", 1);
+        Task task2 = taskManager.createNewTask("rty", "ytr", 2);
+        Task task3 = taskManager.createNewTask("cvb", "bvc", 3);
+        Epic epic1 = taskManager.createNewEpic("asd", "dsa", 4);
+        Epic epic2 = taskManager.createNewEpic("ghj", "jhg", 5);
+        Subtask subtask1 = taskManager.createNewSubtask("tyu", "uyt", 6, epic2);
+        Subtask subtask2 = taskManager.createNewSubtask("uio", "oiu", 7, epic2);
+        Subtask subtask3 = taskManager.createNewSubtask("bnm", "mnb", 8, epic2);
+        taskManager.getTask(1);
+        historyManager.getHistory();
+        taskManager.getTask(2);
+        historyManager.getHistory();
+        taskManager.getTask(1);
+        taskManager.getEpic(4);
+        taskManager.getEpic(4);
+        taskManager.getSubtask(6);
+        taskManager.getSubtask(7);
+        taskManager.getSubtask(8);
+        taskManager.getSubtask(6);
+        taskManager.getEpic(5);
+        historyManager.getHistory();
+        /*do {
             printMenu();
             command = scanner.next();
             scanner.nextLine();
@@ -154,11 +177,12 @@ public class Main {
                     System.out.println("Все задачи удалены");
                     break;
                 case "11" : // история просмотров
-                    if (taskManager.getListOfHistory().isEmpty()) {
+                    if (inMemoryHistoryManager.getHistory().isEmpty()) {
                         System.out.println("История просмотров пустая");
-                    }
-                    for(Task task : taskManager.history()) {
-                        System.out.println(task);
+                    } else {
+                        for (Object task : inMemoryHistoryManager.getHistory()) {
+                            System.out.println(task);
+                        }
                     }
                     break;
                 case "0":
@@ -220,6 +244,6 @@ public class Main {
                 break;
             default:
                 System.out.println("--------------------------------------");
-        }
+        }*/
     }
 }
