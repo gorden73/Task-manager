@@ -5,14 +5,10 @@ import tasktracker.Subtask;
 import tasktracker.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 
 public interface TaskManager {
-    //ArrayList<Task> history();
-
-    //ArrayList<Task> getListOfHistory();
-
-    //void addTaskToHistory(long inputId);
 
     HashMap<Long, Task> getTasks();
 
@@ -29,6 +25,8 @@ public interface TaskManager {
     Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic);
 
     Task createNewTask(String inputName, String inputDescription, long id);
+
+    List<Task> getHistory();
 
     Task getTask(long inputId);
 

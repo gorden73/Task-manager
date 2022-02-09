@@ -3,8 +3,8 @@ package main;
 import tasktracker.Epic;
 import tasktracker.Subtask;
 import tasktracker.Task;
-
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 
 public class InMemoryTasksManager implements TaskManager {
@@ -15,6 +15,11 @@ public class InMemoryTasksManager implements TaskManager {
     private final HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
 
     HistoryManager historyManager = new InMemoryHistoryManager();
+
+    @Override
+    public List<Task> getHistory() {
+        return historyManager.getHistory();
+    }
 
     @Override
     public HashMap<Long, Task> getTasks() {
@@ -141,6 +146,7 @@ public class InMemoryTasksManager implements TaskManager {
     public void removeTask(long inputId) {
         if (tasks.containsKey(inputId)) {
             tasks.remove(inputId);
+            historyManager.remove(inputId);
             System.out.println("Задача удалена");
         } else {
             System.out.println("Задачи с таким id нет");
@@ -153,11 +159,13 @@ public class InMemoryTasksManager implements TaskManager {
             Epic epic = epics.get(inputId);
             ArrayList<Subtask> subtasks1 = epic.getSubtaskList();
             for (Subtask sub : subtasks1) {
-                subtasks.remove(sub.getId()); //удаляем сабтаски из мапы, чтобы после удаления эпика нельзя
-            }                                 // было получить по id сабтаску удаленного эпика
+                historyManager.remove(sub.getId());
+                subtasks.remove(sub.getId());
+            }
             subtasks1.clear();
             epic.setSubtaskList(subtasks1);
             epics.remove(inputId);
+            historyManager.remove(inputId);
             System.out.println("Задача удалена");
         } else {
             System.out.println("Эпика с таким id нет");
@@ -178,6 +186,7 @@ public class InMemoryTasksManager implements TaskManager {
             if (subtasks1.isEmpty()) {
                 epics.remove(subtaskVsEpic.get(inputId));
             }
+            historyManager.remove(inputId);
             System.out.println("Задача удалена");
         } else {
             System.out.println("Подзадачи с таким id нет");
