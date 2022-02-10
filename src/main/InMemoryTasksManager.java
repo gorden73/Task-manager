@@ -13,8 +13,7 @@ public class InMemoryTasksManager implements TaskManager {
     private final HashMap<Long, Epic> epics = new HashMap<>();
     private final HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
     private final HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
-
-    HistoryManager historyManager = new InMemoryHistoryManager();
+    private HistoryManager historyManager = new InMemoryHistoryManager();
 
     @Override
     public List<Task> getHistory() {

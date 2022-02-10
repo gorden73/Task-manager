@@ -4,20 +4,20 @@ import tasktracker.Task;
 
 import java.util.*;
 
-public class InMemoryHistoryManager<T> implements HistoryManager {
-    private Node<T> head;
-    private Node<T> tail;
+public class InMemoryHistoryManager implements HistoryManager {
+    private Node<Task> head;
+    private Node<Task> tail;
     private int size = 0;
-    Map<Long, Node> historyMap = new HashMap<>();
+    private Map<Long, Node> historyMap = new HashMap<>();
 
-    public Node<T> linkLast(T task) {
+    private Node<Task> linkLast(Task task) {
         if (size >= 10) {
-            final Node<T> first = head;
+            final Node<Task> first = head;
             removeNode(first);
         }
-        final Node<T> newNode;
-        final Node<T> oldTail = tail;
-        newNode = new Node<T>(oldTail, task, null);
+        final Node<Task> newNode;
+        final Node<Task> oldTail = tail;
+        newNode = new Node<>(oldTail, task, null);
         tail = newNode;
         if (oldTail == null) {
             head = newNode;
@@ -25,24 +25,24 @@ public class InMemoryHistoryManager<T> implements HistoryManager {
             oldTail.next = newNode;
         }
         size++;
-        Task t = (Task) newNode.task;
+        Task t = newNode.task;
         historyMap.put(t.getId(), newNode);
         return newNode;
     }
 
-    public List<Task> getTasks() {
+    private List<Task> getTasks() {
         List<Task> listOfTasks = new ArrayList<>();
-        Node<T> temp = head;
+        Node<Task> temp = head;
         while(temp != null) {
-            listOfTasks.add((Task) temp.task);
+            listOfTasks.add(temp.task);
             temp = temp.next;
         }
         return listOfTasks;
     }
 
     public void removeNode(Node node) {
-        Node<T> prevNode = node.prev;
-        Node<T> nextNode = node.next;
+        Node<Task> prevNode = node.prev;
+        Node<Task> nextNode = node.next;
         if (size == 1) {
             head = null;
             tail = null;
@@ -73,10 +73,8 @@ public class InMemoryHistoryManager<T> implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        if (historyMap.containsKey(task.getId())) {
-            remove(task.getId());
-        }
-        linkLast((T) task);
+        remove(task.getId());
+        linkLast(task);
     }
 
     @Override
@@ -91,5 +89,13 @@ public class InMemoryHistoryManager<T> implements HistoryManager {
     @Override
     public List<Task> getHistory() {
         return getTasks();
+    }
+
+    public Map<Long, Node> getHistoryMap() {
+        return historyMap;
+    }
+
+    public void setHistoryMap(Map<Long, Node> historyMap) {
+        this.historyMap = historyMap;
     }
 }
