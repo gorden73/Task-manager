@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.HashMap;
 
 public class InMemoryTasksManager implements TaskManager {
-    private final HashMap<Long, Task> tasks = new HashMap<>();
-    private final HashMap<Long, Subtask> subtasks = new HashMap<>();
-    private final HashMap<Long, Epic> epics = new HashMap<>();
-    private final HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
-    private final HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
+    private HashMap<Long, Task> tasks = new HashMap<>();
+    private HashMap<Long, Subtask> subtasks = new HashMap<>();
+    private HashMap<Long, Epic> epics = new HashMap<>();
+    private HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
+    private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
     private HistoryManager historyManager = new InMemoryHistoryManager();
 
     @Override
@@ -46,7 +46,12 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public Epic createNewEpic(String inputName, String inputDescription, long id) {
+    public HistoryManager getHistoryManager() {
+        return historyManager;
+    }
+
+    @Override
+    public Epic createNewEpic(String inputName, String inputDescription, long id) throws ManagerSaveException {
         long id1 = id;
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
             System.out.println("Такой id уже используется");
@@ -62,7 +67,32 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) {
+    public void setTasks(Task task) {
+        tasks.put(task.getId(), task);
+    }
+
+    @Override
+    public void setSubtasks(Subtask subtask) {
+        subtasks.put(subtask.getId(), subtask);
+    }
+
+    @Override
+    public void setEpics(Epic epic) {
+        epics.put(epic.getId(), epic);
+    }
+
+    @Override
+    public void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList) {
+        epicVsSubtask.put(epicId, subtaskList);
+    }
+
+    @Override
+    public void setSubtaskVsEpic(Long subtaskId, Long epicId) {
+        subtaskVsEpic.put(subtaskId, epicId);
+    }
+
+    @Override
+    public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) throws ManagerSaveException {
         long id1 = id;
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
             System.out.println("Такой id уже используется");
@@ -83,7 +113,7 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public Task createNewTask(String inputName, String inputDescription, long id) {
+    public Task createNewTask(String inputName, String inputDescription, long id) throws ManagerSaveException {
         long id1 = id;
 
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
@@ -100,30 +130,30 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public Task getTask(long inputId) {
+    public Task getTask(long inputId) throws ManagerSaveException {
         historyManager.add(tasks.get(inputId));
         return tasks.get(inputId);
     }
 
     @Override
-    public Subtask getSubtask(long inputId) {
+    public Subtask getSubtask(long inputId) throws ManagerSaveException {
         historyManager.add(subtasks.get(inputId));
         return subtasks.get(inputId);
     }
 
     @Override
-    public Epic getEpic(long inputId) {
+    public Epic getEpic(long inputId) throws ManagerSaveException {
         historyManager.add(epics.get(inputId));
         return epics.get(inputId);
     }
 
     @Override
-    public void updateTask(long inputId, Task task) {
+    public void updateTask(long inputId, Task task) throws ManagerSaveException {
         tasks.put(inputId, task);
     }
 
     @Override
-    public void updateSubtask(long inputId, Subtask subtask) {
+    public void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException {
         ArrayList<Subtask> subtasks1 = epicVsSubtask.get(subtaskVsEpic.get(inputId));
         subtasks1.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка в менеджере
         subtasks1.add(subtask); //добавляем новую сабтаску в список в менеджере
@@ -133,16 +163,17 @@ public class InMemoryTasksManager implements TaskManager {
         ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
         subtasks2.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
         subtasks2.add(subtask);
+        subtasks.put(inputId, subtask);
         epic.setSubtaskList(subtasks2);//добавляем новую сабтаску в список внутри эпика
     }
 
     @Override
-    public void updateEpic(long inputId, Epic epic) {
+    public void updateEpic(long inputId, Epic epic) throws ManagerSaveException {
         epics.put(inputId, epic);
     }
 
     @Override
-    public void removeTask(long inputId) {
+    public void removeTask(long inputId) throws ManagerSaveException {
         if (tasks.containsKey(inputId)) {
             tasks.remove(inputId);
             historyManager.remove(inputId);
@@ -153,7 +184,7 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public void removeEpic(long inputId) {
+    public void removeEpic(long inputId) throws ManagerSaveException {
         if (epics.containsKey(inputId)) {
             Epic epic = epics.get(inputId);
             ArrayList<Subtask> subtasks1 = epic.getSubtaskList();
@@ -172,7 +203,7 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public void removeSubtask(long inputId) {
+    public void removeSubtask(long inputId) throws ManagerSaveException {
         if (subtasks.containsKey(inputId)) {
             Long epicId = subtaskVsEpic.get(inputId);
             ArrayList<Subtask> subtasks1 = epicVsSubtask.get(epicId);
@@ -194,7 +225,7 @@ public class InMemoryTasksManager implements TaskManager {
 
     @Override
     public void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics,
-        HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic) {
+        HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic) throws ManagerSaveException {
         tasks.clear();
         subtasks.clear();
         epics.clear();

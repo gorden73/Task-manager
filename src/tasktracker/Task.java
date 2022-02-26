@@ -22,6 +22,14 @@ public class Task {
                 "id '" + id + '\'';
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

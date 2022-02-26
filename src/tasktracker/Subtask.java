@@ -16,4 +16,8 @@ public class Subtask extends Task {
                 "Статус'" + getStatus() + '\'' + "," + "\n" +
                 "id '" + id + '\'';
     }
+
+    public Epic getEpic() {
+        return this.epic;
+    }
 }

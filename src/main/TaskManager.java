@@ -16,36 +16,48 @@ public interface TaskManager {
 
     HashMap<Long, Epic> getEpics();
 
-    HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask();
-
     HashMap<Long, Long> getSubtaskVsEpic();
 
-    Epic createNewEpic(String inputName, String inputDescription, long id);
+    HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask();
 
-    Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic);
+    HistoryManager getHistoryManager();
 
-    Task createNewTask(String inputName, String inputDescription, long id);
+    void setTasks(Task task);
+
+    void setSubtasks(Subtask subtask);
+
+    void setEpics(Epic epic);
+
+    void setSubtaskVsEpic(Long subtaskId, Long epicId);
+
+    void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList);
+
+    Epic createNewEpic(String inputName, String inputDescription, long id) throws ManagerSaveException;
+
+    Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) throws ManagerSaveException;
+
+    Task createNewTask(String inputName, String inputDescription, long id) throws ManagerSaveException;
 
     List<Task> getHistory();
 
-    Task getTask(long inputId);
+    Task getTask(long inputId) throws ManagerSaveException;
 
-    Subtask getSubtask(long inputId);
+    Subtask getSubtask(long inputId) throws ManagerSaveException;
 
-    Epic getEpic(long inputId);
+    Epic getEpic(long inputId) throws ManagerSaveException;
 
-    void updateTask(long inputId, Task task);
+    void updateTask(long inputId, Task task) throws ManagerSaveException;
 
-    void updateSubtask(long inputId, Subtask subtask);
+    void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException;
 
-    void updateEpic(long inputId, Epic epic);
+    void updateEpic(long inputId, Epic epic) throws ManagerSaveException;
 
-    void removeTask(long inputId);
+    void removeTask(long inputId) throws ManagerSaveException;
 
-    void removeEpic(long inputId);
+    void removeEpic(long inputId) throws ManagerSaveException;
 
-    void removeSubtask(long inputId);
+    void removeSubtask(long inputId) throws ManagerSaveException;
 
     void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics,
-                        HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic);
+                        HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic) throws ManagerSaveException;
 }
