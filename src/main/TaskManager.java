@@ -4,11 +4,20 @@ import tasktracker.Epic;
 import tasktracker.Subtask;
 import tasktracker.Task;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.HashMap;
+import java.util.List;
 
 public interface TaskManager {
+
+    void setStartTime(String startTime, long id) throws ManagerSaveException;
+
+    void setDuration(int duration, long id) throws ManagerSaveException;
+
+    void setStatus(String status, long id) throws ManagerSaveException;
 
     HashMap<Long, Task> getTasks();
 
@@ -18,7 +27,7 @@ public interface TaskManager {
 
     HashMap<Long, Long> getSubtaskVsEpic();
 
-    HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask();
+    HashMap<Long, LinkedList<Subtask>> getEpicVsSubtask();
 
     HistoryManager getHistoryManager();
 
@@ -30,13 +39,15 @@ public interface TaskManager {
 
     void setSubtaskVsEpic(Long subtaskId, Long epicId);
 
-    void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList);
+    void setEpicVsSubtask(Long epicId, LinkedList<Subtask> subtaskList);
 
     Epic createNewEpic(String inputName, String inputDescription, long id) throws ManagerSaveException;
 
-    Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) throws ManagerSaveException;
+    Subtask createNewSubtask(String inputName, String inputDescription, long id, String startTime, int duration,
+                             Epic epic) throws ManagerSaveException;
 
-    Task createNewTask(String inputName, String inputDescription, long id) throws ManagerSaveException;
+    Task createNewTask(String inputName, String inputDescription, long id, String startTime, int duration)
+                       throws ManagerSaveException;
 
     List<Task> getHistory();
 

@@ -1,16 +1,24 @@
 package tasktracker;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 public class Task {
     protected String name;
     protected String description;
     private StatusOfTasks status;
     protected final long id;
+    private LocalDate startTime;
+    private Duration duration;
 
-    public Task(String name, String description, long id) {
+    public Task(String name, String description, long id, String startTime, int duration) {
         this.name = name;
         this.description = description;
         this.id = id;
         this.status = StatusOfTasks.NEW;
+        this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yy"));
+        this.duration = Duration.ofDays(duration);
     }
 
     @Override
@@ -19,7 +27,25 @@ public class Task {
                 "Название'" + name + '\'' + "," + "\n" +
                 "Описание'" + description + '\'' + "," + "\n" +
                 "Статус'" + getStatus() + '\'' + "," + "\n" +
+                "Дата начала выполнения задачи'" + getStartTime() + '\'' + "," + "\n" +
+                "Количество дней на выполнение задачи'" + getDuration().toDays() + '\'' + "," + "\n" +
                 "id '" + id + '\'';
+    }
+
+    public LocalDate getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yy"));
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = Duration.ofDays(duration);
     }
 
     public String getName() {
