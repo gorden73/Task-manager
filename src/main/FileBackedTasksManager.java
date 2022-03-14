@@ -41,7 +41,8 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             System.out.println(t);
         }
         System.out.println(fileBacked.getTask(3).getDuration().toDays());
-        //fileBacked.removeSubtask(6);
+        System.out.println(fileBacked.getEpic(5).getDuration().toDays());
+        fileBacked.removeSubtask(8);
     }
 
     private void save() throws ManagerSaveException {

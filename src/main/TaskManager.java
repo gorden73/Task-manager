@@ -6,10 +6,7 @@ import tasktracker.Task;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public interface TaskManager {
 
@@ -27,7 +24,7 @@ public interface TaskManager {
 
     HashMap<Long, Long> getSubtaskVsEpic();
 
-    HashMap<Long, LinkedList<Subtask>> getEpicVsSubtask();
+    HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask();
 
     HistoryManager getHistoryManager();
 
@@ -39,7 +36,7 @@ public interface TaskManager {
 
     void setSubtaskVsEpic(Long subtaskId, Long epicId);
 
-    void setEpicVsSubtask(Long epicId, LinkedList<Subtask> subtaskList);
+    void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList);
 
     Epic createNewEpic(String inputName, String inputDescription, long id) throws ManagerSaveException;
 

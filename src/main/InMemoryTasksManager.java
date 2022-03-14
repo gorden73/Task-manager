@@ -4,16 +4,13 @@ import tasktracker.Epic;
 import tasktracker.Subtask;
 import tasktracker.Task;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.HashMap;
+import java.util.*;
 
 public class InMemoryTasksManager implements TaskManager {
     private HashMap<Long, Task> tasks = new HashMap<>();
     private HashMap<Long, Subtask> subtasks = new HashMap<>();
     private HashMap<Long, Epic> epics = new HashMap<>();
-    private HashMap<Long, LinkedList<Subtask>> epicVsSubtask = new HashMap<>();
+    private HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
     private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
     private HistoryManager historyManager = new InMemoryHistoryManager();
 
@@ -71,7 +68,7 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public HashMap<Long, LinkedList<Subtask>> getEpicVsSubtask() {
+    public HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask() {
         return epicVsSubtask;
     }
 
@@ -117,7 +114,7 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public void setEpicVsSubtask(Long epicId, LinkedList<Subtask> subtaskList) {
+    public void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList) {
         epicVsSubtask.put(epicId, subtaskList);
     }
 
@@ -139,8 +136,8 @@ public class InMemoryTasksManager implements TaskManager {
         }
         Subtask subtask = new Subtask(inputName, inputDescription, id1, startTime, duration, epic);
         subtasks.put(id1, subtask);
-        LinkedList<Subtask> subtaskList = epic.getSubtaskList();
-        subtaskList.addLast(subtask);
+        ArrayList<Subtask> subtaskList = epic.getSubtaskList();
+        subtaskList.add(subtask);
         epic.setSubtaskList(subtaskList);
         epicVsSubtask.put(epic.getId(), subtaskList);
         subtaskVsEpic.put(id1, epic.getId());
@@ -191,15 +188,15 @@ public class InMemoryTasksManager implements TaskManager {
 
     @Override
     public void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException {
-        LinkedList<Subtask> subtasks1 = epicVsSubtask.get(subtaskVsEpic.get(inputId));
+        ArrayList<Subtask> subtasks1 = epicVsSubtask.get(subtaskVsEpic.get(inputId));
         subtasks1.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка в менеджере
         subtasks1.add(subtask); //добавляем новую сабтаску в список в менеджере
         epicVsSubtask.put(subtaskVsEpic.get(inputId), subtasks1);//а новый список вносим в мапу в менеджере
         Long idEpic = subtaskVsEpic.get(inputId);
         Epic epic = epics.get(idEpic);
-        LinkedList<Subtask> subtasks2 = epic.getSubtaskList();
+        ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
         subtasks2.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
-        subtasks2.addLast(subtask);
+        subtasks2.add(subtask);
         subtasks.put(inputId, subtask);
         epic.setSubtaskList(subtasks2);//добавляем новую сабтаску в список внутри эпика
     }
@@ -224,7 +221,7 @@ public class InMemoryTasksManager implements TaskManager {
     public void removeEpic(long inputId) throws ManagerSaveException {
         if (epics.containsKey(inputId)) {
             Epic epic = epics.get(inputId);
-            LinkedList<Subtask> subtasks1 = epic.getSubtaskList();
+            ArrayList<Subtask> subtasks1 = epic.getSubtaskList();
             for (Subtask sub : subtasks1) {
                 historyManager.remove(sub.getId());
                 subtasks.remove(sub.getId());
@@ -243,11 +240,11 @@ public class InMemoryTasksManager implements TaskManager {
     public void removeSubtask(long inputId) throws ManagerSaveException {
         if (subtasks.containsKey(inputId)) {
             Long epicId = subtaskVsEpic.get(inputId);
-            List<Subtask> subtasks1 = epicVsSubtask.get(epicId);
+            ArrayList<Subtask> subtasks1 = epicVsSubtask.get(epicId);
             subtasks1.remove(subtasks.get(inputId));
             subtasks.remove(inputId);
             Epic epic = epics.get(epicId);
-            LinkedList<Subtask> subtasks2 = epic.getSubtaskList();
+            ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
             subtasks2.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
             epic.setSubtaskList(subtasks2);
             if (subtasks1.isEmpty()) {

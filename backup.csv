@@ -6,6 +6,5 @@ id,type,name,status,description, startTime, duration, epic
 5,EPIC,Second,NEW,epic,0001-01-01,0
 6,SUBTASK,First,NEW,subtask,2013-04-25,2,5
 7,SUBTASK,Second,NEW,subtask,2015-06-13,4,5
-8,SUBTASK,Third,NEW,subtask,2011-07-29,6,5
  
-1,6,4,5,8,7,3,
+1,6,4,7,3,5,

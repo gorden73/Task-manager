@@ -2,16 +2,16 @@ package tasktracker;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class Epic extends Task {
-    protected LinkedList<Subtask> subtaskList = new LinkedList<>();
+    protected ArrayList<Subtask> subtaskList = new ArrayList<>();
 
-    public LinkedList<Subtask> getSubtaskList() {
+    public ArrayList<Subtask> getSubtaskList() {
         return subtaskList;
     }
 
-    public void setSubtaskList(LinkedList<Subtask> subtaskList) {
+    public void setSubtaskList(ArrayList<Subtask> subtaskList) {
         this.subtaskList = subtaskList;
     }
 
@@ -24,7 +24,19 @@ public class Epic extends Task {
         if (subtaskList.isEmpty()) {
             return LocalDate.of(01, 01, 01);
         }
-        return subtaskList.getFirst().getStartTime();
+        if (subtaskList.size() == 1) {
+            return subtaskList.get(0).getStartTime();
+        }
+        subtaskList.sort((s1, s2) -> {
+            if (s1.getStartTime().isAfter(s2.getStartTime())) {
+                return 1;
+            } else if (s1.getStartTime().isBefore(s2.getStartTime())) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+        return subtaskList.get(0).getStartTime();
     }
 
     @Override
