@@ -37,14 +37,21 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.getSubtask(7);
         fileBacked.getSubtask(8);
         fileBacked.getSubtask(7);
-        for (Task t : fileBacked.getHistory()) {
+        /*for (Task t : fileBacked.getHistory()) {
             System.out.println(t);
+        }*/
+        for (Task task1 : fileBacked.getPrioritizedTasks()) {
+            System.out.println(task1);
         }
         //System.out.println(fileBacked.getTask(3).getDuration().toDays());
-        System.out.println(fileBacked.getEpic(5).getDuration().toDays());
+        //System.out.println(fileBacked.getEpic(5).getDuration().toDays());
         //fileBacked.updateSubtask(7, new Subtask("Updated", "Subtask",
          //       7, "20.06.16", 6, epic));
         //fileBacked.removeSubtask(8);
+    }
+
+    private TreeSet<Task> getPrioritizedTasks() {
+        return sortedTasks;
     }
 
     private void save() throws ManagerSaveException {
@@ -81,6 +88,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             }
             for (int i = 1; i < list.size() - 2; i++) {
                 Task taskFromFile = taskFromString(list.get(i), fileBackedTasksManager.getEpics());
+                fileBackedTasksManager.sortedTasks.add(taskFromFile);
                 if (taskFromFile.getClass().equals(Task.class)) {
                     fileBackedTasksManager.setTasks(taskFromFile);
                 } else if (taskFromFile.getClass().equals(Subtask.class)) {

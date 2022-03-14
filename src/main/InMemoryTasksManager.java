@@ -4,6 +4,7 @@ import tasktracker.Epic;
 import tasktracker.Subtask;
 import tasktracker.Task;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public class InMemoryTasksManager implements TaskManager {
@@ -13,6 +14,21 @@ public class InMemoryTasksManager implements TaskManager {
     private HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
     private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
     private HistoryManager historyManager = new InMemoryHistoryManager();
+    protected TreeSet<Task> sortedTasks = new TreeSet<>((t1, t2) -> {
+        /*if (t1.getStartTime().isEqual(LocalDate.of(01, 01, 01)) ||
+                t2.getStartTime().isEqual(LocalDate.of(01, 01, 01))) {
+            return -1;
+        }*/
+        if (t1.getStartTime().isAfter(t2.getStartTime())
+            || t1.getStartTime().isEqual(LocalDate.of(01, 01, 01))) {
+            return 1;
+        } else if (t1.getStartTime().isBefore(t2.getStartTime())
+            || t2.getStartTime().isEqual(LocalDate.of(01, 01, 01))) {
+            return -1;
+        } else {
+            return 0;
+        }
+    });
 
     @Override
     public void setStartTime(String startTime, long id) throws ManagerSaveException {
@@ -94,6 +110,7 @@ public class InMemoryTasksManager implements TaskManager {
         }
         Epic epic = new Epic(inputName, inputDescription, id1);
         epics.put(id1, epic);
+        sortedTasks.add(epic);
         System.out.println("Задача добавлена");
         return epic;
     }
@@ -141,6 +158,7 @@ public class InMemoryTasksManager implements TaskManager {
         epic.setSubtaskList(subtaskList);
         epicVsSubtask.put(epic.getId(), subtaskList);
         subtaskVsEpic.put(id1, epic.getId());
+        sortedTasks.add(subtask);
         System.out.println("Задача добавлена");
         return subtask;
     }
@@ -159,6 +177,7 @@ public class InMemoryTasksManager implements TaskManager {
         }
             Task task = new Task(inputName, inputDescription, id1, startTime, duration);
             tasks.put(id1, task);
+            sortedTasks.add(task);
             System.out.println("Задача добавлена");
             return task;
     }
@@ -184,10 +203,26 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public void updateTask(long inputId, Task task) throws ManagerSaveException {
         tasks.put(inputId, task);
+        if (!sortedTasks.isEmpty()) {
+            for (Task task1 : sortedTasks) {
+                if (task1.getId().equals(task.getId())) {
+                    sortedTasks.remove(task1);
+                    sortedTasks.add(task);
+                }
+            }
+        }
     }
 
     @Override
     public void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException {
+        if (!sortedTasks.isEmpty()) {
+            for (Task task1 : sortedTasks) {
+                if (task1.getId().equals(subtask.getId())) {
+                    sortedTasks.remove(task1);
+                    sortedTasks.add(subtask);
+                }
+            }
+        }
         ArrayList<Subtask> subtasks1 = epicVsSubtask.get(subtaskVsEpic.get(inputId));
         subtasks1.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка в менеджере
         subtasks1.add(subtask); //добавляем новую сабтаску в список в менеджере
@@ -204,11 +239,20 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public void updateEpic(long inputId, Epic epic) throws ManagerSaveException {
         epics.put(inputId, epic);
+        if (!sortedTasks.isEmpty()) {
+            for (Task task1 : sortedTasks) {
+                if (task1.getId().equals(epic.getId())) {
+                    sortedTasks.remove(task1);
+                    sortedTasks.add(epic);
+                }
+            }
+        }
     }
 
     @Override
     public void removeTask(long inputId) throws ManagerSaveException {
         if (tasks.containsKey(inputId)) {
+            sortedTasks.remove(tasks.get(inputId));
             tasks.remove(inputId);
             historyManager.remove(inputId);
             System.out.println("Задача удалена");
@@ -221,6 +265,7 @@ public class InMemoryTasksManager implements TaskManager {
     public void removeEpic(long inputId) throws ManagerSaveException {
         if (epics.containsKey(inputId)) {
             Epic epic = epics.get(inputId);
+            sortedTasks.remove(epic);
             ArrayList<Subtask> subtasks1 = epic.getSubtaskList();
             for (Subtask sub : subtasks1) {
                 historyManager.remove(sub.getId());
@@ -239,6 +284,7 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public void removeSubtask(long inputId) throws ManagerSaveException {
         if (subtasks.containsKey(inputId)) {
+            sortedTasks.remove(subtasks.get(inputId));
             Long epicId = subtaskVsEpic.get(inputId);
             ArrayList<Subtask> subtasks1 = epicVsSubtask.get(epicId);
             subtasks1.remove(subtasks.get(inputId));
@@ -265,5 +311,6 @@ public class InMemoryTasksManager implements TaskManager {
         epics.clear();
         epicVsSubtask.clear();
         subtaskVsEpic.clear();
+        sortedTasks.clear();
     }
 }
