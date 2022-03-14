@@ -23,8 +23,7 @@ public class Epic extends Task {
     public LocalDate getStartTime() {
         if (subtaskList.isEmpty()) {
             return LocalDate.of(01, 01, 01);
-        }
-        if (subtaskList.size() == 1) {
+        } else if (subtaskList.size() == 1) {
             return subtaskList.get(0).getStartTime();
         }
         subtaskList.sort((s1, s2) -> {
