@@ -20,14 +20,16 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     public static void main(String[] args) throws IOException, ManagerSaveException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
-        /*Epic epic = fileBacked.createNewEpic("Second", "epic", 5);
+        Epic epic = fileBacked.createNewEpic("Second", "epic", 5);
         fileBacked.createNewSubtask("First", "subtask", 6, "25.04.13", 2, epic);
         fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.15", 4, epic);
-        fileBacked.createNewSubtask("Third", "subtask", 8, "29.07.11", 6, epic);
+        fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.11", 6, epic);
+        fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
         fileBacked.createNewTask("First", "task", 1, "17.01.12", 3);
         fileBacked.createNewTask("Second", "task", 2, "08.03.22", 2);
+        fileBacked.createNewTask("Third", "task", 10);
         fileBacked.createNewEpic("First", "epic", 4);
-        fileBacked.createNewTask("Third", "task", 3, "31.07.15", 9);*/
+        fileBacked.createNewTask("Third", "task", 3, "31.07.15", 9);
         fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);
@@ -41,8 +43,11 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             System.out.println(t);
         }*/
         for (Task task1 : fileBacked.getPrioritizedTasks()) {
-            System.out.println(task1);
+            System.out.println(task1.getStartTime());
         }
+        System.out.println("Размер списка");
+        System.out.println(fileBacked.getPrioritizedTasks().size());
+
         //System.out.println(fileBacked.getTask(3).getDuration().toDays());
         //System.out.println(fileBacked.getEpic(5).getDuration().toDays());
         //fileBacked.updateSubtask(7, new Subtask("Updated", "Subtask",
@@ -204,6 +209,20 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     @Override
     public List<Task> getHistory() {
         return super.getHistory();
+    }
+
+    @Override
+    public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) throws ManagerSaveException {
+        Subtask newSubtask = super.createNewSubtask(inputName, inputDescription, id, epic);
+        save();
+        return newSubtask;
+    }
+
+    @Override
+    public Task createNewTask(String inputName, String inputDescription, long id) throws ManagerSaveException {
+        Task newTask = super.createNewTask(inputName, inputDescription, id);
+        save();
+        return newTask;
     }
 
     @Override

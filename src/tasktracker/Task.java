@@ -12,6 +12,15 @@ public class Task {
     private LocalDate startTime;
     private Duration duration;
 
+    public Task(String name, String description, long id) {
+        this.name = name;
+        this.description = description;
+        this.id = id;
+        this.status = StatusOfTasks.NEW;
+        this.startTime = LocalDate.of(01, 01, 01);
+        this.duration = Duration.ofDays(0);
+    }
+
     public Task(String name, String description, long id, String startTime, int duration) {
         this.name = name;
         this.description = description;

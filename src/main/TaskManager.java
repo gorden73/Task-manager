@@ -38,6 +38,10 @@ public interface TaskManager {
 
     void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList);
 
+    Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) throws ManagerSaveException;
+
+    Task createNewTask(String inputName, String inputDescription, long id) throws ManagerSaveException;
+
     Epic createNewEpic(String inputName, String inputDescription, long id) throws ManagerSaveException;
 
     Subtask createNewSubtask(String inputName, String inputDescription, long id, String startTime, int duration,

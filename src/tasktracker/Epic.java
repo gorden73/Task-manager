@@ -3,6 +3,7 @@ package tasktracker;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Epic extends Task {
     protected ArrayList<Subtask> subtaskList = new ArrayList<>();
@@ -35,7 +36,11 @@ public class Epic extends Task {
                 return 0;
             }
         });
-        return subtaskList.get(0).getStartTime();
+        int i = 0;
+        while (subtaskList.get(i).getStartTime().equals(LocalDate.of(01, 01, 01))) {
+            i++;
+        }
+        return subtaskList.get(i).getStartTime();
     }
 
     @Override
@@ -89,5 +94,20 @@ public class Epic extends Task {
                 "Дата начала выполнения задачи'" + getStartTime() + '\'' + "," + "\n" +
                 "Количество дней на выполнение задачи'" + getDuration().toDays() + '\'' + "," + "\n" +
                 "id '" + id + '\'';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Epic epic = (Epic) o;
+        if (Objects.equals(this.getId(), epic.getId())) return true;
+        return Objects.equals(subtaskList, epic.subtaskList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), subtaskList);
     }
 }

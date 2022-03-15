@@ -2,10 +2,12 @@ id,type,name,status,description, startTime, duration, epic
 1,TASK,First,NEW,task,2012-01-17,3
 2,TASK,Second,NEW,task,2022-03-08,2
 3,TASK,Third,NEW,task,2015-07-31,9
+10,TASK,Third,NEW,task,0001-01-01,0
 4,EPIC,First,NEW,epic,0001-01-01,0
-5,EPIC,Second,NEW,epic,2011-07-29,12
+5,EPIC,Second,NEW,epic,2011-12-29,12
 6,SUBTASK,First,NEW,subtask,2013-04-25,2,5
 7,SUBTASK,Second,NEW,subtask,2015-06-13,4,5
-8,SUBTASK,Third,NEW,subtask,2011-07-29,6,5
+8,SUBTASK,Third,NEW,subtask,2011-12-29,6,5
+9,SUBTASK,Fourth,NEW,subtask,0001-01-01,0,5
  
 1,3,6,4,5,8,7,

@@ -15,18 +15,18 @@ public class InMemoryTasksManager implements TaskManager {
     private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
     private HistoryManager historyManager = new InMemoryHistoryManager();
     protected TreeSet<Task> sortedTasks = new TreeSet<>((t1, t2) -> {
-        /*if (t1.getStartTime().isEqual(LocalDate.of(01, 01, 01)) ||
-                t2.getStartTime().isEqual(LocalDate.of(01, 01, 01))) {
-            return -1;
-        }*/
-        if (t1.getStartTime().isAfter(t2.getStartTime())
-            || t1.getStartTime().isEqual(LocalDate.of(01, 01, 01))) {
+        if (t1.getStartTime().isAfter(t2.getStartTime())) {
+            if (t2.getStartTime().isEqual(LocalDate.of(01, 01, 01))) {
+                return -1;
+            }
             return 1;
-        } else if (t1.getStartTime().isBefore(t2.getStartTime())
-            || t2.getStartTime().isEqual(LocalDate.of(01, 01, 01))) {
+        } else if (t1.getStartTime().isBefore(t2.getStartTime())) {
+            if (t1.getStartTime().isEqual(LocalDate.of(01, 01, 01))) {
+                return 1;
+            }
             return -1;
         } else {
-            return 0;
+            return 1;
         }
     });
 
@@ -138,6 +138,47 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public void setSubtaskVsEpic(Long subtaskId, Long epicId) {
         subtaskVsEpic.put(subtaskId, epicId);
+    }
+
+    @Override
+    public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic)
+                                    throws ManagerSaveException {
+        long id1 = id;
+        if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
+            System.out.println("Такой id уже используется");
+            System.out.println("Он будет изменён автоматически");
+            while (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
+                id1 *= 13;
+            }
+        }
+        Subtask subtask = new Subtask(inputName, inputDescription, id1, epic);
+        subtasks.put(id1, subtask);
+        ArrayList<Subtask> subtaskList = epic.getSubtaskList();
+        subtaskList.add(subtask);
+        epic.setSubtaskList(subtaskList);
+        epicVsSubtask.put(epic.getId(), subtaskList);
+        subtaskVsEpic.put(id1, epic.getId());
+        sortedTasks.add(subtask);
+        System.out.println("Задача добавлена");
+        return subtask;
+    }
+
+    @Override
+    public Task createNewTask(String inputName, String inputDescription, long id) throws ManagerSaveException {
+        long id1 = id;
+
+        if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
+            System.out.println("Такой id уже используется");
+            System.out.println("Он будет изменён автоматически");
+            while (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
+                id1 *= 13;
+            }
+        }
+        Task task = new Task(inputName, inputDescription, id1);
+        tasks.put(id1, task);
+        sortedTasks.add(task);
+        System.out.println("Задача добавлена");
+        return task;
     }
 
     @Override
