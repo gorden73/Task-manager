@@ -20,7 +20,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     public static void main(String[] args) throws IOException, ManagerSaveException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
-        Epic epic = fileBacked.createNewEpic("Second", "epic", 5);
+        /*Epic epic = fileBacked.createNewEpic("Second", "epic", 5);
         fileBacked.createNewSubtask("First", "subtask", 6, "25.04.13", 2, epic);
         fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.15", 4, epic);
         fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.11", 6, epic);
@@ -29,7 +29,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.createNewTask("Second", "task", 2, "08.03.22", 2);
         fileBacked.createNewTask("Third", "task", 10);
         fileBacked.createNewEpic("First", "epic", 4);
-        fileBacked.createNewTask("Third", "task", 3, "31.07.15", 9);
+        fileBacked.createNewTask("Third", "task", 3, "31.07.15", 9);*/
         fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);
