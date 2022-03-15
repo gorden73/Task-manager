@@ -17,13 +17,13 @@ public class Epic extends Task {
     }
 
     public Epic(String name, String description, long id) {
-        super(name, description, id, "01.01.01", 0);
+        super(name, description, id, "01.01.9999", 0);
     }
 
     @Override
     public LocalDate getStartTime() {
         if (subtaskList.isEmpty()) {
-            return LocalDate.of(01, 01, 01);
+            return LocalDate.of(9999, 01, 01);
         } else if (subtaskList.size() == 1) {
             return subtaskList.get(0).getStartTime();
         }
@@ -37,7 +37,7 @@ public class Epic extends Task {
             }
         });
         int i = 0;
-        while (subtaskList.get(i).getStartTime().equals(LocalDate.of(01, 01, 01))) {
+        while (subtaskList.get(i).getStartTime().equals(LocalDate.of(99, 01, 01))) {
             i++;
         }
         return subtaskList.get(i).getStartTime();

@@ -16,18 +16,26 @@ public class InMemoryTasksManager implements TaskManager {
     private HistoryManager historyManager = new InMemoryHistoryManager();
     protected TreeSet<Task> sortedTasks = new TreeSet<>((t1, t2) -> {
         if (t1.getStartTime().isAfter(t2.getStartTime())) {
-            if (t2.getStartTime().isEqual(LocalDate.of(01, 01, 01))) {
+            return 1;
+        } else if (t1.getStartTime().isEqual(t2.getStartTime())) {
+            return 1;
+        } else {
+            return -1;
+        }
+
+        /*if (t1.getStartTime().isAfter(t2.getStartTime())) {
+            *//*if (t2.getStartTime().isEqual(LocalDate.of(9999, 01, 01))) {
                 return -1;
-            }
+            }*//*
             return 1;
         } else if (t1.getStartTime().isBefore(t2.getStartTime())) {
-            if (t1.getStartTime().isEqual(LocalDate.of(01, 01, 01))) {
+            *//*if (t1.getStartTime().isEqual(LocalDate.of(9999, 01, 01))) {
                 return 1;
-            }
+            }*//*
             return -1;
         } else {
-            return 1;
-        }
+            return -1;
+        }*/
     });
 
     @Override

@@ -20,17 +20,17 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     public static void main(String[] args) throws IOException, ManagerSaveException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
-        /*Epic epic = fileBacked.createNewEpic("Second", "epic", 5);
-        fileBacked.createNewSubtask("First", "subtask", 6, "25.04.13", 2, epic);
-        fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.15", 4, epic);
-        fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.11", 6, epic);
-        fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
-        fileBacked.createNewTask("First", "task", 1, "17.01.12", 3);
-        fileBacked.createNewTask("Second", "task", 2, "08.03.22", 2);
+        /*fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
+        fileBacked.createNewTask("Second", "task", 2, "08.03.2022", 2);
         fileBacked.createNewTask("Third", "task", 10);
         fileBacked.createNewEpic("First", "epic", 4);
-        fileBacked.createNewTask("Third", "task", 3, "31.07.15", 9);*/
-        fileBacked.getTask(1);
+        fileBacked.createNewTask("Third", "task", 3, "31.07.2015", 9);
+        Epic epic = fileBacked.createNewEpic("Second", "epic", 5);
+        fileBacked.createNewSubtask("First", "subtask", 6, "25.04.2013", 2, epic);
+        fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4, epic);
+        fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6, epic);
+        fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);*/
+        /*fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);
         fileBacked.getSubtask(6);
@@ -38,12 +38,12 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.getEpic(5);
         fileBacked.getSubtask(7);
         fileBacked.getSubtask(8);
-        fileBacked.getSubtask(7);
+        fileBacked.getSubtask(7);*/
         /*for (Task t : fileBacked.getHistory()) {
             System.out.println(t);
         }*/
         for (Task task1 : fileBacked.getPrioritizedTasks()) {
-            System.out.println(task1.getStartTime());
+            System.out.println(task1.getStartTime() + " " + task1.getId());
         }
         System.out.println("Размер списка");
         System.out.println(fileBacked.getPrioritizedTasks().size());
@@ -91,7 +91,10 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 String line = bufferedReader.readLine();
                 list.add(line);
             }
-            for (int i = 1; i < list.size() - 2; i++) {
+            for (int i = 1; i < list.size()-1; i++) {
+                if (list.get(i).isBlank()) {
+                    break;
+                }
                 Task taskFromFile = taskFromString(list.get(i), fileBackedTasksManager.getEpics());
                 fileBackedTasksManager.sortedTasks.add(taskFromFile);
                 if (taskFromFile.getClass().equals(Task.class)) {
@@ -151,16 +154,16 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 case "SUBTASK":
                     Epic epic = epicForInside.get(Long.parseLong(params[7]));
                     LocalDate time = LocalDate.parse(params[5]);
-                    String start = time.format(DateTimeFormatter.ofPattern("dd.MM.yy"));
+                    String start = time.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
                     ArrayList<Subtask> subList = epic.getSubtaskList();
                     Subtask subFromFile = new Subtask(params[2], params[4], parsedId, start,
                                                       Integer.parseInt(params[6]), epic);
                     subList.add(subFromFile);
                     epic.setSubtaskList(subList);
-                    return subFromFile;//ДОБАВИЛ КОД ЗДЕСЬ, ЧТОБЫ У ЭПИКА НЕ СБРАСЫВАЛОСЬ ЗНАЧЕНИЕ STARTTIME
+                    return subFromFile;
                 case "TASK":
                     LocalDate timeFromString = LocalDate.parse(params[5]);
-                    String startTime = timeFromString.format(DateTimeFormatter.ofPattern("dd.MM.yy"));
+                    String startTime = timeFromString.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
                     return new Task(params[2], params[4], parsedId, startTime, Integer.parseInt(params[6]));
                 case "EPIC":
                     Epic epic1 = new Epic(params[2], params[4], parsedId);

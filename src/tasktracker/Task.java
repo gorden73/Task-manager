@@ -17,7 +17,7 @@ public class Task {
         this.description = description;
         this.id = id;
         this.status = StatusOfTasks.NEW;
-        this.startTime = LocalDate.of(01, 01, 01);
+        this.startTime = LocalDate.of(9999, 01, 01);
         this.duration = Duration.ofDays(0);
     }
 
@@ -26,7 +26,7 @@ public class Task {
         this.description = description;
         this.id = id;
         this.status = StatusOfTasks.NEW;
-        this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yy"));
+        this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         this.duration = Duration.ofDays(duration);
     }
 
@@ -46,7 +46,7 @@ public class Task {
     }
 
     public void setStartTime(String startTime) {
-        this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yy"));
+        this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 
     public Duration getDuration() {
