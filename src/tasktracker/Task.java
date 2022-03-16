@@ -11,14 +11,16 @@ public class Task {
     protected final long id;
     private LocalDate startTime;
     private Duration duration;
+    public static final LocalDate DEFAULT_DATE = LocalDate.of(9999, 01, 01);
+    public static final Duration DEFAULT_DURATION = Duration.ofDays(0);
 
     public Task(String name, String description, long id) {
         this.name = name;
         this.description = description;
         this.id = id;
         this.status = StatusOfTasks.NEW;
-        this.startTime = LocalDate.of(9999, 01, 01);
-        this.duration = Duration.ofDays(0);
+        this.startTime = DEFAULT_DATE;
+        this.duration = DEFAULT_DURATION;
     }
 
     public Task(String name, String description, long id, String startTime, int duration) {

@@ -1,5 +1,7 @@
 package tasktracker;
 
+import com.sun.jdi.ThreadReference;
+
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ public class Epic extends Task {
     @Override
     public LocalDate getStartTime() {
         if (subtaskList.isEmpty()) {
-            return LocalDate.of(9999, 01, 01);
+            return Task.DEFAULT_DATE;
         } else if (subtaskList.size() == 1) {
             return subtaskList.get(0).getStartTime();
         }
@@ -37,7 +39,7 @@ public class Epic extends Task {
             }
         });
         int i = 0;
-        while (subtaskList.get(i).getStartTime().equals(LocalDate.of(99, 01, 01))) {
+        while (subtaskList.get(i).getStartTime().equals(Task.DEFAULT_DATE)) {
             i++;
         }
         return subtaskList.get(i).getStartTime();

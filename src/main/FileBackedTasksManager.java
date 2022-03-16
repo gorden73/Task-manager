@@ -20,7 +20,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     public static void main(String[] args) throws IOException, ManagerSaveException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
-        /*fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
+        fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
         fileBacked.createNewTask("Second", "task", 2, "08.03.2022", 2);
         fileBacked.createNewTask("Third", "task", 10);
         fileBacked.createNewEpic("First", "epic", 4);
@@ -29,7 +29,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.createNewSubtask("First", "subtask", 6, "25.04.2013", 2, epic);
         fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4, epic);
         fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6, epic);
-        fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);*/
+        fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
         /*fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);
@@ -47,7 +47,10 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         }
         System.out.println("Размер списка");
         System.out.println(fileBacked.getPrioritizedTasks().size());
-
+        System.out.println(fileBacked.getEpics().size());
+        //fileBacked.createNewSubtask("a", "b", 11, "12.12.2012", 6, fileBacked.getEpics().get(4L));
+        fileBacked.createNewSubtask("a", "b", 17, "12.12.2012", 1, fileBacked.getEpics().get(4L));
+        fileBacked.createNewSubtask("a", "b", 18, "12.12.2012", 2, fileBacked.getEpics().get(4L));
         //System.out.println(fileBacked.getTask(3).getDuration().toDays());
         //System.out.println(fileBacked.getEpic(5).getDuration().toDays());
         //fileBacked.updateSubtask(7, new Subtask("Updated", "Subtask",
@@ -101,10 +104,19 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                     fileBackedTasksManager.setTasks(taskFromFile);
                 } else if (taskFromFile.getClass().equals(Subtask.class)) {
                     fileBackedTasksManager.setSubtasks((Subtask) taskFromFile);
+
                 } else if (taskFromFile.getClass().equals(Epic.class)) {
                     fileBackedTasksManager.setEpics((Epic) taskFromFile);
                 }
             }
+            //
+            /*for (Epic e : fileBackedTasksManager.getEpics().values()) {
+                if (!e.getSubtaskList().isEmpty()) {
+                    fileBackedTasksManager.sortedTasks.remove(e);
+                    //fileBackedTasksManager.sortedTasks.add(e);
+                }
+            }*/
+            //ДОБАВИЛ ЗДЕСЬ УДАЛЕНИЕ ЭПИКА И ПОВТОРНОЕ ДОБАВЛЕНИЕ В SORTEDTASKS ПРИ ДОБАВЛЕНИИ САБТАСКИ
             List<Long> historyId = fromString(list.get(list.size() - 1));
             for (Long id : historyId) {
                 if (fileBackedTasksManager.getTasks().containsKey(id)) {
