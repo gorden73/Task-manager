@@ -19,8 +19,6 @@ public class Task {
         this.description = description;
         this.id = id;
         this.status = StatusOfTasks.NEW;
-        this.startTime = DEFAULT_DATE;
-        this.duration = DEFAULT_DURATION;
     }
 
     public Task(String name, String description, long id, String startTime, int duration) {
