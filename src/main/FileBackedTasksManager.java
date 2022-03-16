@@ -70,6 +70,10 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             }
             for (Task task : getEpics().values()) {
                 writer.write(toString(task) + "\n");
+                //
+                /*sortedTasks.remove(task);
+                sortedTasks.add(task);*/
+                //ДОБАВИЛ КОД ДЛЯ СОРТИРОВКИ ЭПИКОВ
             }
             for (Task task : getSubtasks().values()) {
                 writer.write(toString(task) + "\n");
@@ -151,9 +155,14 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                     task.getDuration().toDays(), epicId);
         } else if (getEpics().containsKey(task.getId())){
             type = TypeOfTasks.EPIC;
-            return String.format("%d,%S,%s,%S,%s,%s,%s", task.getId(), type, task.getName(),
+            //
+            String ep = String.format("%d,%S,%s,%S,%s,%s,%s", task.getId(), type, task.getName(),
                     task.getStatus(), task.getDescription(), task.getStartTime().toString(),
                     task.getDuration().toDays());
+            /*sortedTasks.remove(task);
+            sortedTasks.add(task);*/
+            //ДОБАВИЛ КОД ДЛЯ СОРТИРОВКИ ЭПИКОВ
+            return ep;
         }
         return null;
     }

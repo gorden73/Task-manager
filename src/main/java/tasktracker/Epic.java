@@ -1,7 +1,5 @@
 package tasktracker;
 
-import com.sun.jdi.ThreadReference;
-
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
