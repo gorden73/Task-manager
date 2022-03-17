@@ -1,0 +1,5 @@
+tasktracker\Epic.class
+tasktracker\Task.class
+tasktracker\Subtask.class
+tasktracker\TypeOfTasks.class
+tasktracker\StatusOfTasks.class

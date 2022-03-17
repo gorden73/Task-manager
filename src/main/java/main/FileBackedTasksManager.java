@@ -28,7 +28,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         Epic epic = fileBacked.createNewEpic("Second", "epic", 5);
         fileBacked.createNewSubtask("First", "subtask", 6, "25.04.2013", 2, epic);
         fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4, epic);
-        fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6, epic);
+        //fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6, epic); // добавлю сюда комментарий для тестового коммита
         fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
         /*fileBacked.getTask(1);
         fileBacked.getTask(3);
@@ -70,6 +70,10 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             }
             for (Task task : getEpics().values()) {
                 writer.write(toString(task) + "\n");
+                //
+                /*sortedTasks.remove(task);
+                sortedTasks.add(task);*/
+                //ДОБАВИЛ КОД ДЛЯ СОРТИРОВКИ ЭПИКОВ
             }
             for (Task task : getSubtasks().values()) {
                 writer.write(toString(task) + "\n");
@@ -151,9 +155,14 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                     task.getDuration().toDays(), epicId);
         } else if (getEpics().containsKey(task.getId())){
             type = TypeOfTasks.EPIC;
-            return String.format("%d,%S,%s,%S,%s,%s,%s", task.getId(), type, task.getName(),
+            //
+            String ep = String.format("%d,%S,%s,%S,%s,%s,%s", task.getId(), type, task.getName(),
                     task.getStatus(), task.getDescription(), task.getStartTime().toString(),
                     task.getDuration().toDays());
+            /*sortedTasks.remove(task);
+            sortedTasks.add(task);*/
+            //ДОБАВИЛ КОД ДЛЯ СОРТИРОВКИ ЭПИКОВ
+            return ep;
         }
         return null;
     }
