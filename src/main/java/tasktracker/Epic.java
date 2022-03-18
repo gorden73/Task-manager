@@ -61,6 +61,25 @@ public class Epic extends Task {
     }
 
     @Override
+    public LocalDate getEndTime() {
+        if (subtaskList.isEmpty()) {
+            return Task.DEFAULT_DATE;
+        } else if (subtaskList.size() == 1) {
+            return subtaskList.get(0).getStartTime();
+        }
+        subtaskList.sort((s1, s2) -> {
+            if (s1.getStartTime().isAfter(s2.getStartTime())) {
+                return 1;
+            } else if (s1.getStartTime().isBefore(s2.getStartTime())) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+        return subtaskList.get(subtaskList.size()-1).getEndTime();
+    }
+
+    @Override
     public StatusOfTasks getStatus() {
         int count = 0;
         int count1 = 0;
@@ -93,6 +112,7 @@ public class Epic extends Task {
                 "Статус'" + getStatus() + '\'' + "," + "\n" +
                 "Дата начала выполнения задачи'" + getStartTime() + '\'' + "," + "\n" +
                 "Количество дней на выполнение задачи'" + getDuration().toDays() + '\'' + "," + "\n" +
+                "Дата завершения задачи'" + getEndTime() + '\'' + "," + "\n" +
                 "id '" + id + '\'';
     }
 

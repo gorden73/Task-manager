@@ -23,6 +23,7 @@ public class Subtask extends Task {
                 "Статус'" + getStatus() + '\'' + "," + "\n" +
                 "Дата начала выполнения задачи'" + getStartTime() + '\'' + "," + "\n" +
                 "Количество дней на выполнение задачи'" + getDuration().toDays() + '\'' + "," + "\n" +
+                "Дата завершения задачи'" + getEndTime() + '\'' + "," + "\n" +
                 "id '" + id + '\'';
     }
 

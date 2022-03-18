@@ -23,8 +23,6 @@ public class InMemoryTasksManager implements TaskManager {
         } else {
             return -1;
         }
-
-
     });
 
     /*public TreeSet<Task> getSortedTasks() { //ДОБАВИЛ ГЕТТЕР
@@ -196,12 +194,18 @@ public class InMemoryTasksManager implements TaskManager {
                 break;
             }
             LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(someTask.getEndTime())) {
+                check = false;
+            } else {
+                check = true;
+            }
+            /*LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
             LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
             if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
                 check = false;
             } else {
                 check = true;
-            }
+            }*/
         }
         long id1 = id;
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
@@ -241,12 +245,18 @@ public class InMemoryTasksManager implements TaskManager {
                 break;
             }
             LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(someTask.getEndTime())) {
+                check = false;
+            } else {
+                check = true;
+            }
+            /*LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
             LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
             if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
                 check = false;
             } else {
                 check = true;
-            }
+            }*/
         }
         long id1 = id;
 
@@ -298,13 +308,19 @@ public class InMemoryTasksManager implements TaskManager {
             if (check) {
                 break;
             }
-            LocalDate date = LocalDate.parse(task.getStartTime().toString(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            if (task.getStartTime().plusDays(task.getDuration().toDays()).isBefore(someTask.getStartTime())
+               || task.getStartTime().isAfter(someTask.getEndTime())) {
+                check = false;
+            } else {
+                check = true;
+            }
+            /*LocalDate date = LocalDate.parse(task.getStartTime().toString(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
             LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
             if (date.plusDays(task.getDuration().toDays()).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
                 check = false;
             } else {
                 check = true;
-            }
+            }*/
         }
         long id1 = inputId;
 
@@ -339,13 +355,19 @@ public class InMemoryTasksManager implements TaskManager {
             if (check) {
                 break;
             }
-            LocalDate date = LocalDate.parse(subtask.getStartTime().toString(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            if (subtask.getStartTime().plusDays(subtask.getDuration().toDays()).isBefore(someTask.getStartTime())
+                    || subtask.getStartTime().isAfter(someTask.getEndTime())) {
+                check = false;
+            } else {
+                check = true;
+            }
+            /*LocalDate date = LocalDate.parse(subtask.getStartTime().toString(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
             LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
             if (date.plusDays(subtask.getDuration().toDays()).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
                 check = false;
             } else {
                 check = true;
-            }
+            }*/
         }
         long id1 = inputId;
 

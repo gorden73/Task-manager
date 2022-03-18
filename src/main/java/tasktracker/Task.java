@@ -11,6 +11,7 @@ public class Task {
     protected final long id;
     private LocalDate startTime;
     private Duration duration;
+    private LocalDate endTime;
     public static final LocalDate DEFAULT_DATE = LocalDate.of(9999, 01, 01);
     public static final Duration DEFAULT_DURATION = Duration.ofDays(0);
 
@@ -40,6 +41,7 @@ public class Task {
                 "Статус'" + getStatus() + '\'' + "," + "\n" +
                 "Дата начала выполнения задачи'" + getStartTime() + '\'' + "," + "\n" +
                 "Количество дней на выполнение задачи'" + getDuration().toDays() + '\'' + "," + "\n" +
+                "Дата завершения задачи'" + getEndTime() + '\'' + "," + "\n" +
                 "id '" + id + '\'';
     }
 
@@ -49,6 +51,10 @@ public class Task {
 
     public void setStartTime(String startTime) {
         this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    }
+
+    public LocalDate getEndTime() {
+        return startTime.plusDays(duration.toDays());
     }
 
     public Duration getDuration() {
