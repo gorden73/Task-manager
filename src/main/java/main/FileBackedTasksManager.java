@@ -17,7 +17,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public FileBackedTasksManager(File fileToSave) {
         this.fileToSave = fileToSave;
     }
-
+//удалить этот комментарий
     public static void main(String[] args) throws IOException, ManagerSaveException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
         /*fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
