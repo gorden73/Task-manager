@@ -35,23 +35,95 @@ public class InMemoryTasksManager implements TaskManager {
 
     @Override
     public void setStartTime(String startTime, long id) throws ManagerSaveException {
+        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ВРЕМЕНИ СТАРТА
+        /*boolean check = false;
         if (tasks.containsKey(id)) {
             Task task = tasks.get(id);
-            task.setStartTime(startTime);
+            for (Task someTask : sortedTasks) {
+                if (check) {
+                    break;
+                }
+                if (LocalDate.parse(startTime).plusDays(task.getDuration().toDays()).isBefore(someTask.getStartTime())
+                        || LocalDate.parse(startTime).isAfter(someTask.getEndTime())) {
+                    check = false;
+                } else {
+                    check = true;
+                }
+            }
+            if (check) {
+                task.setStartTime(startTime);
+            } else {
+                System.out.println("Время выполнения задачи пересекается с другими задачами");
+            }
         } else if (subtasks.containsKey(id)) {
             Subtask subtask = subtasks.get(id);
-            subtask.setStartTime(startTime);
-        }
+            for (Task someTask : sortedTasks) {
+                if (check) {
+                    break;
+                }
+                if (LocalDate.parse(startTime).plusDays(subtask.getDuration().toDays()).isBefore(someTask.getStartTime())
+                        || LocalDate.parse(startTime).isAfter(someTask.getEndTime())) {
+                    check = false;
+                } else {
+                    check = true;
+                }
+            }
+            if (check) {
+                subtask.setStartTime(startTime);
+            } else {
+                System.out.println("Время выполнения задачи пересекается с другими задачами");
+            }
+        }*/
+            if (tasks.containsKey(id)) {
+                Task task = tasks.get(id);
+                task.setStartTime(startTime);
+            } else if (subtasks.containsKey(id)) {
+                Subtask subtask = subtasks.get(id);
+                subtask.setStartTime(startTime);
+            }
+
     }
 
     @Override
     public void setDuration(int duration, long id) throws ManagerSaveException {
+            //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ВРЕМЕНИ СТАРТА
+        boolean check = false;
         if (tasks.containsKey(id)) {
             Task task = tasks.get(id);
-            task.setDuration(duration);
+            for (Task someTask : sortedTasks) {
+                if (check) {
+                    break;
+                }
+                if (task.getStartTime().plusDays(duration).isBefore(someTask.getStartTime())
+                   || task.getStartTime().isAfter(someTask.getEndTime())) {
+                    check = false;
+                } else {
+                    check = true;
+                }
+            }
+            if (check) {
+                task.setDuration(duration);
+            } else {
+                System.out.println("Время выполнения задачи пересекается с другими задачами");
+            }
         } else if (subtasks.containsKey(id)) {
             Subtask subtask = subtasks.get(id);
-            subtask.setDuration(duration);
+            for (Task someTask : sortedTasks) {
+                if (check) {
+                    break;
+                }
+                if (subtask.getStartTime().plusDays(duration).isBefore(someTask.getStartTime())
+                   || subtask.getStartTime().isAfter(someTask.getEndTime())) {
+                    check = false;
+                } else {
+                    check = true;
+                }
+            }
+            if (check) {
+                subtask.setDuration(duration);
+            } else {
+                System.out.println("Время выполнения задачи пересекается с другими задачами");
+            }
         }
     }
 
@@ -162,6 +234,13 @@ public class InMemoryTasksManager implements TaskManager {
         epicVsSubtask.put(epic.getId(), subtaskList);
         subtaskVsEpic.put(id1, epic.getId());
         sortedTasks.add(subtask);
+        //ПЫТАЮСЬ РЕШИТЬ ПРОБЛЕМУ СОРТИРОВКИ ЭПИКА, ИЗМЕНЕНИЕ ЕГО ДАТ ПОСЛЕ ДОБАВЛЕНИЯ В ЛИСТ
+        /*sortedTasks.remove(epic);
+        epic.getStartTime();
+        epic.getDuration();
+        epic.getEndTime();
+        sortedTasks.add(epic);*/
+        // ДОБАВИЛ ЭТОТ КОД, НЕ СРАБОТАЛ
         System.out.println("Задача добавлена");
         return subtask;
     }
@@ -219,7 +298,7 @@ public class InMemoryTasksManager implements TaskManager {
         if (check) {
             subtask = new Subtask(inputName, inputDescription, id1,
                     Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0, epic);
-            System.out.println("Время выполнения задачи пересекается с другими." + "\n"
+            System.out.println("Задача создана, но время выполнения задачи пересекается с другими." + "\n"
                     + "Попробуйте изменить дату и/или продолжительность задачи id" + id);
         } else {
             subtask = new Subtask(inputName, inputDescription, id1, startTime, duration, epic);
@@ -271,7 +350,7 @@ public class InMemoryTasksManager implements TaskManager {
         if (check) {
             task = new Task(inputName, inputDescription, id1,
                     Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0);
-            System.out.println("Время выполнения задачи пересекается с другими." + "\n"
+            System.out.println("Задача создана, но время выполнения задачи пересекается с другими." + "\n"
                     + "Попробуйте изменить дату и/или продолжительность задачи id" + id);
         } else {
             task = new Task(inputName, inputDescription, id1, startTime, duration);

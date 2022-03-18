@@ -14,7 +14,7 @@ class EpicTest {
     @Test
     public void shouldBeNewWhenSubtaskListIsEmpty() {
         StatusOfTasks epicStatus = epic.getStatus();
-        assertEquals(StatusOfTasks.NEW, epicStatus);
+        assertEquals(StatusOfTasks.NEW, epicStatus, "Статус эпика должен быть NEW");
     }
 
     @Test
@@ -23,7 +23,7 @@ class EpicTest {
         subtaskList.add(new Subtask("b", "b", 3, epic));
         epic.setSubtaskList(subtaskList);
         StatusOfTasks epicStatus = epic.getStatus();
-        assertEquals(StatusOfTasks.NEW, epicStatus);
+        assertEquals(StatusOfTasks.NEW, epicStatus, "Статус эпика должен быть NEW");
     }
 
     @Test
@@ -35,7 +35,7 @@ class EpicTest {
         ArrayList<Subtask> newList = new ArrayList<>(List.of(subtask1, subtask2));
         epic.setSubtaskList(newList);
         StatusOfTasks epicStatus = epic.getStatus();
-        assertEquals(StatusOfTasks.DONE, epicStatus);
+        assertEquals(StatusOfTasks.DONE, epicStatus, "Статус эпика должен быть DONE");
     }
 
     @Test
@@ -46,7 +46,7 @@ class EpicTest {
         ArrayList<Subtask> newList = new ArrayList<>(List.of(subtask1, subtask2));
         epic.setSubtaskList(newList);
         StatusOfTasks epicStatus = epic.getStatus();
-        assertEquals(StatusOfTasks.IN_PROGRESS, epicStatus);
+        assertEquals(StatusOfTasks.IN_PROGRESS, epicStatus, "Статус эпика должен быть IN_PROGRESS");
     }
 
     @Test
@@ -58,6 +58,6 @@ class EpicTest {
         ArrayList<Subtask> newList = new ArrayList<>(List.of(subtask1, subtask2));
         epic.setSubtaskList(newList);
         StatusOfTasks epicStatus = epic.getStatus();
-        assertEquals(StatusOfTasks.IN_PROGRESS, epicStatus);
+        assertEquals(StatusOfTasks.IN_PROGRESS, epicStatus, "Статус эпика должен быть IN_PROGRESS");
     }
 }

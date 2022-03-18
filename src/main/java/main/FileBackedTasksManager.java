@@ -17,11 +17,11 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public FileBackedTasksManager(File fileToSave) {
         this.fileToSave = fileToSave;
     }
-//удалить этот комментарий
+
     public static void main(String[] args) throws IOException, ManagerSaveException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
-        /*fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
-        fileBacked.createNewTask("Second", "task", 2, "08.03.2022", 2);
+        fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
+        fileBacked.createNewTask("Second", "task", 2, "31.01.2012", 2);
         fileBacked.createNewTask("Third", "task", 10);
         fileBacked.createNewEpic("First", "epic", 4);
         fileBacked.createNewTask("Third", "task", 3, "31.07.2015", 9);
@@ -29,7 +29,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.createNewSubtask("First", "subtask", 6, "25.04.2013", 2, epic);
         fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4, epic);
         //fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6, epic);
-        fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);*/
+        fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
         /*fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);
@@ -48,6 +48,8 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         System.out.println("Размер списка");
         System.out.println(fileBacked.getPrioritizedTasks().size());
         System.out.println(fileBacked.getEpics().size());
+        fileBacked.setDuration(10, 1);
+        fileBacked.setStartTime("20.04.2013", 2);
         //fileBacked.createNewSubtask("a", "b", 11, "12.12.2012", 6, fileBacked.getEpics().get(4L));
         //fileBacked.createNewSubtask("a", "b", 17, "12.12.2012", 1, fileBacked.getEpics().get(4L));
         //fileBacked.createNewSubtask("a", "b", 18, "12.12.2012", 2, fileBacked.getEpics().get(4L));
@@ -64,7 +66,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     private void save() throws ManagerSaveException {
         try (FileWriter writer = new FileWriter(fileToSave, StandardCharsets.UTF_8)) {
-            writer.append("id,type,name,status,description, startTime, duration, endTime, epic" + "\n");
+            writer.append("id,type,name,status,description,startTime,duration,endTime,epic" + "\n");
             for (Task task : getTasks().values()) {
                 writer.write(toString(task) + "\n");
             }
@@ -212,16 +214,91 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         return id;
     }
 
+    public boolean checkStartTimeIntersection(String startTime, long id) {
+        boolean check = false;
+        Task task = null;
+        if (getTasks().containsKey(id)) {
+            task = getTasks().get(id);
+        } else if (getSubtasks().containsKey(id)) {
+            task = (Task) getSubtasks().get(id);
+        } else {
+            //System.out.println("Задачи с таким id нет.");
+            return check;
+        }
+        LocalDate time = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        for (Task someTask : sortedTasks) {
+            if (check) {
+                break;
+            }
+            if (time.plusDays(task.getDuration().toDays()).isBefore(someTask.getStartTime())
+                || time.isAfter(someTask.getEndTime())) {
+            /*if (time.plusDays(task.getDuration().toDays()).isBefore(someTask.getEndTime())
+                    && someTask.getStartTime().isBefore(task.getStartTime().plusDays(task.getDuration().toDays()))
+                    || time.isBefore(someTask.getEndTime())
+                    && time.isAfter(someTask.getStartTime())) {*/
+            } else {
+                check = true;
+            }
+        }
+        if (check) {
+            System.out.println("Время выполнения задачи пересекается с другими задачами." + "\n"
+                    + "Попробуйте выбрать другое время.");
+            return check;
+        }
+        return check;
+    }
+
+    public boolean checkStartTimeIntersectionWithDuration(int duration, long id) {
+        boolean check = false;
+        Task task = null;
+        if (getTasks().containsKey(id)) {
+            task = getTasks().get(id);
+        } else if (getSubtasks().containsKey(id)) {
+            task = (Task) getSubtasks().get(id);
+        } else {
+            //System.out.println("Задачи с таким id нет.");
+            return check;
+        }
+        for (Task someTask : sortedTasks) {
+            if (!someTask.getId().equals(id)) {
+                if (check) {
+                    break;
+                }
+                if (task.getStartTime().plusDays(duration).isBefore(someTask.getStartTime())
+                        || task.getStartTime().isAfter(someTask.getEndTime())) {
+            /*if (task.getStartTime().plusDays(duration).isBefore(someTask.getEndTime())
+                && someTask.getStartTime().isBefore(task.getStartTime().plusDays(duration))
+                || task.getStartTime().isBefore(someTask.getEndTime())
+                && task.getStartTime().isAfter(someTask.getStartTime())) {*/
+                } else {
+                    check = true;
+                }
+            }
+        }
+        if (check) {
+            System.out.println("Время выполнения задачи пересекается с другими задачами." + "\n"
+                    + "Попробуйте выбрать другую продолжительность.");
+            return check;
+        }
+        return check;
+    }
+
     @Override
     public void setStartTime(String startTime, long id) throws ManagerSaveException {
-        super.setStartTime(startTime, id);
-        save();
+        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
+        if (!checkStartTimeIntersection(startTime, id)) {
+            super.setStartTime(startTime, id);
+            save();
+        }
     }
 
     @Override
     public void setDuration(int duration, long id) throws ManagerSaveException {
-        super.setDuration(duration, id);
-        save();
+        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
+        if (!checkStartTimeIntersectionWithDuration(duration, id)) {
+            super.setDuration(duration, id);
+            save();
+        }
     }
 
     @Override
@@ -260,29 +337,43 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public Subtask createNewSubtask(String inputName, String inputDescription, long id, String startTime, int duration,
                                     Epic epic)
                                     throws ManagerSaveException {
-        Subtask newSubtask = super.createNewSubtask(inputName, inputDescription, id, startTime, duration, epic);
-        save();
-        return newSubtask;
+        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
+        if (!checkStartTimeIntersection(startTime, id)) {
+            Subtask newSubtask = super.createNewSubtask(inputName, inputDescription, id, startTime, duration, epic);
+            save();
+            return newSubtask;
+        }
+        return new Subtask(inputName, inputDescription, id, Task.DEFAULT_DATE.toString(), 0, epic);
     }
 
     @Override
     public Task createNewTask(String inputName, String inputDescription, long id, String startTime, int duration)
             throws ManagerSaveException {
-        Task newTask = super.createNewTask(inputName, inputDescription, id, startTime, duration);
-        save();
-        return newTask;
+        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
+        if (!checkStartTimeIntersection(startTime, id)) {
+            Task newTask = super.createNewTask(inputName, inputDescription, id, startTime, duration);
+            save();
+            return newTask;
+        }
+        return new Task(inputName, inputDescription, id, Task.DEFAULT_DATE.toString(), 0);
     }
 
     @Override
     public void updateTask(long inputId, Task task) throws ManagerSaveException {
-        super.updateTask(inputId, task);
-        save();
+        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
+        if (!checkStartTimeIntersection(task.getStartTime().toString(), inputId)) {
+            super.updateTask(inputId, task);
+            save();
+        }
     }
 
     @Override
     public void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException {
-        super.updateSubtask(inputId, subtask);
-        save();
+        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
+        if (!checkStartTimeIntersection(subtask.getStartTime().toString(), inputId)) {
+            super.updateSubtask(inputId, subtask);
+            save();
+        }
     }
 
     @Override

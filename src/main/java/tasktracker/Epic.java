@@ -65,7 +65,7 @@ public class Epic extends Task {
         if (subtaskList.isEmpty()) {
             return Task.DEFAULT_DATE;
         } else if (subtaskList.size() == 1) {
-            return subtaskList.get(0).getStartTime();
+            return subtaskList.get(0).getEndTime();
         }
         subtaskList.sort((s1, s2) -> {
             if (s1.getStartTime().isAfter(s2.getStartTime())) {
@@ -76,7 +76,11 @@ public class Epic extends Task {
                 return 0;
             }
         });
-        return subtaskList.get(subtaskList.size()-1).getEndTime();
+        int i = subtaskList.size()-1;
+        while (subtaskList.get(i).getEndTime().equals(Task.DEFAULT_DATE)) {
+            i--;
+        }
+        return subtaskList.get(i).getEndTime();
     }
 
     @Override
