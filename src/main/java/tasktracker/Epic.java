@@ -17,13 +17,13 @@ public class Epic extends Task {
     }
 
     public Epic(String name, String description, long id) {
-        super(name, description, id, "01.01.9999", 0);
+        super(name, description, id);
     }
 
     @Override
     public LocalDate getStartTime() {
         if (subtaskList.isEmpty()) {
-            return Task.DEFAULT_DATE;
+            return null;
         } else if (subtaskList.size() == 1) {
             return subtaskList.get(0).getStartTime();
         }
@@ -49,6 +49,9 @@ public class Epic extends Task {
 
     @Override
     public Duration getDuration() {
+        if (subtaskList.isEmpty()) {
+            return null;
+        }
         Duration generalDuration = Duration.ofDays(0);
         for (Subtask sub : subtaskList) {
             generalDuration = generalDuration.plus(sub.getDuration());

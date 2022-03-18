@@ -16,24 +16,13 @@ public class InMemoryTasksManager implements TaskManager {
     private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
     private HistoryManager historyManager = new InMemoryHistoryManager();
     protected TreeSet<Task> sortedTasks = new TreeSet<>((t1, t2) -> {
-        if (t1.getStartTime().isAfter(t2.getStartTime())) {
-            return 1;
-        } else if (t1.getStartTime().isEqual(t2.getStartTime())) {
+        if (t1.getStartTime().isAfter(t2.getStartTime()) || t1.getStartTime().isEqual(t2.getStartTime())
+            || t1.getStartTime().equals(null) || t2.getStartTime().equals(null)) {
             return 1;
         } else {
             return -1;
         }
-
-
     });
-
-    /*public TreeSet<Task> getSortedTasks() { //ДОБАВИЛ ГЕТТЕР
-        return sortedTasks;
-    }
-
-    public void setSortedTasks(TreeSet<Task> sortedTasks){//ДОБАВИЛ СЕТТЕР
-        this.sortedTasks = sortedTasks;
-    }*/
 
     @Override
     public void setStartTime(String startTime, long id) throws ManagerSaveException {
@@ -187,20 +176,22 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public Subtask createNewSubtask(String inputName, String inputDescription, long id, String startTime,
-                                    int duration, Epic epic) throws ManagerSaveException {
+    public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic, String startTime,
+                                    int duration) throws ManagerSaveException {
         //ДОБАВИЛ ЗДЕСЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЙ ДАТ
         boolean check = false;
         for (Task someTask : sortedTasks) {
             if (check) {
                 break;
             }
-            LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-            LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
-            if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
-                check = false;
-            } else {
-                check = true;
+            if (!someTask.getStartTime().equals(null) || !someTask.getDuration.equals(null)) {
+                LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+                LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
+                if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
+                    check = false;
+                } else {
+                    check = true;
+                }
             }
         }
         long id1 = id;
@@ -213,8 +204,7 @@ public class InMemoryTasksManager implements TaskManager {
         }
         Subtask subtask;
         if (check) {
-            subtask = new Subtask(inputName, inputDescription, id1,
-                    Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0, epic);
+            subtask = new Subtask(inputName, inputDescription, id1, epic);
             System.out.println("Время выполнения задачи пересекается с другими." + "\n"
                     + "Попробуйте изменить дату и/или продолжительность задачи id" + id);
         } else {
@@ -240,12 +230,14 @@ public class InMemoryTasksManager implements TaskManager {
             if (check) {
                 break;
             }
-            LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-            LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
-            if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
-                check = false;
-            } else {
-                check = true;
+            if (!someTask.getStartTime().equals(null) || !someTask.getDuration.equals(null)) {
+                LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+                LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
+                if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
+                    check = false;
+                } else {
+                    check = true;
+                }
             }
         }
         long id1 = id;
@@ -259,8 +251,7 @@ public class InMemoryTasksManager implements TaskManager {
         }
         Task task;
         if (check) {
-            task = new Task(inputName, inputDescription, id1,
-                    Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0);
+            task = new Task(inputName, inputDescription, id1);
             System.out.println("Время выполнения задачи пересекается с другими." + "\n"
                     + "Попробуйте изменить дату и/или продолжительность задачи id" + id);
         } else {
