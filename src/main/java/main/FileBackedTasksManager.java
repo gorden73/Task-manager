@@ -26,10 +26,14 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.createNewEpic("First", "epic", 4);
         fileBacked.createNewTask("Third", "task", 3, "31.07.2015", 9);
         Epic epic = fileBacked.createNewEpic("Second", "epic", 5);
+        /*for (Task task1 : fileBacked.getPrioritizedTasks()) {
+            System.out.println(task1.getStartTime() + " " + task1.getId());
+        }*/
         fileBacked.createNewSubtask("First", "subtask", 6, "25.04.2013", 2, epic);
-        /*fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4, epic);
-        //fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6, epic);
-        fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);*/
+        fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4, epic);
+        fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6, epic);
+        fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
+        fileBacked.updateSubtask(6, new Subtask("a", "b", 15, epic)); //LocalDate по умолчанию не парсится паттерном dd.MM.yyyy, надо доработать
         /*fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);

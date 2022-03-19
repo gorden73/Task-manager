@@ -15,11 +15,16 @@ public class InMemoryTasksManager implements TaskManager {
     private HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
     private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
     private HistoryManager historyManager = new InMemoryHistoryManager();
-    protected Set<Task> sortedTasks = new TreeSet<>((t1, t2) -> { //ПРОБУЮ СДЕЛАТЬ ПОЛЕ SET ВМЕСТО TREESET
-        if (t1.getStartTime().isAfter(t2.getStartTime())) {
+    protected Set<Task> sortedTasks = new TreeSet<>((t1, t2) -> { //ПРОБУЮ СДЕЛАТЬ ПОЛЕ SET ВМЕСТО TREESET(вроде не влияет)
+        if (t1.getId().equals(t2.getId()) /*|| t1.getStartTime().isBefore(t2.getStartTime()) && t2.getStartTime().equals(Task.DEFAULT_DATE)*/) {
+            return 0;
+        } else if (t1.getStartTime().isAfter(t2.getStartTime()) || t1.getStartTime().isEqual(t2.getStartTime())) {
             return 1;
-        } else if (t1.getStartTime().isEqual(t2.getStartTime())) {
-            return 1;
+        /*} else if (t1.getStartTime().isEqual(t2.getStartTime())
+                && !t1.getId().equals(t2.getId())) {
+            return 1;*/
+        /*} else if (t1.getId().equals(t2.getId())) {
+            return 0;*/
         } else {
             return -1;
         }
@@ -312,10 +317,14 @@ public class InMemoryTasksManager implements TaskManager {
         sortedTasks.add(subtask);
         //ПЫТАЮСЬ РЕШИТЬ ПРОБЛЕМУ СОРТИРОВКИ ЭПИКА, ИЗМЕНЕНИЕ ЕГО ДАТ ПОСЛЕ ДОБАВЛЕНИЯ В ЛИСТ
         //sortedTasks.remove(epic);
-        boolean it = sortedTasks.contains(epic);
-        System.out.println(it);
+        Iterator<Task> iteraror = sortedTasks.iterator();
+        while(iteraror.hasNext()) {
+            if (iteraror.next().equals(epic)) {
+                iteraror.remove();
+            }
+        }
         sortedTasks.add(epic);
-        //sortedTasks.remove(epic);
+        //
         //        ПЫТАЮСЬ РЕШИТЬ ПРОБЛЕМУ СОРТИРОВКИ ЭПИКА, ИЗМЕНЕНИЕ ЕГО ДАТ ПОСЛЕ ДОБАВЛЕНИЯ В ЛИСТ
         System.out.println("Задача добавлена");
         return subtask;
@@ -468,6 +477,7 @@ public class InMemoryTasksManager implements TaskManager {
             System.out.println("Время выполнения задачи пересекается с другими." + "\n"
                     + "Попробуйте изменить дату и/или продолжительность задачи id" + id1);
         } else {*/
+
             if (!sortedTasks.isEmpty()) {
                 for (Task task1 : sortedTasks) {
                     if (task1.getId().equals(subtask.getId())) {
@@ -487,6 +497,14 @@ public class InMemoryTasksManager implements TaskManager {
             subtasks2.add(subtask);
             subtasks.put(inputId, subtask);
             epic.setSubtaskList(subtasks2);//добавляем новую сабтаску в список внутри эпика
+            //
+        Iterator<Task> iteraror = sortedTasks.iterator();
+        while(iteraror.hasNext()) {
+            if (iteraror.next().equals(epic)) {
+                iteraror.remove();
+            }
+        }
+        sortedTasks.add(epic);
         //}
     }
 
