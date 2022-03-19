@@ -27,9 +27,9 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.createNewTask("Third", "task", 3, "31.07.2015", 9);
         Epic epic = fileBacked.createNewEpic("Second", "epic", 5);
         fileBacked.createNewSubtask("First", "subtask", 6, "25.04.2013", 2, epic);
-        fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4, epic);
+        /*fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4, epic);
         //fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6, epic);
-        fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
+        fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);*/
         /*fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);
@@ -47,9 +47,8 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         }
         System.out.println("Размер списка");
         System.out.println(fileBacked.getPrioritizedTasks().size());
-        System.out.println(fileBacked.getEpics().size());
-        fileBacked.setDuration(10, 1);
-        fileBacked.setStartTime("20.04.2013", 2);
+        //fileBacked.setDuration(10, 1);
+        //fileBacked.setStartTime("15.04.2013", 2);
         //fileBacked.createNewSubtask("a", "b", 11, "12.12.2012", 6, fileBacked.getEpics().get(4L));
         //fileBacked.createNewSubtask("a", "b", 17, "12.12.2012", 1, fileBacked.getEpics().get(4L));
         //fileBacked.createNewSubtask("a", "b", 18, "12.12.2012", 2, fileBacked.getEpics().get(4L));
@@ -60,7 +59,15 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         //fileBacked.removeSubtask(8);
     }
 
-    private TreeSet<Task> getPrioritizedTasks() {
+    private Set<Task> getPrioritizedTasks() { //МЕНЯЮ ТИП ВОЗВР ЗНАЧЕНИЯ НА SET ВМЕСТО TREESET
+        //ДОБАВИЛ ЭТОТ КОД В ПОПЫТКЕ УСТРАНИТЬ БАГ СОРТИРОВКИ ЭПИКОВ
+        /*for (Epic epic : getEpics().values()) {
+            sortedTasks.remove(epic);
+            boolean is = sortedTasks.contains(epic);//epic.getStartTime();
+            System.out.println(is);
+            //sortedTasks.add(epic);
+        }*/
+        //ДОБАВИЛ ЭТОТ КОД В ПОПЫТКЕ УСТРАНИТЬ БАГ СОРТИРОВКИ ЭПИКОВ, НЕ РАБОТАЕТ
         return sortedTasks;
     }
 

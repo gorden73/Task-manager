@@ -15,7 +15,7 @@ public class InMemoryTasksManager implements TaskManager {
     private HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
     private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
     private HistoryManager historyManager = new InMemoryHistoryManager();
-    protected TreeSet<Task> sortedTasks = new TreeSet<>((t1, t2) -> {
+    protected Set<Task> sortedTasks = new TreeSet<>((t1, t2) -> { //ПРОБУЮ СДЕЛАТЬ ПОЛЕ SET ВМЕСТО TREESET
         if (t1.getStartTime().isAfter(t2.getStartTime())) {
             return 1;
         } else if (t1.getStartTime().isEqual(t2.getStartTime())) {
@@ -87,10 +87,10 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public void setDuration(int duration, long id) throws ManagerSaveException {
             //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ВРЕМЕНИ СТАРТА
-        boolean check = false;
+        //boolean check = false;
         if (tasks.containsKey(id)) {
             Task task = tasks.get(id);
-            for (Task someTask : sortedTasks) {
+            /*for (Task someTask : sortedTasks) {
                 if (check) {
                     break;
                 }
@@ -101,14 +101,14 @@ public class InMemoryTasksManager implements TaskManager {
                     check = true;
                 }
             }
-            if (check) {
+            if (check) {*/
                 task.setDuration(duration);
-            } else {
+            /*} else {
                 System.out.println("Время выполнения задачи пересекается с другими задачами");
-            }
+            }*/
         } else if (subtasks.containsKey(id)) {
             Subtask subtask = subtasks.get(id);
-            for (Task someTask : sortedTasks) {
+            /*for (Task someTask : sortedTasks) {
                 if (check) {
                     break;
                 }
@@ -119,11 +119,11 @@ public class InMemoryTasksManager implements TaskManager {
                     check = true;
                 }
             }
-            if (check) {
+            if (check) {*/
                 subtask.setDuration(duration);
-            } else {
+            /*} else {
                 System.out.println("Время выполнения задачи пересекается с другими задачами");
-            }
+            }*/
         }
     }
 
@@ -235,11 +235,11 @@ public class InMemoryTasksManager implements TaskManager {
         subtaskVsEpic.put(id1, epic.getId());
         sortedTasks.add(subtask);
         //ПЫТАЮСЬ РЕШИТЬ ПРОБЛЕМУ СОРТИРОВКИ ЭПИКА, ИЗМЕНЕНИЕ ЕГО ДАТ ПОСЛЕ ДОБАВЛЕНИЯ В ЛИСТ
-        /*sortedTasks.remove(epic);
-        epic.getStartTime();
+        //sortedTasks.remove(epic);
+        /*epic.getStartTime();
         epic.getDuration();
-        epic.getEndTime();
-        sortedTasks.add(epic);*/
+        epic.getEndTime();*/
+        //sortedTasks.add(epic);
         // ДОБАВИЛ ЭТОТ КОД, НЕ СРАБОТАЛ
         System.out.println("Задача добавлена");
         return subtask;
@@ -267,7 +267,7 @@ public class InMemoryTasksManager implements TaskManager {
     public Subtask createNewSubtask(String inputName, String inputDescription, long id, String startTime,
                                     int duration, Epic epic) throws ManagerSaveException {
         //ДОБАВИЛ ЗДЕСЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЙ ДАТ
-        boolean check = false;
+        /*boolean check = false;
         for (Task someTask : sortedTasks) {
             if (check) {
                 break;
@@ -277,7 +277,7 @@ public class InMemoryTasksManager implements TaskManager {
                 check = false;
             } else {
                 check = true;
-            }
+            }*/
             /*LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
             LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
             if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
@@ -285,7 +285,7 @@ public class InMemoryTasksManager implements TaskManager {
             } else {
                 check = true;
             }*/
-        }
+       // }
         long id1 = id;
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
             System.out.println("Такой id уже используется");
@@ -294,15 +294,15 @@ public class InMemoryTasksManager implements TaskManager {
                 id1 *= 13;
             }
         }
-        Subtask subtask;
+        /*Subtask subtask;
         if (check) {
             subtask = new Subtask(inputName, inputDescription, id1,
                     Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0, epic);
             System.out.println("Задача создана, но время выполнения задачи пересекается с другими." + "\n"
                     + "Попробуйте изменить дату и/или продолжительность задачи id" + id);
-        } else {
-            subtask = new Subtask(inputName, inputDescription, id1, startTime, duration, epic);
-        }
+        } else {*/
+           Subtask subtask = new Subtask(inputName, inputDescription, id1, startTime, duration, epic);
+        //}
         subtasks.put(id1, subtask);
         ArrayList<Subtask> subtaskList = epic.getSubtaskList();
         subtaskList.add(subtask);
@@ -310,6 +310,13 @@ public class InMemoryTasksManager implements TaskManager {
         epicVsSubtask.put(epic.getId(), subtaskList);
         subtaskVsEpic.put(id1, epic.getId());
         sortedTasks.add(subtask);
+        //ПЫТАЮСЬ РЕШИТЬ ПРОБЛЕМУ СОРТИРОВКИ ЭПИКА, ИЗМЕНЕНИЕ ЕГО ДАТ ПОСЛЕ ДОБАВЛЕНИЯ В ЛИСТ
+        //sortedTasks.remove(epic);
+        boolean it = sortedTasks.contains(epic);
+        System.out.println(it);
+        sortedTasks.add(epic);
+        //sortedTasks.remove(epic);
+        //        ПЫТАЮСЬ РЕШИТЬ ПРОБЛЕМУ СОРТИРОВКИ ЭПИКА, ИЗМЕНЕНИЕ ЕГО ДАТ ПОСЛЕ ДОБАВЛЕНИЯ В ЛИСТ
         System.out.println("Задача добавлена");
         return subtask;
     }
@@ -318,7 +325,7 @@ public class InMemoryTasksManager implements TaskManager {
     public Task createNewTask(String inputName, String inputDescription, long id, String startTime,
                               int duration) throws ManagerSaveException {
         //ДОБАВИЛ ЗДЕСЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЙ ДАТ
-        boolean check = false;
+        /*boolean check = false;
         for (Task someTask : sortedTasks) {
             if (check) {
                 break;
@@ -328,7 +335,7 @@ public class InMemoryTasksManager implements TaskManager {
                 check = false;
             } else {
                 check = true;
-            }
+            }*/
             /*LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
             LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
             if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
@@ -336,7 +343,7 @@ public class InMemoryTasksManager implements TaskManager {
             } else {
                 check = true;
             }*/
-        }
+        //}
         long id1 = id;
 
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
@@ -346,15 +353,15 @@ public class InMemoryTasksManager implements TaskManager {
                 id1 *= 13;
             }
         }
-        Task task;
+        /*Task task;
         if (check) {
             task = new Task(inputName, inputDescription, id1,
                     Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0);
             System.out.println("Задача создана, но время выполнения задачи пересекается с другими." + "\n"
                     + "Попробуйте изменить дату и/или продолжительность задачи id" + id);
-        } else {
-            task = new Task(inputName, inputDescription, id1, startTime, duration);
-        }
+        } else {*/
+           Task task = new Task(inputName, inputDescription, id1, startTime, duration);
+        //}
             tasks.put(id1, task);
             sortedTasks.add(task);
             System.out.println("Задача добавлена");
@@ -382,7 +389,7 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public void updateTask(long inputId, Task task) throws ManagerSaveException {
         //ДОБАВИЛ ЗДЕСЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЙ ДАТ
-        boolean check = false;
+       /* boolean check = false;
         for (Task someTask : sortedTasks) {
             if (check) {
                 break;
@@ -392,7 +399,7 @@ public class InMemoryTasksManager implements TaskManager {
                 check = false;
             } else {
                 check = true;
-            }
+            }*/
             /*LocalDate date = LocalDate.parse(task.getStartTime().toString(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
             LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
             if (date.plusDays(task.getDuration().toDays()).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
@@ -400,7 +407,7 @@ public class InMemoryTasksManager implements TaskManager {
             } else {
                 check = true;
             }*/
-        }
+       // }
         long id1 = inputId;
 
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
@@ -410,10 +417,10 @@ public class InMemoryTasksManager implements TaskManager {
                 id1 *= 13;
             }
         }
-        if (check) {
+        /*if (check) {
             System.out.println("Время выполнения задачи пересекается с другими." + "\n"
                     + "Попробуйте изменить дату и/или продолжительность задачи id" + id1);
-        } else {
+        } else {*/
             tasks.put(inputId, task);
             if (!sortedTasks.isEmpty()) {
                 for (Task task1 : sortedTasks) {
@@ -423,13 +430,13 @@ public class InMemoryTasksManager implements TaskManager {
                     }
                 }
             }
-        }
+        //}
     }
 
     @Override
     public void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException {
         //ДОБАВИЛ ЗДЕСЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЙ ДАТ
-        boolean check = false;
+        /*boolean check = false;
         for (Task someTask : sortedTasks) {
             if (check) {
                 break;
@@ -439,7 +446,7 @@ public class InMemoryTasksManager implements TaskManager {
                 check = false;
             } else {
                 check = true;
-            }
+            }*/
             /*LocalDate date = LocalDate.parse(subtask.getStartTime().toString(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
             LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
             if (date.plusDays(subtask.getDuration().toDays()).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
@@ -447,7 +454,7 @@ public class InMemoryTasksManager implements TaskManager {
             } else {
                 check = true;
             }*/
-        }
+        //}
         long id1 = inputId;
 
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
@@ -457,10 +464,10 @@ public class InMemoryTasksManager implements TaskManager {
                 id1 *= 13;
             }
         }
-        if (check) {
+        /*if (check) {
             System.out.println("Время выполнения задачи пересекается с другими." + "\n"
                     + "Попробуйте изменить дату и/или продолжительность задачи id" + id1);
-        } else {
+        } else {*/
             if (!sortedTasks.isEmpty()) {
                 for (Task task1 : sortedTasks) {
                     if (task1.getId().equals(subtask.getId())) {
@@ -480,7 +487,7 @@ public class InMemoryTasksManager implements TaskManager {
             subtasks2.add(subtask);
             subtasks.put(inputId, subtask);
             epic.setSubtaskList(subtasks2);//добавляем новую сабтаску в список внутри эпика
-        }
+        //}
     }
 
     @Override
