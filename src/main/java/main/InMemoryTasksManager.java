@@ -4,7 +4,6 @@ import tasktracker.Epic;
 import tasktracker.Subtask;
 import tasktracker.Task;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -15,120 +14,35 @@ public class InMemoryTasksManager implements TaskManager {
     private HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
     private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
     private HistoryManager historyManager = new InMemoryHistoryManager();
-    protected Set<Task> sortedTasks = new TreeSet<>((t1, t2) -> { //ПРОБУЮ СДЕЛАТЬ ПОЛЕ SET ВМЕСТО TREESET(вроде не влияет)
-        if (t1.getId().equals(t2.getId()) /*|| t1.getStartTime().isBefore(t2.getStartTime()) && t2.getStartTime().equals(Task.DEFAULT_DATE)*/) {
+    protected Set<Task> sortedTasks = new TreeSet<>((t1, t2) -> {
+        if (t1.getId().equals(t2.getId())) {
             return 0;
         } else if (t1.getStartTime().isAfter(t2.getStartTime()) || t1.getStartTime().isEqual(t2.getStartTime())) {
             return 1;
-        /*} else if (t1.getStartTime().isEqual(t2.getStartTime())
-                && !t1.getId().equals(t2.getId())) {
-            return 1;*/
-        /*} else if (t1.getId().equals(t2.getId())) {
-            return 0;*/
         } else {
             return -1;
         }
     });
 
-    /*public TreeSet<Task> getSortedTasks() { //ДОБАВИЛ ГЕТТЕР
-        return sortedTasks;
-    }
-
-    public void setSortedTasks(TreeSet<Task> sortedTasks){//ДОБАВИЛ СЕТТЕР
-        this.sortedTasks = sortedTasks;
-    }*/
-
     @Override
     public void setStartTime(String startTime, long id) throws ManagerSaveException {
-        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ВРЕМЕНИ СТАРТА
-        /*boolean check = false;
         if (tasks.containsKey(id)) {
             Task task = tasks.get(id);
-            for (Task someTask : sortedTasks) {
-                if (check) {
-                    break;
-                }
-                if (LocalDate.parse(startTime).plusDays(task.getDuration().toDays()).isBefore(someTask.getStartTime())
-                        || LocalDate.parse(startTime).isAfter(someTask.getEndTime())) {
-                    check = false;
-                } else {
-                    check = true;
-                }
-            }
-            if (check) {
-                task.setStartTime(startTime);
-            } else {
-                System.out.println("Время выполнения задачи пересекается с другими задачами");
-            }
+            task.setStartTime(startTime);
         } else if (subtasks.containsKey(id)) {
             Subtask subtask = subtasks.get(id);
-            for (Task someTask : sortedTasks) {
-                if (check) {
-                    break;
-                }
-                if (LocalDate.parse(startTime).plusDays(subtask.getDuration().toDays()).isBefore(someTask.getStartTime())
-                        || LocalDate.parse(startTime).isAfter(someTask.getEndTime())) {
-                    check = false;
-                } else {
-                    check = true;
-                }
-            }
-            if (check) {
-                subtask.setStartTime(startTime);
-            } else {
-                System.out.println("Время выполнения задачи пересекается с другими задачами");
-            }
-        }*/
-            if (tasks.containsKey(id)) {
-                Task task = tasks.get(id);
-                task.setStartTime(startTime);
-            } else if (subtasks.containsKey(id)) {
-                Subtask subtask = subtasks.get(id);
-                subtask.setStartTime(startTime);
-            }
-
+            subtask.setStartTime(startTime);
+        }
     }
 
     @Override
     public void setDuration(int duration, long id) throws ManagerSaveException {
-            //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ВРЕМЕНИ СТАРТА
-        //boolean check = false;
         if (tasks.containsKey(id)) {
             Task task = tasks.get(id);
-            /*for (Task someTask : sortedTasks) {
-                if (check) {
-                    break;
-                }
-                if (task.getStartTime().plusDays(duration).isBefore(someTask.getStartTime())
-                   || task.getStartTime().isAfter(someTask.getEndTime())) {
-                    check = false;
-                } else {
-                    check = true;
-                }
-            }
-            if (check) {*/
-                task.setDuration(duration);
-            /*} else {
-                System.out.println("Время выполнения задачи пересекается с другими задачами");
-            }*/
+            task.setDuration(duration);
         } else if (subtasks.containsKey(id)) {
             Subtask subtask = subtasks.get(id);
-            /*for (Task someTask : sortedTasks) {
-                if (check) {
-                    break;
-                }
-                if (subtask.getStartTime().plusDays(duration).isBefore(someTask.getStartTime())
-                   || subtask.getStartTime().isAfter(someTask.getEndTime())) {
-                    check = false;
-                } else {
-                    check = true;
-                }
-            }
-            if (check) {*/
-                subtask.setDuration(duration);
-            /*} else {
-                System.out.println("Время выполнения задачи пересекается с другими задачами");
-            }*/
+            subtask.setDuration(duration);
         }
     }
 
@@ -239,13 +153,6 @@ public class InMemoryTasksManager implements TaskManager {
         epicVsSubtask.put(epic.getId(), subtaskList);
         subtaskVsEpic.put(id1, epic.getId());
         sortedTasks.add(subtask);
-        //ПЫТАЮСЬ РЕШИТЬ ПРОБЛЕМУ СОРТИРОВКИ ЭПИКА, ИЗМЕНЕНИЕ ЕГО ДАТ ПОСЛЕ ДОБАВЛЕНИЯ В ЛИСТ
-        //sortedTasks.remove(epic);
-        /*epic.getStartTime();
-        epic.getDuration();
-        epic.getEndTime();*/
-        //sortedTasks.add(epic);
-        // ДОБАВИЛ ЭТОТ КОД, НЕ СРАБОТАЛ
         System.out.println("Задача добавлена");
         return subtask;
     }
@@ -271,26 +178,6 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public Subtask createNewSubtask(String inputName, String inputDescription, long id, String startTime,
                                     int duration, Epic epic) throws ManagerSaveException {
-        //ДОБАВИЛ ЗДЕСЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЙ ДАТ
-        /*boolean check = false;
-        for (Task someTask : sortedTasks) {
-            if (check) {
-                break;
-            }
-            LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-            if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(someTask.getEndTime())) {
-                check = false;
-            } else {
-                check = true;
-            }*/
-            /*LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-            LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
-            if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
-                check = false;
-            } else {
-                check = true;
-            }*/
-       // }
         long id1 = id;
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
             System.out.println("Такой id уже используется");
@@ -299,15 +186,7 @@ public class InMemoryTasksManager implements TaskManager {
                 id1 *= 13;
             }
         }
-        /*Subtask subtask;
-        if (check) {
-            subtask = new Subtask(inputName, inputDescription, id1,
-                    Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0, epic);
-            System.out.println("Задача создана, но время выполнения задачи пересекается с другими." + "\n"
-                    + "Попробуйте изменить дату и/или продолжительность задачи id" + id);
-        } else {*/
-           Subtask subtask = new Subtask(inputName, inputDescription, id1, startTime, duration, epic);
-        //}
+        Subtask subtask = new Subtask(inputName, inputDescription, id1, startTime, duration, epic);
         subtasks.put(id1, subtask);
         ArrayList<Subtask> subtaskList = epic.getSubtaskList();
         subtaskList.add(subtask);
@@ -317,10 +196,10 @@ public class InMemoryTasksManager implements TaskManager {
         sortedTasks.add(subtask);
         //ПЫТАЮСЬ РЕШИТЬ ПРОБЛЕМУ СОРТИРОВКИ ЭПИКА, ИЗМЕНЕНИЕ ЕГО ДАТ ПОСЛЕ ДОБАВЛЕНИЯ В ЛИСТ
         //sortedTasks.remove(epic);
-        Iterator<Task> iteraror = sortedTasks.iterator();
-        while(iteraror.hasNext()) {
-            if (iteraror.next().equals(epic)) {
-                iteraror.remove();
+        Iterator<Task> iterator = sortedTasks.iterator();
+        while(iterator.hasNext()) {
+            if (iterator.next().equals(epic)) {
+                iterator.remove();
             }
         }
         sortedTasks.add(epic);
@@ -333,28 +212,7 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public Task createNewTask(String inputName, String inputDescription, long id, String startTime,
                               int duration) throws ManagerSaveException {
-        //ДОБАВИЛ ЗДЕСЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЙ ДАТ
-        /*boolean check = false;
-        for (Task someTask : sortedTasks) {
-            if (check) {
-                break;
-            }
-            LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-            if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(someTask.getEndTime())) {
-                check = false;
-            } else {
-                check = true;
-            }*/
-            /*LocalDate date = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-            LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
-            if (date.plusDays(duration).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
-                check = false;
-            } else {
-                check = true;
-            }*/
-        //}
         long id1 = id;
-
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
             System.out.println("Такой id уже используется");
             System.out.println("Он будет изменён автоматически");
@@ -362,19 +220,11 @@ public class InMemoryTasksManager implements TaskManager {
                 id1 *= 13;
             }
         }
-        /*Task task;
-        if (check) {
-            task = new Task(inputName, inputDescription, id1,
-                    Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0);
-            System.out.println("Задача создана, но время выполнения задачи пересекается с другими." + "\n"
-                    + "Попробуйте изменить дату и/или продолжительность задачи id" + id);
-        } else {*/
-           Task task = new Task(inputName, inputDescription, id1, startTime, duration);
-        //}
-            tasks.put(id1, task);
-            sortedTasks.add(task);
-            System.out.println("Задача добавлена");
-            return task;
+        Task task = new Task(inputName, inputDescription, id1, startTime, duration);
+        tasks.put(id1, task);
+        sortedTasks.add(task);
+        System.out.println("Задача добавлена");
+        return task;
     }
 
     @Override
@@ -397,28 +247,7 @@ public class InMemoryTasksManager implements TaskManager {
 
     @Override
     public void updateTask(long inputId, Task task) throws ManagerSaveException {
-        //ДОБАВИЛ ЗДЕСЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЙ ДАТ
-       /* boolean check = false;
-        for (Task someTask : sortedTasks) {
-            if (check) {
-                break;
-            }
-            if (task.getStartTime().plusDays(task.getDuration().toDays()).isBefore(someTask.getStartTime())
-               || task.getStartTime().isAfter(someTask.getEndTime())) {
-                check = false;
-            } else {
-                check = true;
-            }*/
-            /*LocalDate date = LocalDate.parse(task.getStartTime().toString(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-            LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
-            if (date.plusDays(task.getDuration().toDays()).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
-                check = false;
-            } else {
-                check = true;
-            }*/
-       // }
-        long id1 = inputId;
-
+        /*long id1 = inputId;
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
             System.out.println("Такой id уже используется");
             System.out.println("Он будет изменён автоматически");
@@ -426,91 +255,112 @@ public class InMemoryTasksManager implements TaskManager {
                 id1 *= 13;
             }
         }
-        /*if (check) {
-            System.out.println("Время выполнения задачи пересекается с другими." + "\n"
-                    + "Попробуйте изменить дату и/или продолжительность задачи id" + id1);
-        } else {*/
-            tasks.put(inputId, task);
-            if (!sortedTasks.isEmpty()) {
-                for (Task task1 : sortedTasks) {
-                    if (task1.getId().equals(task.getId())) {
-                        sortedTasks.remove(task1);
-                        sortedTasks.add(task);
-                    }
+
+        tasks.put(inputId, task);
+        if (!sortedTasks.isEmpty()) {
+            for (Task task1 : sortedTasks) {
+                if (task1.getId().equals(task.getId())) {
+                    sortedTasks.remove(task1);
+                    sortedTasks.add(task);
                 }
             }
-        //}
+        }*/
+        if (tasks.containsKey(inputId)) {
+            Iterator<Task> iterator = sortedTasks.iterator();
+            Task task1 = tasks.get(inputId);
+            while(iterator.hasNext()) {
+                if (iterator.next().equals(task1)) {
+                    iterator.remove();
+                }
+            }
+            task1.setName(task.getName());
+            task1.setDescription(task.getDescription());
+            task1.setStartTime(task.getStartTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+            task1.setDuration((int) task.getDuration().toDays());
+            sortedTasks.add(task1);
+        } else {
+            System.out.println("Задачи с id " + inputId + " нет.");
+        }
     }
 
     @Override
     public void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException {
-        //ДОБАВИЛ ЗДЕСЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЙ ДАТ
-        /*boolean check = false;
-        for (Task someTask : sortedTasks) {
-            if (check) {
-                break;
-            }
-            if (subtask.getStartTime().plusDays(subtask.getDuration().toDays()).isBefore(someTask.getStartTime())
-                    || subtask.getStartTime().isAfter(someTask.getEndTime())) {
-                check = false;
-            } else {
-                check = true;
-            }*/
-            /*LocalDate date = LocalDate.parse(subtask.getStartTime().toString(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-            LocalDate dateSomeTask = someTask.getStartTime().plusDays(someTask.getDuration().toDays());
-            if (date.plusDays(subtask.getDuration().toDays()).isBefore(someTask.getStartTime()) || date.isAfter(dateSomeTask)) {
-                check = false;
-            } else {
-                check = true;
-            }*/
-        //}
-        long id1 = inputId;
-
-        if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
+        //long id1 = inputId;
+        /*if (tasks.containsKey(subtask.getId()) || subtasks.containsKey(subtask.getId()) || epics.containsKey(subtask.getId())) {
+            System.out.println("Такой id уже используется." + "\n" + "Попробуйте ввести другой.");
+            return;
+        }*/
+        /*if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
             System.out.println("Такой id уже используется");
             System.out.println("Он будет изменён автоматически");
             while (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
                 id1 *= 13;
             }
-        }
-        /*if (check) {
-            System.out.println("Время выполнения задачи пересекается с другими." + "\n"
-                    + "Попробуйте изменить дату и/или продолжительность задачи id" + id1);
-        } else {*/
-
-            if (!sortedTasks.isEmpty()) {
-                for (Task task1 : sortedTasks) {
-                    if (task1.getId().equals(subtask.getId())) {
-                        sortedTasks.remove(task1);
-                        sortedTasks.add(subtask);
-                    }
+        }*/
+        /*if (!sortedTasks.isEmpty()) {
+            for (Task task1 : sortedTasks) {
+                if (task1.getId().equals(inputId)) {
+                    sortedTasks.remove(task1);
+                    sortedTasks.add(subtask);
                 }
             }
-            ArrayList<Subtask> subtasks1 = epicVsSubtask.get(subtaskVsEpic.get(inputId));
-            subtasks1.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка в менеджере
-            subtasks1.add(subtask); //добавляем новую сабтаску в список в менеджере
-            epicVsSubtask.put(subtaskVsEpic.get(inputId), subtasks1);//а новый список вносим в мапу в менеджере
-            Long idEpic = subtaskVsEpic.get(inputId);
-            Epic epic = epics.get(idEpic);
-            ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
-            subtasks2.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
-            subtasks2.add(subtask);
-            subtasks.put(inputId, subtask);
-            epic.setSubtaskList(subtasks2);//добавляем новую сабтаску в список внутри эпика
-            //
-        Iterator<Task> iteraror = sortedTasks.iterator();
+        }*/
+
+        // новый способ обновления - просто меняю name и description в сабтаске через сеттеры!!! вроде работает нормально
+        if (subtasks.containsKey(inputId)) {
+            Subtask sub = subtasks.get(inputId);
+            Iterator<Task> iterator = sortedTasks.iterator();
+            while(iterator.hasNext()) {
+                if (iterator.next().equals(sub)) {
+                    iterator.remove();
+                }
+            }
+            sub.setName(subtask.getName());
+            sub.setDescription(subtask.getDescription());
+        //sub.setStatus(subtask.getStatus().toString());
+        //if (subtask.getStartTime().equals(Task.DEFAULT_DATE)) {
+            sub.setStartTime(subtask.getStartTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+        //} else {
+        //}
+            sub.setDuration((int) subtask.getDuration().toDays());
+
+            sortedTasks.add(sub);
+        } else {
+            System.out.println("Подзадачи с id " + inputId + " нет.");
+        }
+        //
+        /*ArrayList<Subtask> subtasks1 = epicVsSubtask.get(subtaskVsEpic.get(inputId));
+        subtasks1.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка в менеджере
+        subtasks1.add(subtask); //добавляем новую сабтаску в список в менеджере
+        epicVsSubtask.put(subtaskVsEpic.get(inputId), subtasks1);//а новый список вносим в мапу в менеджере
+        Long idEpic = subtaskVsEpic.get(inputId);
+        Epic epic = epics.get(idEpic);
+        ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
+        subtasks2.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
+        subtasks2.add(subtask);
+        subtasks.put(inputId, subtask);
+        epic.setSubtaskList(subtasks2);*///добавляем новую сабтаску в список внутри эпика
+        //
+        /*Iterator<Task> iteraror = sortedTasks.iterator();
         while(iteraror.hasNext()) {
             if (iteraror.next().equals(epic)) {
                 iteraror.remove();
             }
         }
-        sortedTasks.add(epic);
+        sortedTasks.add(epic);*/
         //}
     }
 
     @Override
     public void updateEpic(long inputId, Epic epic) throws ManagerSaveException {
-        epics.put(inputId, epic);
+        if (epics.containsKey(inputId)) {
+            Epic epic1 = epics.get(inputId);
+            epic1.setName(epic.getName());
+            epic1.setDescription(epic.getDescription());
+        } else {
+            System.out.println("Эпика с id " + inputId + " нет.");
+        }
+        /*epics.put(inputId, epic);
         if (!sortedTasks.isEmpty()) {
             for (Task task1 : sortedTasks) {
                 if (task1.getId().equals(epic.getId())) {
@@ -518,13 +368,19 @@ public class InMemoryTasksManager implements TaskManager {
                     sortedTasks.add(epic);
                 }
             }
-        }
+        }*/
     }
 
     @Override
     public void removeTask(long inputId) throws ManagerSaveException {
         if (tasks.containsKey(inputId)) {
-            sortedTasks.remove(tasks.get(inputId));
+            //sortedTasks.remove(tasks.get(inputId));
+            Iterator<Task> iterator = sortedTasks.iterator();
+            while(iterator.hasNext()) {
+                if (iterator.next().equals(tasks.get(inputId))) {
+                    iterator.remove();
+                }
+            }
             tasks.remove(inputId);
             historyManager.remove(inputId);
             System.out.println("Задача удалена");
@@ -537,7 +393,13 @@ public class InMemoryTasksManager implements TaskManager {
     public void removeEpic(long inputId) throws ManagerSaveException {
         if (epics.containsKey(inputId)) {
             Epic epic = epics.get(inputId);
-            sortedTasks.remove(epic);
+            //sortedTasks.remove(epic);
+            Iterator<Task> iterator = sortedTasks.iterator();
+            while(iterator.hasNext()) {
+                if (iterator.next().equals(epics.get(inputId))) {
+                    iterator.remove();
+                }
+            }
             ArrayList<Subtask> subtasks1 = epic.getSubtaskList();
             for (Subtask sub : subtasks1) {
                 historyManager.remove(sub.getId());
@@ -556,7 +418,13 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public void removeSubtask(long inputId) throws ManagerSaveException {
         if (subtasks.containsKey(inputId)) {
-            sortedTasks.remove(subtasks.get(inputId));
+            //sortedTasks.remove(subtasks.get(inputId));
+            Iterator<Task> iterator = sortedTasks.iterator();
+            while(iterator.hasNext()) {
+                if (iterator.next().equals(subtasks.get(inputId))) {
+                    iterator.remove();
+                }
+            }
             Long epicId = subtaskVsEpic.get(inputId);
             ArrayList<Subtask> subtasks1 = epicVsSubtask.get(epicId);
             subtasks1.remove(subtasks.get(inputId));

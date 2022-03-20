@@ -20,20 +20,22 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     public static void main(String[] args) throws IOException, ManagerSaveException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
-        fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
+        /*fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
         fileBacked.createNewTask("Second", "task", 2, "31.01.2012", 2);
         fileBacked.createNewTask("Third", "task", 10);
         fileBacked.createNewEpic("First", "epic", 4);
         fileBacked.createNewTask("Third", "task", 3, "31.07.2015", 9);
         Epic epic = fileBacked.createNewEpic("Second", "epic", 5);
-        /*for (Task task1 : fileBacked.getPrioritizedTasks()) {
+        for (Task task1 : fileBacked.getPrioritizedTasks()) {
             System.out.println(task1.getStartTime() + " " + task1.getId());
-        }*/
+        }
         fileBacked.createNewSubtask("First", "subtask", 6, "25.04.2013", 2, epic);
         fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4, epic);
         fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6, epic);
         fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
-        fileBacked.updateSubtask(6, new Subtask("a", "b", 15, epic)); //LocalDate по умолчанию не парсится паттерном dd.MM.yyyy, надо доработать
+        fileBacked.updateTask(6, new Task("a", "b", 15));
+        fileBacked.updateTask(2, new Task("c", "d", 33));
+        fileBacked.updateTask(1, new Task("f", "e", 16, "10.09.2023", 3));*/
         /*fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);
@@ -63,15 +65,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         //fileBacked.removeSubtask(8);
     }
 
-    private Set<Task> getPrioritizedTasks() { //МЕНЯЮ ТИП ВОЗВР ЗНАЧЕНИЯ НА SET ВМЕСТО TREESET
-        //ДОБАВИЛ ЭТОТ КОД В ПОПЫТКЕ УСТРАНИТЬ БАГ СОРТИРОВКИ ЭПИКОВ
-        /*for (Epic epic : getEpics().values()) {
-            sortedTasks.remove(epic);
-            boolean is = sortedTasks.contains(epic);//epic.getStartTime();
-            System.out.println(is);
-            //sortedTasks.add(epic);
-        }*/
-        //ДОБАВИЛ ЭТОТ КОД В ПОПЫТКЕ УСТРАНИТЬ БАГ СОРТИРОВКИ ЭПИКОВ, НЕ РАБОТАЕТ
+    private Set<Task> getPrioritizedTasks() {
         return sortedTasks;
     }
 
@@ -83,10 +77,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             }
             for (Task task : getEpics().values()) {
                 writer.write(toString(task) + "\n");
-                //
-                /*sortedTasks.remove(task);
-                sortedTasks.add(task);*/
-                //ДОБАВИЛ КОД ДЛЯ СОРТИРОВКИ ЭПИКОВ
             }
             for (Task task : getSubtasks().values()) {
                 writer.write(toString(task) + "\n");
@@ -120,20 +110,18 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 if (taskFromFile.getClass().equals(Task.class)) {
                     fileBackedTasksManager.setTasks(taskFromFile);
                 } else if (taskFromFile.getClass().equals(Subtask.class)) {
+                    Iterator<Task> iterator = fileBackedTasksManager.sortedTasks.iterator();
+                    while(iterator.hasNext()) {
+                        if (iterator.next().equals(((Subtask) taskFromFile).getEpic())) {
+                            iterator.remove();
+                        }
+                    }
+                    fileBackedTasksManager.sortedTasks.add(((Subtask) taskFromFile).getEpic());
                     fileBackedTasksManager.setSubtasks((Subtask) taskFromFile);
-
                 } else if (taskFromFile.getClass().equals(Epic.class)) {
                     fileBackedTasksManager.setEpics((Epic) taskFromFile);
                 }
             }
-            //
-            /*for (Epic e : fileBackedTasksManager.getEpics().values()) {
-                if (!e.getSubtaskList().isEmpty()) {
-                    fileBackedTasksManager.sortedTasks.remove(e);
-                    //fileBackedTasksManager.sortedTasks.add(e);
-                }
-            }*/
-            //ДОБАВИЛ ЗДЕСЬ УДАЛЕНИЕ ЭПИКА И ПОВТОРНОЕ ДОБАВЛЕНИЕ В SORTEDTASKS ПРИ ДОБАВЛЕНИИ САБТАСКИ
             List<Long> historyId = fromString(list.get(list.size() - 1));
             for (Long id : historyId) {
                 if (fileBackedTasksManager.getTasks().containsKey(id)) {
@@ -168,14 +156,9 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                     task.getDuration().toDays(), task.getEndTime().toString(), epicId);
         } else if (getEpics().containsKey(task.getId())){
             type = TypeOfTasks.EPIC;
-            //
-            String ep = String.format("%d,%S,%s,%S,%s,%s,%s,%s", task.getId(), type, task.getName(),
+            return String.format("%d,%S,%s,%S,%s,%s,%s,%s", task.getId(), type, task.getName(),
                     task.getStatus(), task.getDescription(), task.getStartTime().toString(),
                     task.getDuration().toDays(), task.getEndTime().toString());
-            /*sortedTasks.remove(task);
-            sortedTasks.add(task);*/
-            //ДОБАВИЛ КОД ДЛЯ СОРТИРОВКИ ЭПИКОВ
-            return ep;
         }
         return null;
     }
@@ -233,20 +216,18 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         } else if (getSubtasks().containsKey(id)) {
             task = (Task) getSubtasks().get(id);
         } else {
-            //System.out.println("Задачи с таким id нет.");
             return check;
         }
-        LocalDate time = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        if (LocalDate.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd")).equals(Task.DEFAULT_DATE)) {
+            return check;
+        }
+        LocalDate time = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd")); //изменю здесь паттерн с dd.MM.yyyy на yyyy-MM-dd
         for (Task someTask : sortedTasks) {
             if (check) {
                 break;
             }
             if (time.plusDays(task.getDuration().toDays()).isBefore(someTask.getStartTime())
                 || time.isAfter(someTask.getEndTime())) {
-            /*if (time.plusDays(task.getDuration().toDays()).isBefore(someTask.getEndTime())
-                    && someTask.getStartTime().isBefore(task.getStartTime().plusDays(task.getDuration().toDays()))
-                    || time.isBefore(someTask.getEndTime())
-                    && time.isAfter(someTask.getStartTime())) {*/
             } else {
                 check = true;
             }
@@ -267,7 +248,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         } else if (getSubtasks().containsKey(id)) {
             task = (Task) getSubtasks().get(id);
         } else {
-            //System.out.println("Задачи с таким id нет.");
             return check;
         }
         for (Task someTask : sortedTasks) {
@@ -277,10 +257,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 }
                 if (task.getStartTime().plusDays(duration).isBefore(someTask.getStartTime())
                         || task.getStartTime().isAfter(someTask.getEndTime())) {
-            /*if (task.getStartTime().plusDays(duration).isBefore(someTask.getEndTime())
-                && someTask.getStartTime().isBefore(task.getStartTime().plusDays(duration))
-                || task.getStartTime().isBefore(someTask.getEndTime())
-                && task.getStartTime().isAfter(someTask.getStartTime())) {*/
                 } else {
                     check = true;
                 }
@@ -296,7 +272,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     @Override
     public void setStartTime(String startTime, long id) throws ManagerSaveException {
-        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
         if (!checkStartTimeIntersection(startTime, id)) {
             super.setStartTime(startTime, id);
             save();
@@ -305,7 +280,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     @Override
     public void setDuration(int duration, long id) throws ManagerSaveException {
-        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
         if (!checkStartTimeIntersectionWithDuration(duration, id)) {
             super.setDuration(duration, id);
             save();
@@ -348,7 +322,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public Subtask createNewSubtask(String inputName, String inputDescription, long id, String startTime, int duration,
                                     Epic epic)
                                     throws ManagerSaveException {
-        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
         if (!checkStartTimeIntersection(startTime, id)) {
             Subtask newSubtask = super.createNewSubtask(inputName, inputDescription, id, startTime, duration, epic);
             save();
@@ -360,7 +333,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     @Override
     public Task createNewTask(String inputName, String inputDescription, long id, String startTime, int duration)
             throws ManagerSaveException {
-        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
         if (!checkStartTimeIntersection(startTime, id)) {
             Task newTask = super.createNewTask(inputName, inputDescription, id, startTime, duration);
             save();
@@ -371,7 +343,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     @Override
     public void updateTask(long inputId, Task task) throws ManagerSaveException {
-        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
         if (!checkStartTimeIntersection(task.getStartTime().toString(), inputId)) {
             super.updateTask(inputId, task);
             save();
@@ -380,7 +351,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     @Override
     public void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException {
-        //ДОБАВИТЬ ПРОВЕРКУ ПЕРЕСЕЧЕНИЯ ДАТ
         if (!checkStartTimeIntersection(subtask.getStartTime().toString(), inputId)) {
             super.updateSubtask(inputId, subtask);
             save();
