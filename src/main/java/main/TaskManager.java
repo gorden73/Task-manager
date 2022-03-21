@@ -20,9 +20,9 @@ public interface TaskManager {
 
     HashMap<Long, Epic> getEpics();
 
-    HashMap<Long, Long> getSubtaskVsEpic();
+    //HashMap<Long, Long> getSubtaskVsEpic();
 
-    HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask();
+    //HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask();
 
     HistoryManager getHistoryManager();
 
@@ -68,7 +68,7 @@ public interface TaskManager {
 
     void removeSubtask(long inputId) throws ManagerSaveException;
 
-    void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics,
-                        HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic)
+    void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics/*,
+                        HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic*/)
                         throws ManagerSaveException;
 }

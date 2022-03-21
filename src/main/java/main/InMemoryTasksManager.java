@@ -11,8 +11,8 @@ public class InMemoryTasksManager implements TaskManager {
     private HashMap<Long, Task> tasks = new HashMap<>();
     private HashMap<Long, Subtask> subtasks = new HashMap<>();
     private HashMap<Long, Epic> epics = new HashMap<>();
-    private HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
-    private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
+    //private HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
+    //private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
     private HistoryManager historyManager = new InMemoryHistoryManager();
     protected Set<Task> sortedTasks = new TreeSet<>((t1, t2) -> {
         if (t1.getId().equals(t2.getId())) {
@@ -114,7 +114,7 @@ public class InMemoryTasksManager implements TaskManager {
         epics.put(epic.getId(), epic);
     }
 
-    @Override
+    /*@Override
     public HashMap<Long, Long> getSubtaskVsEpic() {
         return subtaskVsEpic;
     }
@@ -122,7 +122,7 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask() {
         return epicVsSubtask;
-    }
+    }*/
 
     /*@Override
     public void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList) {
@@ -150,8 +150,8 @@ public class InMemoryTasksManager implements TaskManager {
         ArrayList<Subtask> subtaskList = epic.getSubtaskList();
         subtaskList.add(subtask);
         epic.setSubtaskList(subtaskList);
-        epicVsSubtask.put(epic.getId(), subtaskList);
-        subtaskVsEpic.put(id1, epic.getId());
+        //epicVsSubtask.put(epic.getId(), subtaskList);
+        //subtaskVsEpic.put(id1, epic.getId());
         sortedTasks.add(subtask);
         System.out.println("Задача добавлена");
         return subtask;
@@ -191,8 +191,8 @@ public class InMemoryTasksManager implements TaskManager {
         ArrayList<Subtask> subtaskList = epic.getSubtaskList();
         subtaskList.add(subtask);
         epic.setSubtaskList(subtaskList);
-        epicVsSubtask.put(epic.getId(), subtaskList);
-        subtaskVsEpic.put(id1, epic.getId());
+        //epicVsSubtask.put(epic.getId(), subtaskList);
+        //subtaskVsEpic.put(id1, epic.getId());
         sortedTasks.add(subtask);
         //ПЫТАЮСЬ РЕШИТЬ ПРОБЛЕМУ СОРТИРОВКИ ЭПИКА, ИЗМЕНЕНИЕ ЕГО ДАТ ПОСЛЕ ДОБАВЛЕНИЯ В ЛИСТ
         //sortedTasks.remove(epic);
@@ -426,7 +426,16 @@ public class InMemoryTasksManager implements TaskManager {
                     iterator.remove();
                 }
             }
-            Long epicId = subtaskVsEpic.get(inputId);
+            Long epicId = subtasks.get(inputId).getEpic().getId();
+            Epic epic = epics.get(epicId);
+            ArrayList<Subtask> subtasks1 = epic.getSubtaskList();
+            subtasks1.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
+            epic.setSubtaskList(subtasks1);
+            subtasks.remove(inputId);
+            if (epic.getSubtaskList().isEmpty()) {
+                epics.remove(epicId);
+            }
+            /*Long epicId = subtaskVsEpic.get(inputId);
             ArrayList<Subtask> subtasks1 = epicVsSubtask.get(epicId);
             subtasks1.remove(subtasks.get(inputId));
             subtasks.remove(inputId);
@@ -436,7 +445,7 @@ public class InMemoryTasksManager implements TaskManager {
             epic.setSubtaskList(subtasks2);
             if (subtasks1.isEmpty()) {
                 epics.remove(subtaskVsEpic.get(inputId));
-            }
+            }*/
             historyManager.remove(inputId);
             System.out.println("Задача удалена");
         } else {
@@ -445,13 +454,13 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics,
-        HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic) throws ManagerSaveException {
+    public void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics
+        /*HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic*/) throws ManagerSaveException {
         tasks.clear();
         subtasks.clear();
         epics.clear();
-        epicVsSubtask.clear();
-        subtaskVsEpic.clear();
+        //epicVsSubtask.clear();
+        //subtaskVsEpic.clear();
         sortedTasks.clear();
     }
 }

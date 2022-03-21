@@ -4,10 +4,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryTasksManagerTest  {
+class InMemoryTasksManagerTest /*extends TaskManagerTest*/ {
 
-    @Test
-    public void setStartTime() {
-
-    }
 }

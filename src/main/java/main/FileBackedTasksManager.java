@@ -403,10 +403,10 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     @Override
-    public void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics,
-                               HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic)
+    public void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics
+                               /*HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic*/)
                                throws ManagerSaveException {
-        super.removeAllTasks(tasks, subtasks, epics, epicVsSubtask, subtaskVsEpic);
+        super.removeAllTasks(tasks, subtasks, epics/*, epicVsSubtask, subtaskVsEpic*/);
         save();
     }
 }

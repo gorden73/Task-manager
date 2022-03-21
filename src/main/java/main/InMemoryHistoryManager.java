@@ -40,7 +40,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         return listOfTasks;
     }
 
-    public void removeNode(Node node) {
+    private void removeNode(Node node) {
         Node<Task> prevNode = node.prev;
         Node<Task> nextNode = node.next;
         if (size == 1) {
@@ -93,11 +93,12 @@ public class InMemoryHistoryManager implements HistoryManager {
         return getTasks();
     }
 
-    public Map<Long, Node> getHistoryMap() {
+    //удалить геттер и сеттер historyMap
+    /*public Map<Long, Node> getHistoryMap() {
         return historyMap;
     }
 
     public void setHistoryMap(Map<Long, Node> historyMap) {
         this.historyMap = historyMap;
-    }
+    }*/
 }
