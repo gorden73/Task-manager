@@ -32,9 +32,9 @@ public interface TaskManager {
 
     void setEpics(Epic epic);
 
-    void setSubtaskVsEpic(Long subtaskId, Long epicId);
+    //void setSubtaskVsEpic(Long subtaskId, Long epicId);
 
-    void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList);
+    //void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList);
 
     Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) throws ManagerSaveException;
 
@@ -69,5 +69,6 @@ public interface TaskManager {
     void removeSubtask(long inputId) throws ManagerSaveException;
 
     void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics,
-                        HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic) throws ManagerSaveException;
+                        HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic)
+                        throws ManagerSaveException;
 }

@@ -65,7 +65,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         //fileBacked.removeSubtask(8);
     }
 
-    private Set<Task> getPrioritizedTasks() {
+    public Set<Task> getPrioritizedTasks() {
         return sortedTasks;
     }
 
@@ -208,7 +208,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         return id;
     }
 
-    public boolean checkStartTimeIntersection(String startTime, long id) {
+    private boolean checkStartTimeIntersection(String startTime, long id) {
         boolean check = false;
         Task task = null;
         if (getTasks().containsKey(id)) {
@@ -240,7 +240,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         return check;
     }
 
-    public boolean checkStartTimeIntersectionWithDuration(int duration, long id) {
+    private boolean checkStartTimeIntersectionWithDuration(int duration, long id) {
         boolean check = false;
         Task task = null;
         if (getTasks().containsKey(id)) {

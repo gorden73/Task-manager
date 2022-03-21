@@ -78,16 +78,6 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask() {
-        return epicVsSubtask;
-    }
-
-    @Override
-    public HashMap<Long, Long> getSubtaskVsEpic() {
-        return subtaskVsEpic;
-    }
-
-    @Override
     public HistoryManager getHistoryManager() {
         return historyManager;
     }
@@ -125,6 +115,16 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
+    public HashMap<Long, Long> getSubtaskVsEpic() {
+        return subtaskVsEpic;
+    }
+
+    @Override
+    public HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask() {
+        return epicVsSubtask;
+    }
+
+    /*@Override
     public void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList) {
         epicVsSubtask.put(epicId, subtaskList);
     }
@@ -132,7 +132,7 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public void setSubtaskVsEpic(Long subtaskId, Long epicId) {
         subtaskVsEpic.put(subtaskId, epicId);
-    }
+    }*/
 
     @Override
     public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic)
@@ -277,6 +277,7 @@ public class InMemoryTasksManager implements TaskManager {
             task1.setDescription(task.getDescription());
             task1.setStartTime(task.getStartTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
             task1.setDuration((int) task.getDuration().toDays());
+            task1.setStatus(task.getStatus().toString());
             sortedTasks.add(task1);
         } else {
             System.out.println("Задачи с id " + inputId + " нет.");
@@ -323,7 +324,7 @@ public class InMemoryTasksManager implements TaskManager {
         //} else {
         //}
             sub.setDuration((int) subtask.getDuration().toDays());
-
+            sub.setStatus(subtask.getStatus().toString());
             sortedTasks.add(sub);
         } else {
             System.out.println("Подзадачи с id " + inputId + " нет.");
