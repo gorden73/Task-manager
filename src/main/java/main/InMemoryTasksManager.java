@@ -11,8 +11,6 @@ public class InMemoryTasksManager implements TaskManager {
     private HashMap<Long, Task> tasks = new HashMap<>();
     private HashMap<Long, Subtask> subtasks = new HashMap<>();
     private HashMap<Long, Epic> epics = new HashMap<>();
-    //private HashMap<Long, ArrayList<Subtask>> epicVsSubtask = new HashMap<>();
-    //private HashMap<Long, Long> subtaskVsEpic = new HashMap<>();
     private HistoryManager historyManager = new InMemoryHistoryManager();
     protected Set<Task> sortedTasks = new TreeSet<>((t1, t2) -> {
         if (t1.getId().equals(t2.getId())) {
@@ -23,6 +21,16 @@ public class InMemoryTasksManager implements TaskManager {
             return -1;
         }
     });
+
+    @Override
+    public void save() throws ManagerSaveException {
+
+    }
+
+    @Override
+    public Set<Task> getPrioritizedTasks() {
+        return sortedTasks;
+    }
 
     @Override
     public void setStartTime(String startTime, long id) throws ManagerSaveException {
@@ -114,26 +122,6 @@ public class InMemoryTasksManager implements TaskManager {
         epics.put(epic.getId(), epic);
     }
 
-    /*@Override
-    public HashMap<Long, Long> getSubtaskVsEpic() {
-        return subtaskVsEpic;
-    }
-
-    @Override
-    public HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask() {
-        return epicVsSubtask;
-    }*/
-
-    /*@Override
-    public void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList) {
-        epicVsSubtask.put(epicId, subtaskList);
-    }
-
-    @Override
-    public void setSubtaskVsEpic(Long subtaskId, Long epicId) {
-        subtaskVsEpic.put(subtaskId, epicId);
-    }*/
-
     @Override
     public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic)
                                     throws ManagerSaveException {
@@ -191,11 +179,7 @@ public class InMemoryTasksManager implements TaskManager {
         ArrayList<Subtask> subtaskList = epic.getSubtaskList();
         subtaskList.add(subtask);
         epic.setSubtaskList(subtaskList);
-        //epicVsSubtask.put(epic.getId(), subtaskList);
-        //subtaskVsEpic.put(id1, epic.getId());
         sortedTasks.add(subtask);
-        //ПЫТАЮСЬ РЕШИТЬ ПРОБЛЕМУ СОРТИРОВКИ ЭПИКА, ИЗМЕНЕНИЕ ЕГО ДАТ ПОСЛЕ ДОБАВЛЕНИЯ В ЛИСТ
-        //sortedTasks.remove(epic);
         Iterator<Task> iterator = sortedTasks.iterator();
         while(iterator.hasNext()) {
             if (iterator.next().equals(epic)) {
@@ -203,8 +187,6 @@ public class InMemoryTasksManager implements TaskManager {
             }
         }
         sortedTasks.add(epic);
-        //
-        //        ПЫТАЮСЬ РЕШИТЬ ПРОБЛЕМУ СОРТИРОВКИ ЭПИКА, ИЗМЕНЕНИЕ ЕГО ДАТ ПОСЛЕ ДОБАВЛЕНИЯ В ЛИСТ
         System.out.println("Задача добавлена");
         return subtask;
     }
@@ -247,29 +229,11 @@ public class InMemoryTasksManager implements TaskManager {
 
     @Override
     public void updateTask(long inputId, Task task) throws ManagerSaveException {
-        /*long id1 = inputId;
-        if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
-            System.out.println("Такой id уже используется");
-            System.out.println("Он будет изменён автоматически");
-            while (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
-                id1 *= 13;
-            }
-        }
-
-        tasks.put(inputId, task);
-        if (!sortedTasks.isEmpty()) {
-            for (Task task1 : sortedTasks) {
-                if (task1.getId().equals(task.getId())) {
-                    sortedTasks.remove(task1);
-                    sortedTasks.add(task);
-                }
-            }
-        }*/
         if (tasks.containsKey(inputId)) {
             Iterator<Task> iterator = sortedTasks.iterator();
             Task task1 = tasks.get(inputId);
             while(iterator.hasNext()) {
-                if (iterator.next().equals(task1)) {
+                if (iterator.next().equals(task)) {
                     iterator.remove();
                 }
             }
@@ -279,6 +243,7 @@ public class InMemoryTasksManager implements TaskManager {
             task1.setDuration((int) task.getDuration().toDays());
             task1.setStatus(task.getStatus().toString());
             sortedTasks.add(task1);
+            tasks.remove(task.getId());//добавил это, чтобы удалялась задача, которую вкинули как обновленную
         } else {
             System.out.println("Задачи с id " + inputId + " нет.");
         }
@@ -286,28 +251,6 @@ public class InMemoryTasksManager implements TaskManager {
 
     @Override
     public void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException {
-        //long id1 = inputId;
-        /*if (tasks.containsKey(subtask.getId()) || subtasks.containsKey(subtask.getId()) || epics.containsKey(subtask.getId())) {
-            System.out.println("Такой id уже используется." + "\n" + "Попробуйте ввести другой.");
-            return;
-        }*/
-        /*if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
-            System.out.println("Такой id уже используется");
-            System.out.println("Он будет изменён автоматически");
-            while (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
-                id1 *= 13;
-            }
-        }*/
-        /*if (!sortedTasks.isEmpty()) {
-            for (Task task1 : sortedTasks) {
-                if (task1.getId().equals(inputId)) {
-                    sortedTasks.remove(task1);
-                    sortedTasks.add(subtask);
-                }
-            }
-        }*/
-
-        // новый способ обновления - просто меняю name и description в сабтаске через сеттеры!!! вроде работает нормально
         if (subtasks.containsKey(inputId)) {
             Subtask sub = subtasks.get(inputId);
             Iterator<Task> iterator = sortedTasks.iterator();
@@ -318,38 +261,14 @@ public class InMemoryTasksManager implements TaskManager {
             }
             sub.setName(subtask.getName());
             sub.setDescription(subtask.getDescription());
-        //sub.setStatus(subtask.getStatus().toString());
-        //if (subtask.getStartTime().equals(Task.DEFAULT_DATE)) {
             sub.setStartTime(subtask.getStartTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
-        //} else {
-        //}
             sub.setDuration((int) subtask.getDuration().toDays());
             sub.setStatus(subtask.getStatus().toString());
             sortedTasks.add(sub);
+            subtasks.remove(subtask.getId());//добавил это, чтобы удалялась задача, которую вкинули как обновленную
         } else {
             System.out.println("Подзадачи с id " + inputId + " нет.");
         }
-        //
-        /*ArrayList<Subtask> subtasks1 = epicVsSubtask.get(subtaskVsEpic.get(inputId));
-        subtasks1.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка в менеджере
-        subtasks1.add(subtask); //добавляем новую сабтаску в список в менеджере
-        epicVsSubtask.put(subtaskVsEpic.get(inputId), subtasks1);//а новый список вносим в мапу в менеджере
-        Long idEpic = subtaskVsEpic.get(inputId);
-        Epic epic = epics.get(idEpic);
-        ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
-        subtasks2.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
-        subtasks2.add(subtask);
-        subtasks.put(inputId, subtask);
-        epic.setSubtaskList(subtasks2);*///добавляем новую сабтаску в список внутри эпика
-        //
-        /*Iterator<Task> iteraror = sortedTasks.iterator();
-        while(iteraror.hasNext()) {
-            if (iteraror.next().equals(epic)) {
-                iteraror.remove();
-            }
-        }
-        sortedTasks.add(epic);*/
-        //}
     }
 
     @Override
@@ -454,13 +373,11 @@ public class InMemoryTasksManager implements TaskManager {
     }
 
     @Override
-    public void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics
-        /*HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic*/) throws ManagerSaveException {
+    public void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics)
+                               throws ManagerSaveException {
         tasks.clear();
         subtasks.clear();
         epics.clear();
-        //epicVsSubtask.clear();
-        //subtaskVsEpic.clear();
         sortedTasks.clear();
     }
 }

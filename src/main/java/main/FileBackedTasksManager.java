@@ -21,7 +21,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     public static void main(String[] args) throws IOException, ManagerSaveException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
-        fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
+        /*fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
         fileBacked.createNewTask("Second", "task", 2, "31.01.2012", 2);
         fileBacked.createNewTask("Third", "task", 10);
         fileBacked.createNewEpic("First", "epic", 4);
@@ -36,7 +36,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
         fileBacked.updateTask(6, new Task("a", "b", 15));
         fileBacked.updateTask(2, new Task("c", "d", 33));
-        fileBacked.updateTask(1, new Task("f", "e", 16, "10.09.2023", 3));
+        fileBacked.updateTask(1, new Task("f", "e", 16, "10.09.2023", 3));*/
         /*fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);
@@ -66,11 +66,11 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         //fileBacked.removeSubtask(8);
     }
 
-    public Set<Task> getPrioritizedTasks() {
+    /*public Set<Task> getPrioritizedTasks() {
         return sortedTasks;
-    }
-
-    protected void save() throws ManagerSaveException {
+    }*/
+    @Override
+    public void save() throws ManagerSaveException {
         try (FileWriter writer = new FileWriter(fileToSave, StandardCharsets.UTF_8)) {
             writer.append("id,type,name,status,description,startTime,duration,endTime,epic" + "\n");
             for (Task task : getTasks().values()) {
@@ -327,8 +327,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     @Override
     public Subtask createNewSubtask(String inputName, String inputDescription, long id, String startTime, int duration,
-                                    Epic epic)
-                                    throws ManagerSaveException {
+                                    Epic epic) throws ManagerSaveException {
         if (!checkStartTimeIntersection(startTime, id)) {
             Subtask newSubtask = super.createNewSubtask(inputName, inputDescription, id, startTime, duration, epic);
             save();
@@ -352,6 +351,13 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     @Override
     public void updateTask(long inputId, Task task) throws ManagerSaveException {
+        Iterator<Task> iterator = sortedTasks.iterator();
+        //Task task1 = getTasks().get(task.getId());
+        while(iterator.hasNext()) {
+            if (iterator.next().equals(task)) {
+                iterator.remove();
+            }
+        }
         if (!checkStartTimeIntersection(task.getStartTime().toString(), inputId)) {
             super.updateTask(inputId, task);
             save();
@@ -360,6 +366,15 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     @Override
     public void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException {
+        Iterator<Task> iterator = sortedTasks.iterator();
+        //Subtask subtask1 = getSubtasks().get(subtask.getId());
+        while(iterator.hasNext()) {
+            if (iterator.next().equals(subtask) || iterator.next().equals(subtask.getEpic())) {
+                iterator.remove();
+            }
+        }
+        subtask.getEpic().getSubtaskList().remove(subtask);
+        sortedTasks.add(subtask.getEpic());
         if (!checkStartTimeIntersection(subtask.getStartTime().toString(), inputId)) {
             super.updateSubtask(inputId, subtask);
             save();
@@ -412,10 +427,9 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     @Override
-    public void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics
-                               /*HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic*/)
+    public void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics)
                                throws ManagerSaveException {
-        super.removeAllTasks(tasks, subtasks, epics/*, epicVsSubtask, subtaskVsEpic*/);
+        super.removeAllTasks(tasks, subtasks, epics);
         save();
     }
 }

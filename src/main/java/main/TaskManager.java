@@ -8,6 +8,10 @@ import java.util.*;
 
 public interface TaskManager {
 
+    void save() throws ManagerSaveException;
+
+    Set<Task> getPrioritizedTasks();
+
     void setStartTime(String startTime, long id) throws ManagerSaveException;
 
     void setDuration(int duration, long id) throws ManagerSaveException;
@@ -20,10 +24,6 @@ public interface TaskManager {
 
     HashMap<Long, Epic> getEpics();
 
-    //HashMap<Long, Long> getSubtaskVsEpic();
-
-    //HashMap<Long, ArrayList<Subtask>> getEpicVsSubtask();
-
     HistoryManager getHistoryManager();
 
     void setTasks(Task task);
@@ -31,10 +31,6 @@ public interface TaskManager {
     void setSubtasks(Subtask subtask);
 
     void setEpics(Epic epic);
-
-    //void setSubtaskVsEpic(Long subtaskId, Long epicId);
-
-    //void setEpicVsSubtask(Long epicId, ArrayList<Subtask> subtaskList);
 
     Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) throws ManagerSaveException;
 
@@ -68,7 +64,6 @@ public interface TaskManager {
 
     void removeSubtask(long inputId) throws ManagerSaveException;
 
-    void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics/*,
-                        HashMap<Long, ArrayList<Subtask>> epicVsSubtask, HashMap<Long, Long> subtaskVsEpic*/)
+    void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics)
                         throws ManagerSaveException;
 }

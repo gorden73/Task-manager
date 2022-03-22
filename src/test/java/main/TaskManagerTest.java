@@ -1,26 +1,30 @@
 package main;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tasktracker.Epic;
 import tasktracker.StatusOfTasks;
 import tasktracker.Subtask;
 import tasktracker.Task;
 
-import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/*abstract*/ class TaskManagerTest/*<T extends TaskManager> */ {
+abstract class TaskManagerTest {
+    protected InMemoryTasksManager taskManager;
 
-        TaskManager taskManager;
-
-    @BeforeEach
-    void start() throws IOException {
-        taskManager = new InMemoryTasksManager();
+    @Test
+    public void getPrioritizedTasks() {
+        int size = taskManager.getPrioritizedTasks().size();
+        assertEquals(0, size, "Отсортированный список должен быть пустым.");
+        Set<Task> taskSet = taskManager.getPrioritizedTasks();
+        taskSet.add(new Task("A", "B", 1));
+        assertEquals(1, taskSet.size(), "В списке должна быть 1 задача.");
+        taskSet.add(new Epic("D", "C", 2));
+        assertEquals(2, taskSet.size(), "В списке должно быть 2 задачи.");
+        taskSet.clear();
+        assertEquals(0, size, "Отсортированный список должен быть пустым.");
     }
 
     @Test
@@ -114,6 +118,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
     @Test
     public void getTasks() {
+        Task task2 = taskManager.getTasks().get(2L);
+        assertNull(task2);
         assertEquals(0, taskManager.getTasks().size(), "Таблица задач должна быть пустой.");
         Task task = new Task("A", "B", 1);
         taskManager.setTasks(task);
@@ -150,23 +156,13 @@ import static org.junit.jupiter.api.Assertions.*;
         assertEquals(2, taskManager.getEpics().size(), "Таблица эпиков должна содержать 2 эпика.");
         assertEquals(epic1, taskManager.getEpics().get(3L), "Эпики не совпадают.");
     }
-    //setTasks(), setSubtasks(), setEpics() проверяются в аналогичных геттерах выше
+    //setTasks(), setSubtasks(), setEpics() проверяются внутри геттеров выше
 
     @Test
     public void getHistoryManager() {
         HistoryManager historyManager = taskManager.getHistoryManager();
         assertEquals(InMemoryHistoryManager.class, historyManager.getClass());
     }
-
-    /*@Test
-    public void setTasks() {
-    }
-    @Test
-    public void setSubtasks() {
-    }
-    @Test
-    public void setEpics() {
-    }*/
 
     @Test
     public void getHistory() throws ManagerSaveException {
@@ -238,6 +234,7 @@ import static org.junit.jupiter.api.Assertions.*;
                 "Даты начала выполнения задачи не совпадают.");
         assertEquals(subtask1.getDuration(), subtask.getDuration(), "Продолжительности не совпадают.");
         assertNotEquals(subtask1.getId(), subtask.getId(), "Id не должны совпадать.");
+        assertEquals(subtask1.getEndTime(), epic.getEndTime());
     }
 
     @Test
@@ -283,8 +280,6 @@ import static org.junit.jupiter.api.Assertions.*;
         assertEquals(0, taskManager.getTasks().size());
         assertEquals(0, taskManager.getSubtasks().size());
         assertEquals(0, taskManager.getEpics().size());
-        //assertEquals(0, taskManager.getEpicVsSubtask().size());
-        //assertEquals(0, taskManager.getSubtaskVsEpic().size());
         Epic epic = taskManager.createNewEpic("a", "b", 1);
         Subtask subtask = taskManager.createNewSubtask("a", "b", 2, "05.07.2005",
                 3, epic);
@@ -295,14 +290,9 @@ import static org.junit.jupiter.api.Assertions.*;
         assertEquals(1, taskManager.getTasks().size());
         assertEquals(1, taskManager.getSubtasks().size());
         assertEquals(1, taskManager.getEpics().size());
-        //assertEquals(1, taskManager.getEpicVsSubtask().size());
-        //assertEquals(1, taskManager.getSubtaskVsEpic().size());
-        taskManager.removeAllTasks(taskManager.getTasks(), taskManager.getSubtasks(), taskManager.getEpics()
-                /*taskManager.getEpicVsSubtask(), taskManager.getSubtaskVsEpic()*/);
+        taskManager.removeAllTasks(taskManager.getTasks(), taskManager.getSubtasks(), taskManager.getEpics());
         assertEquals(0, taskManager.getTasks().size());
         assertEquals(0, taskManager.getSubtasks().size());
         assertEquals(0, taskManager.getEpics().size());
-        //assertEquals(0, taskManager.getEpicVsSubtask().size());
-        //assertEquals(0, taskManager.getSubtaskVsEpic().size());
     }
 }
