@@ -57,20 +57,6 @@ import static org.junit.jupiter.api.Assertions.*;
         assertEquals(epic, taskManager.getEpic(2L), "Подзадачи не совпадают.");
     }
 
-    /*@Test
-    public void createNewSubtask() throws ManagerSaveException {
-        Subtask subtask = taskManager.createNewSubtask("a", "b", 2, "09.08.2002", 3,
-                new Epic("c", "d", 1));
-        assertNotNull(taskManager.getSubtask(2), "Подзадача не найдена.");
-        assertEquals(subtask, taskManager.getSubtask(2), "Подзадачи не совпадают.");
-    }*/
-
-    /*@Test
-    public void createNewTask(String inputName, String inputDescription, long id, String startTime, int duration)
-            throws ManagerSaveException {
-
-    }*/
-
     @Test
     public void setStartTime() throws ManagerSaveException {
         Task task = taskManager.createNewTask("a", "b", 1, "09.08.2002", 3);

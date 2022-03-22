@@ -11,7 +11,6 @@ public class Task {
     protected final long id;
     private LocalDate startTime;
     private Duration duration;
-    private LocalDate endTime;
     public static final LocalDate DEFAULT_DATE = LocalDate.of(9999, 01, 01);
     public static final Duration DEFAULT_DURATION = Duration.ofDays(0);
 
