@@ -9,6 +9,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTasksManager {
@@ -20,7 +21,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     public static void main(String[] args) throws IOException, ManagerSaveException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
-        /*fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
+        fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
         fileBacked.createNewTask("Second", "task", 2, "31.01.2012", 2);
         fileBacked.createNewTask("Third", "task", 10);
         fileBacked.createNewEpic("First", "epic", 4);
@@ -35,7 +36,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
         fileBacked.updateTask(6, new Task("a", "b", 15));
         fileBacked.updateTask(2, new Task("c", "d", 33));
-        fileBacked.updateTask(1, new Task("f", "e", 16, "10.09.2023", 3));*/
+        fileBacked.updateTask(1, new Task("f", "e", 16, "10.09.2023", 3));
         /*fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);
@@ -69,7 +70,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         return sortedTasks;
     }
 
-    private void save() throws ManagerSaveException {
+    protected void save() throws ManagerSaveException {
         try (FileWriter writer = new FileWriter(fileToSave, StandardCharsets.UTF_8)) {
             writer.append("id,type,name,status,description,startTime,duration,endTime,epic" + "\n");
             for (Task task : getTasks().values()) {
@@ -218,10 +219,15 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         } else {
             return check;
         }
-        if (LocalDate.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd")).equals(Task.DEFAULT_DATE)) {
+        LocalDate time;
+        try {
+            time = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } catch (DateTimeParseException e) {
+            time = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        }
+        if (time.equals(Task.DEFAULT_DATE)) {
             return check;
         }
-        LocalDate time = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd")); //изменю здесь паттерн с dd.MM.yyyy на yyyy-MM-dd
         for (Task someTask : sortedTasks) {
             if (check) {
                 break;
@@ -298,7 +304,8 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     @Override
-    public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) throws ManagerSaveException {
+    public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic)
+                                    throws ManagerSaveException {
         Subtask newSubtask = super.createNewSubtask(inputName, inputDescription, id, epic);
         save();
         return newSubtask;
@@ -327,7 +334,8 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             save();
             return newSubtask;
         }
-        return new Subtask(inputName, inputDescription, id, Task.DEFAULT_DATE.toString(), 0, epic);
+        return new Subtask(inputName, inputDescription, id,
+                           Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0, epic);
     }
 
     @Override
@@ -338,7 +346,8 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             save();
             return newTask;
         }
-        return new Task(inputName, inputDescription, id, Task.DEFAULT_DATE.toString(), 0);
+        return new Task(inputName, inputDescription, id,
+                        Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0);
     }
 
     @Override
