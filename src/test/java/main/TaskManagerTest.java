@@ -99,7 +99,7 @@ abstract class TaskManagerTest {
     public void setStatus() throws ManagerSaveException {
         Task task = taskManager.createNewTask("a", "b", 1, "09.08.2002", 3);
         Epic epic = taskManager.createNewEpic("a", "b", 2);
-        //у эпика setStatus() проверил в классе EpicTest
+        //у эпика setStatus() проверил в EpicTest
         Subtask subtask = taskManager.createNewSubtask("a", "b", 3, "05.07.2005",
                 3, epic);
         task.setStatus("NEW");
