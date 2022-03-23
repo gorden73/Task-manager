@@ -21,7 +21,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     public static void main(String[] args) throws IOException, ManagerSaveException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
-        /*fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
+        fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
         fileBacked.createNewTask("Second", "task", 2, "31.01.2012", 2);
         fileBacked.createNewTask("Third", "task", 10);
         fileBacked.createNewEpic("First", "epic", 4);
@@ -30,14 +30,17 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         for (Task task1 : fileBacked.getPrioritizedTasks()) {
             System.out.println(task1.getStartTime() + " " + task1.getId());
         }
-        fileBacked.createNewSubtask("First", "subtask", 6, "25.04.2013", 2, epic);
-        fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4, epic);
-        fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6, epic);
+        fileBacked.createNewSubtask("First", "subtask", 6, "25.04.2013", 2,
+                                    epic);
+        fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4,
+                                    epic);
+        fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6,
+                                    epic);
         fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
         fileBacked.updateTask(6, new Task("a", "b", 15));
         fileBacked.updateTask(2, new Task("c", "d", 33));
-        fileBacked.updateTask(1, new Task("f", "e", 16, "10.09.2023", 3));*/
-        /*fileBacked.getTask(1);
+        fileBacked.updateTask(1, new Task("f", "e", 16, "10.09.2023", 3));
+        fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);
         fileBacked.getSubtask(6);
@@ -45,30 +48,30 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.getEpic(5);
         fileBacked.getSubtask(7);
         fileBacked.getSubtask(8);
-        fileBacked.getSubtask(7);*/
-        /*for (Task t : fileBacked.getHistory()) {
+        fileBacked.getSubtask(7);
+        for (Task t : fileBacked.getHistory()) {
             System.out.println(t);
-        }*/
+        }
         for (Task task1 : fileBacked.getPrioritizedTasks()) {
             System.out.println(task1.getStartTime() + " " + task1.getId());
         }
         System.out.println("Размер списка");
         System.out.println(fileBacked.getPrioritizedTasks().size());
-        //fileBacked.setDuration(10, 1);
-        //fileBacked.setStartTime("15.04.2013", 2);
-        //fileBacked.createNewSubtask("a", "b", 11, "12.12.2012", 6, fileBacked.getEpics().get(4L));
-        //fileBacked.createNewSubtask("a", "b", 17, "12.12.2012", 1, fileBacked.getEpics().get(4L));
-        //fileBacked.createNewSubtask("a", "b", 18, "12.12.2012", 2, fileBacked.getEpics().get(4L));
-        //System.out.println(fileBacked.getTask(3).getDuration().toDays());
-        //System.out.println(fileBacked.getEpic(5).getDuration().toDays());
-        //fileBacked.updateSubtask(7, new Subtask("Updated", "Subtask",
-         //       7, "20.06.16", 6, epic));
-        //fileBacked.removeSubtask(8);
+        fileBacked.setDuration(10, 1);
+        fileBacked.setStartTime("15.04.2013", 2);
+        fileBacked.createNewSubtask("a", "b", 11, "12.12.2012", 6,
+                                    fileBacked.getEpics().get(4L));
+        fileBacked.createNewSubtask("a", "b", 17, "12.12.2012", 1,
+                                    fileBacked.getEpics().get(4L));
+        fileBacked.createNewSubtask("a", "b", 18, "12.12.2012", 2,
+                                    fileBacked.getEpics().get(4L));
+        System.out.println(fileBacked.getTask(3).getDuration().toDays());
+        System.out.println(fileBacked.getEpic(5).getDuration().toDays());
+        fileBacked.updateSubtask(7, new Subtask("Updated", "Subtask", 7, "20.06.2016",
+        6, epic));
+        fileBacked.removeSubtask(8);
     }
 
-    /*public Set<Task> getPrioritizedTasks() {
-        return sortedTasks;
-    }*/
     @Override
     public void save() throws ManagerSaveException {
         try (FileWriter writer = new FileWriter(fileToSave, StandardCharsets.UTF_8)) {
@@ -352,7 +355,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     @Override
     public void updateTask(long inputId, Task task) throws ManagerSaveException {
         Iterator<Task> iterator = sortedTasks.iterator();
-        //Task task1 = getTasks().get(task.getId());
         while(iterator.hasNext()) {
             if (iterator.next().equals(task)) {
                 iterator.remove();
@@ -367,9 +369,9 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     @Override
     public void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException {
         Iterator<Task> iterator = sortedTasks.iterator();
-        //Subtask subtask1 = getSubtasks().get(subtask.getId());
         while(iterator.hasNext()) {
-            if (iterator.next().equals(subtask) || iterator.next().equals(subtask.getEpic())) {
+            Task task = iterator.next();
+            if (task.equals(subtask) || task.equals(subtask.getEpic())) {
                 iterator.remove();
             }
         }

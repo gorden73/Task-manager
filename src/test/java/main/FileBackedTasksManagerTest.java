@@ -1,6 +1,5 @@
 package main;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,18 +10,15 @@ import tasktracker.Task;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TasksManagerTest extends TaskManagerTest {
-    //taskManagerTasksManager taskManager;
+class FileBackedTasksManagerTest extends TaskManagerTest {
     File fileToSave;
 
     @BeforeEach
     void start() throws IOException{
         fileToSave = new File("backup.csv");
-        //taskManager = Managers.getBackup(fileToSave);
         taskManager = Managers.getBackup(fileToSave);
     }
 
@@ -36,24 +32,8 @@ class TasksManagerTest extends TaskManagerTest {
         taskManager.save();
     }
 
-    /*@Test
-    public void getPrioritizedTasks() {
-        if (!fileToSave.isFile()) {
-            int size = taskManager.getPrioritizedTasks().size();
-            assertEquals(0, size, "Отсортированный список должен быть пустым.");
-            Set<Task> taskSet = taskManager.getPrioritizedTasks();
-            taskSet.add(new Task("A", "B", 1));
-            assertEquals(1, taskSet.size(), "В списке должна быть 1 задача.");
-            taskSet.add(new Epic("D", "C", 2));
-            assertEquals(2, taskSet.size(), "В списке должно быть 2 задачи.");
-            taskSet.clear();
-            assertEquals(0, size, "Отсортированный список должен быть пустым.");
-        }
-    }*/
-
     @Test
     public void save() throws ManagerSaveException, IOException {
-        taskManager.save();
         taskManager = FileBackedTasksManager.loadFromFile(fileToSave);
         assertEquals(0, taskManager.getTasks().size());
         assertEquals(0, taskManager.getSubtasks().size());
@@ -172,8 +152,7 @@ class TasksManagerTest extends TaskManagerTest {
     }
 
     @Test
-    public void loadFromFileWhenFileIsEmpty() throws IOException, ManagerSaveException {
-        taskManager.save();
+    public void loadFromFileWhenFileIsEmpty() throws IOException {
         taskManager = FileBackedTasksManager.loadFromFile(fileToSave);
         assertEquals(0, taskManager.getTasks().size());
         assertEquals(0, taskManager.getSubtasks().size());
@@ -184,19 +163,17 @@ class TasksManagerTest extends TaskManagerTest {
 
     @Test
     public void getHistory() throws ManagerSaveException {
-        if (!fileToSave.isFile()) {
-            assertEquals(0, taskManager.getHistory().size());
-            Task task = taskManager.createNewTask("a", "b", 1, "09.08.2002", 3);
-            Epic epic = taskManager.createNewEpic("a", "b", 2);
-            Subtask subtask = taskManager.createNewSubtask("a", "b", 3, "05.07.2005",
-                    3, epic);
-            taskManager.getTask(1);
-            taskManager.getSubtask(3);
-            taskManager.getEpic(2);
-            assertEquals(3, taskManager.getHistory().size());
-            assertEquals(task, taskManager.getHistory().get(0));
-            assertEquals(subtask, taskManager.getHistory().get(1));
-            assertEquals(epic, taskManager.getHistory().get(2));
-        }
+        assertEquals(0, taskManager.getHistory().size());
+        Task task = taskManager.createNewTask("a", "b", 1, "09.08.2002", 3);
+        Epic epic = taskManager.createNewEpic("a", "b", 2);
+        Subtask subtask = taskManager.createNewSubtask("a", "b", 3, "05.07.2005",
+                                               3, epic);
+        taskManager.getTask(1);
+        taskManager.getSubtask(3);
+        taskManager.getEpic(2);
+        assertEquals(3, taskManager.getHistory().size());
+        assertEquals(task, taskManager.getHistory().get(0));
+        assertEquals(subtask, taskManager.getHistory().get(1));
+        assertEquals(epic, taskManager.getHistory().get(2));
     }
 }

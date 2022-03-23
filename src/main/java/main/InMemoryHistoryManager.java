@@ -92,13 +92,4 @@ public class InMemoryHistoryManager implements HistoryManager {
     public List<Task> getHistory() {
         return getTasks();
     }
-
-    //удалить геттер и сеттер historyMap
-    /*public Map<Long, Node> getHistoryMap() {
-        return historyMap;
-    }
-
-    public void setHistoryMap(Map<Long, Node> historyMap) {
-        this.historyMap = historyMap;
-    }*/
 }

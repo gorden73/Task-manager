@@ -24,7 +24,6 @@ public class InMemoryTasksManager implements TaskManager {
 
     @Override
     public void save() throws ManagerSaveException {
-
     }
 
     @Override
@@ -138,8 +137,6 @@ public class InMemoryTasksManager implements TaskManager {
         ArrayList<Subtask> subtaskList = epic.getSubtaskList();
         subtaskList.add(subtask);
         epic.setSubtaskList(subtaskList);
-        //epicVsSubtask.put(epic.getId(), subtaskList);
-        //subtaskVsEpic.put(id1, epic.getId());
         sortedTasks.add(subtask);
         System.out.println("Задача добавлена");
         return subtask;
@@ -243,7 +240,7 @@ public class InMemoryTasksManager implements TaskManager {
             task1.setDuration((int) task.getDuration().toDays());
             task1.setStatus(task.getStatus().toString());
             sortedTasks.add(task1);
-            tasks.remove(task.getId());//добавил это, чтобы удалялась задача, которую вкинули как обновленную
+            tasks.remove(task.getId());
         } else {
             System.out.println("Задачи с id " + inputId + " нет.");
         }
@@ -265,7 +262,7 @@ public class InMemoryTasksManager implements TaskManager {
             sub.setDuration((int) subtask.getDuration().toDays());
             sub.setStatus(subtask.getStatus().toString());
             sortedTasks.add(sub);
-            subtasks.remove(subtask.getId());//добавил это, чтобы удалялась задача, которую вкинули как обновленную
+            subtasks.remove(subtask.getId());
         } else {
             System.out.println("Подзадачи с id " + inputId + " нет.");
         }
@@ -280,21 +277,11 @@ public class InMemoryTasksManager implements TaskManager {
         } else {
             System.out.println("Эпика с id " + inputId + " нет.");
         }
-        /*epics.put(inputId, epic);
-        if (!sortedTasks.isEmpty()) {
-            for (Task task1 : sortedTasks) {
-                if (task1.getId().equals(epic.getId())) {
-                    sortedTasks.remove(task1);
-                    sortedTasks.add(epic);
-                }
-            }
-        }*/
     }
 
     @Override
     public void removeTask(long inputId) throws ManagerSaveException {
         if (tasks.containsKey(inputId)) {
-            //sortedTasks.remove(tasks.get(inputId));
             Iterator<Task> iterator = sortedTasks.iterator();
             while(iterator.hasNext()) {
                 if (iterator.next().equals(tasks.get(inputId))) {
@@ -313,7 +300,6 @@ public class InMemoryTasksManager implements TaskManager {
     public void removeEpic(long inputId) throws ManagerSaveException {
         if (epics.containsKey(inputId)) {
             Epic epic = epics.get(inputId);
-            //sortedTasks.remove(epic);
             Iterator<Task> iterator = sortedTasks.iterator();
             while(iterator.hasNext()) {
                 if (iterator.next().equals(epics.get(inputId))) {
@@ -338,7 +324,6 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public void removeSubtask(long inputId) throws ManagerSaveException {
         if (subtasks.containsKey(inputId)) {
-            //sortedTasks.remove(subtasks.get(inputId));
             Iterator<Task> iterator = sortedTasks.iterator();
             while(iterator.hasNext()) {
                 if (iterator.next().equals(subtasks.get(inputId))) {
@@ -348,23 +333,12 @@ public class InMemoryTasksManager implements TaskManager {
             Long epicId = subtasks.get(inputId).getEpic().getId();
             Epic epic = epics.get(epicId);
             ArrayList<Subtask> subtasks1 = epic.getSubtaskList();
-            subtasks1.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
+            subtasks1.remove(subtasks.get(inputId));
             epic.setSubtaskList(subtasks1);
             subtasks.remove(inputId);
             if (epic.getSubtaskList().isEmpty()) {
                 epics.remove(epicId);
             }
-            /*Long epicId = subtaskVsEpic.get(inputId);
-            ArrayList<Subtask> subtasks1 = epicVsSubtask.get(epicId);
-            subtasks1.remove(subtasks.get(inputId));
-            subtasks.remove(inputId);
-            Epic epic = epics.get(epicId);
-            ArrayList<Subtask> subtasks2 = epic.getSubtaskList();
-            subtasks2.remove(subtasks.get(inputId));//удаляем старую сабтаску из списка внутри эпика
-            epic.setSubtaskList(subtasks2);
-            if (subtasks1.isEmpty()) {
-                epics.remove(subtaskVsEpic.get(inputId));
-            }*/
             historyManager.remove(inputId);
             System.out.println("Задача удалена");
         } else {
@@ -378,6 +352,7 @@ public class InMemoryTasksManager implements TaskManager {
         tasks.clear();
         subtasks.clear();
         epics.clear();
+        historyManager.getHistory().clear();
         sortedTasks.clear();
     }
 }

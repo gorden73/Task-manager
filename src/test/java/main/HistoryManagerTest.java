@@ -45,6 +45,9 @@ class HistoryManagerTest {
 
     @Test
     void remove() {
+        assertEquals(0, historyManager.getHistory().size());
+        historyManager.remove(1L);
+        assertEquals(0, historyManager.getHistory().size());
         historyManager.add(epic);
         assertEquals(1, historyManager.getHistory().size());
         historyManager.remove(1L);
