@@ -98,50 +98,48 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public static FileBackedTasksManager loadFromFile(File file) throws IOException {
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         List<String> list = new LinkedList<>();
-        try {
-            FileReader reader = new FileReader(file, StandardCharsets.UTF_8);
-            BufferedReader bufferedReader = new BufferedReader(reader);
-            while (bufferedReader.ready()) {
-                String line = bufferedReader.readLine();
-                list.add(line);
-            }
-            for (int i = 1; i < list.size()-1; i++) {
-                if (list.get(i).isBlank()) {
-                    break;
-                }
-                Task taskFromFile = taskFromString(list.get(i), fileBackedTasksManager.getEpics());
-                fileBackedTasksManager.sortedTasks.add(taskFromFile);
-                if (taskFromFile.getClass().equals(Task.class)) {
-                    fileBackedTasksManager.setTasks(taskFromFile);
-                } else if (taskFromFile.getClass().equals(Subtask.class)) {
-                    Iterator<Task> iterator = fileBackedTasksManager.sortedTasks.iterator();
-                    while(iterator.hasNext()) {
-                        if (iterator.next().equals(((Subtask) taskFromFile).getEpic())) {
-                            iterator.remove();
-                        }
-                    }
-                    fileBackedTasksManager.sortedTasks.add(((Subtask) taskFromFile).getEpic());
-                    fileBackedTasksManager.setSubtasks((Subtask) taskFromFile);
-                } else if (taskFromFile.getClass().equals(Epic.class)) {
-                    fileBackedTasksManager.setEpics((Epic) taskFromFile);
-                }
-            }
-            List<Long> historyId = fromString(list.get(list.size() - 1));
-            for (Long id : historyId) {
-                if (fileBackedTasksManager.getTasks().containsKey(id)) {
-                    fileBackedTasksManager.getHistoryManager().add(fileBackedTasksManager.getTasks().get(id));
-                } else if (fileBackedTasksManager.getSubtasks().containsKey(id)) {
-                    fileBackedTasksManager.getHistoryManager().add(fileBackedTasksManager.getSubtasks().get(id));
-                } else if (fileBackedTasksManager.getEpics().containsKey(id)) {
-                    fileBackedTasksManager.getHistoryManager().add(fileBackedTasksManager.getEpics().get(id));
-                }
-            }
-            bufferedReader.close();
-        } catch (NullPointerException e) {
-            System.out.println("Отсутствует значение параметра. Проверьте введенные данные.");
-            e.printStackTrace();
+        FileReader reader = new FileReader(file, StandardCharsets.UTF_8);
+        BufferedReader bufferedReader = new BufferedReader(reader);
+        while (bufferedReader.ready()) {
+            String line = bufferedReader.readLine();
+            list.add(line);
         }
-            return fileBackedTasksManager;
+        for (int i = 1; i < list.size()-1; i++) {
+            if (list.get(i).isBlank()) {
+                break;
+            }
+            Task taskFromFile = taskFromString(list.get(i), fileBackedTasksManager.getEpics());
+            if (taskFromFile == null) {
+                System.out.println("Тип задачи не поддерживается. Проверьте введенные данные в файле.");
+            }
+            fileBackedTasksManager.sortedTasks.add(taskFromFile);
+            if (taskFromFile.getClass().equals(Task.class)) {
+                fileBackedTasksManager.setTasks(taskFromFile);
+            } else if (taskFromFile.getClass().equals(Subtask.class)) {
+                Iterator<Task> iterator = fileBackedTasksManager.sortedTasks.iterator();
+                while(iterator.hasNext()) {
+                    if (iterator.next().equals(((Subtask) taskFromFile).getEpic())) {
+                        iterator.remove();
+                    }
+                }
+                fileBackedTasksManager.sortedTasks.add(((Subtask) taskFromFile).getEpic());
+                fileBackedTasksManager.setSubtasks((Subtask) taskFromFile);
+            } else if (taskFromFile.getClass().equals(Epic.class)) {
+                fileBackedTasksManager.setEpics((Epic) taskFromFile);
+            }
+        }
+        List<Long> historyId = fromString(list.get(list.size() - 1));
+        for (Long id : historyId) {
+            if (fileBackedTasksManager.getTasks().containsKey(id)) {
+                fileBackedTasksManager.getHistoryManager().add(fileBackedTasksManager.getTasks().get(id));
+            } else if (fileBackedTasksManager.getSubtasks().containsKey(id)) {
+                fileBackedTasksManager.getHistoryManager().add(fileBackedTasksManager.getSubtasks().get(id));
+            } else if (fileBackedTasksManager.getEpics().containsKey(id)) {
+                fileBackedTasksManager.getHistoryManager().add(fileBackedTasksManager.getEpics().get(id));
+            }
+        }
+        bufferedReader.close();
+        return fileBackedTasksManager;
     }
 
     private String toString(Task task) {
@@ -214,12 +212,8 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     private boolean checkStartTimeIntersection(String startTime, long id) {
         boolean check = false;
-        Task task = null;
-        if (getTasks().containsKey(id)) {
-            task = getTasks().get(id);
-        } else if (getSubtasks().containsKey(id)) {
-            task = (Task) getSubtasks().get(id);
-        } else {
+        Task task = checkTaskAvailability(id);
+        if (task == null) {
             return check;
         }
         LocalDate time;
@@ -249,14 +243,16 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         return check;
     }
 
+    private Task checkTaskAvailability(long id) {
+        if (getTasks().containsKey(id)) {
+            return getTasks().get(id);
+        } else return getSubtasks().getOrDefault(id, null);
+    }
+
     private boolean checkStartTimeIntersectionWithDuration(int duration, long id) {
         boolean check = false;
-        Task task = null;
-        if (getTasks().containsKey(id)) {
-            task = getTasks().get(id);
-        } else if (getSubtasks().containsKey(id)) {
-            task = (Task) getSubtasks().get(id);
-        } else {
+        Task task = checkTaskAvailability(id);
+        if (task == null) {
             return check;
         }
         for (Task someTask : sortedTasks) {

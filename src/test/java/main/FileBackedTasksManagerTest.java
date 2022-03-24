@@ -17,9 +17,15 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
     File fileToSave;
 
     @BeforeEach
-    void start() throws IOException{
+    void start() throws IOException, ManagerSaveException {
         fileToSave = new File("backup.csv");
         taskManager = Managers.getBackup(fileToSave);
+        taskManager.getTasks().clear();
+        taskManager.getSubtasks().clear();
+        taskManager.getEpics().clear();
+        taskManager.getPrioritizedTasks().clear();
+        taskManager.getHistory().clear();
+        taskManager.save();
     }
 
     @AfterEach
@@ -33,13 +39,19 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
     }
 
     @Test
-    public void save() throws ManagerSaveException, IOException {
+    public void saveWhenFileIsEmpty() throws ManagerSaveException, IOException {
         taskManager = FileBackedTasksManager.loadFromFile(fileToSave);
         assertEquals(0, taskManager.getTasks().size());
         assertEquals(0, taskManager.getSubtasks().size());
         assertEquals(0, taskManager.getEpics().size());
         assertEquals(0, taskManager.getHistory().size());
         assertEquals(0, taskManager.getPrioritizedTasks().size());
+        taskManager.save();
+        assertTrue(fileToSave.isFile());
+    }
+
+    @Test
+    public void saveWhenEpicsWithoutSubtasks() throws ManagerSaveException, IOException {
         Task task1 = new Task("a", "b", 1, "09.08.2002", 3);
         taskManager.getTasks().put(1L, task1);
         taskManager.getPrioritizedTasks().add(task1);
@@ -55,6 +67,43 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         assertEquals(1, taskManager.getEpics().size());
         assertEquals(2, taskManager.getHistory().size());
         assertEquals(2, taskManager.getPrioritizedTasks().size());
+    }
+
+    @Test
+    public void saveWhenHistoryIsEmpty() throws ManagerSaveException, IOException {
+        Task task1 = new Task("a", "b", 1, "09.08.2002", 3);
+        taskManager.getTasks().put(1L, task1);
+        taskManager.getPrioritizedTasks().add(task1);
+        Epic epic1 = new Epic("a", "b", 2);
+        taskManager.getEpics().put(2L, epic1);
+        taskManager.getPrioritizedTasks().add(epic1);
+        Subtask subtask1 = new Subtask("a", "b", 3, "05.07.2005",3, epic1);
+        taskManager.getSubtasks().put(3L, subtask1);
+        ArrayList<Subtask> subtaskList = epic1.getSubtaskList();
+        subtaskList.add(subtask1);
+        epic1.setSubtaskList(subtaskList);
+        taskManager.getPrioritizedTasks().add(subtask1);
+        taskManager.save();
+        taskManager = FileBackedTasksManager.loadFromFile(fileToSave);
+        assertEquals(1, taskManager.getTasks().size());
+        assertEquals(1, taskManager.getSubtasks().size());
+        assertEquals(1, taskManager.getEpics().size());
+        assertEquals(0, taskManager.getHistory().size());
+        assertEquals(task1, taskManager.getTask(1));
+        assertEquals(subtask1, taskManager.getSubtask(3));
+        assertEquals(epic1, taskManager.getEpic(2));
+    }
+
+    @Test
+    public void saveDefault() throws ManagerSaveException, IOException {
+        Task task1 = new Task("a", "b", 1, "09.08.2002", 3);
+        taskManager.getTasks().put(1L, task1);
+        taskManager.getPrioritizedTasks().add(task1);
+        taskManager.getHistoryManager().add(taskManager.getTasks().get(1L));
+        Epic epic1 = new Epic("a", "b", 2);
+        taskManager.getEpics().put(2L, epic1);
+        taskManager.getPrioritizedTasks().add(epic1);
+        taskManager.getHistoryManager().add(taskManager.getEpics().get(2L));
         Subtask subtask1 = new Subtask("a", "b", 3, "05.07.2005",3, epic1);
         taskManager.getSubtasks().put(3L, subtask1);
         ArrayList<Subtask> subtaskList = epic1.getSubtaskList();
@@ -62,20 +111,17 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         epic1.setSubtaskList(subtaskList);
         taskManager.getPrioritizedTasks().add(subtask1);
         taskManager.getHistoryManager().add(taskManager.getSubtasks().get(3L));
+        assertEquals(1, taskManager.getTasks().size());
+        assertEquals(1, taskManager.getSubtasks().size());
+        assertEquals(1, taskManager.getEpics().size());
+        assertEquals(3, taskManager.getHistory().size());
+        assertEquals(task1, taskManager.getTask(1));
+        assertEquals(subtask1, taskManager.getSubtask(3));
+        assertEquals(epic1, taskManager.getEpic(2));
+        assertEquals(task1, taskManager.getHistory().get(0));
+        assertEquals(subtask1, taskManager.getHistory().get(1));
+        assertEquals(epic1, taskManager.getHistory().get(2));
         taskManager.save();
-        taskManager.getTasks().clear();
-        taskManager.getSubtasks().clear();
-        taskManager.getEpics().clear();
-        taskManager.getPrioritizedTasks().clear();
-        HistoryManager historyManager = taskManager.getHistoryManager();
-        historyManager.remove(1L);
-        historyManager.remove(2L);
-        historyManager.remove(3L);
-        assertEquals(0, taskManager.getTasks().size());
-        assertEquals(0, taskManager.getSubtasks().size());
-        assertEquals(0, taskManager.getEpics().size());
-        assertEquals(0, taskManager.getHistory().size());
-        assertEquals(0, taskManager.getPrioritizedTasks().size());
         taskManager = FileBackedTasksManager.loadFromFile(fileToSave);
         assertEquals(1, taskManager.getTasks().size());
         assertEquals(1, taskManager.getSubtasks().size());
@@ -84,6 +130,9 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         assertEquals(task1, taskManager.getTask(1));
         assertEquals(subtask1, taskManager.getSubtask(3));
         assertEquals(epic1, taskManager.getEpic(2));
+        assertEquals(task1, taskManager.getHistory().get(0));
+        assertEquals(subtask1, taskManager.getHistory().get(1));
+        assertEquals(epic1, taskManager.getHistory().get(2));
     }
 
     @Test
