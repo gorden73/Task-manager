@@ -56,7 +56,9 @@ public class HttpTaskServer {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
             String response = null;
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Task.class, new TaskAdapter())
+                    .create();
             String method = httpExchange.getRequestMethod();
             String pathGet = httpExchange.getRequestURI().toString();
 
@@ -102,16 +104,18 @@ public class HttpTaskServer {
                         break;
                     } else if (pathGet.split("/")[2].contains("task")) {
                         try {
-                            if (task.getStartTime().equals(Task.DEFAULT_DATE)) {
+                            //if (task.getStartTime().equals(Task.DEFAULT_DATE)) {
                                 fileBacked.createNewTask(task.getName(), task.getDescription(), task.getId());
-                            } else {
-                                fileBacked.createNewTask(task.getName(), task.getDescription(), task.getId(),
+                           // } else {
+                                /*fileBacked.createNewTask(task.getName(), task.getDescription(), task.getId(),
                                                          task.getStartTime().toString(),
-                                                         (int) task.getDuration().toDays());
-                            }
+                                                         (int) task.getDuration().toDays());*/
+                            //}
                         } catch (ManagerSaveException e) {
                             e.printStackTrace();
                         }
+                        fileBacked.setTasks(task);
+
                         response = "Задача добавлена.";
                         break;
                     }
@@ -149,6 +153,50 @@ public class HttpTaskServer {
             try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(response.getBytes());
             }
+        }
+    }
+
+    public class TaskAdapter extends TypeAdapter<Task> {
+        @Override
+        public void write(JsonWriter jsonWriter, Task task) throws IOException {
+            jsonWriter.beginObject();
+            jsonWriter.name("name").value(task.getName());
+            jsonWriter.name("description").value(task.getDescription());
+            jsonWriter.name("id").value(task.getId());
+            jsonWriter.name("status").value(task.getStatus().toString());
+            jsonWriter.name("startTime").value(task.getStartTime().toString());
+            jsonWriter.name("duration").value(task.getDuration().toDays());
+            jsonWriter.name("endTime").value(task.getEndTime().toString());
+            jsonWriter.endObject();
+        }
+
+        @Override
+        public Task read(JsonReader jsonReader) throws IOException {
+            JsonElement jsonElement = JsonParser.parseReader(jsonReader);
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            Task task = null;
+            //if (jsonObject.get("startTime").getAsString() == null) {
+            //String st = jsonObject.get("startTime").getAsString();
+
+            //if (jsonElement.getAsString().contains("startTime")) {
+                /*task = new Task(jsonObject.get("name").getAsString(), jsonObject.get("description").getAsString(),
+                        jsonObject.get("id").getAsLong(), jsonObject.get("startTime").getAsString(),
+                        jsonObject.get("duration").getAsInt());*/
+            //} else {
+            task = new Task(jsonObject.get("name").getAsString(),
+                    jsonObject.get("description").getAsString(),
+                    jsonObject.get("id").getAsLong());
+            // }
+
+               /* } else {
+                    subtask = new Subtask(jsonObject.get("name").getAsString(),
+                            jsonObject.get("description").getAsString(),
+                            jsonObject.get("id").getAsLong(), jsonObject.get("startTime").getAsString(),
+                            jsonObject.get("duration").getAsInt(),
+                            fileBacked.getEpic(jsonObject.get("epic").getAsLong()));
+                }*/
+            task.setStatus(jsonObject.get("status").getAsString());
+            return task;
         }
     }
 

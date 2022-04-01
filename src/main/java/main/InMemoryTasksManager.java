@@ -171,7 +171,14 @@ public class InMemoryTasksManager implements TaskManager {
                 id1 *= 13;
             }
         }
-        Subtask subtask = new Subtask(inputName, inputDescription, id1, startTime, duration, epic);
+        // ПРОБА
+        Subtask subtask; // ПРОБА
+        /*if (startTime == null) {
+            subtask = new Subtask(inputName, inputDescription, id1, Task.DEFAULT_DATE.toString(), 0, epic);
+        } else {*/
+            subtask = new Subtask(inputName, inputDescription, id1, startTime, duration, epic);
+        //}
+        // ПРОБА
         subtasks.put(id1, subtask);
         ArrayList<Subtask> subtaskList = epic.getSubtaskList();
         subtaskList.add(subtask);
@@ -199,7 +206,14 @@ public class InMemoryTasksManager implements TaskManager {
                 id1 *= 13;
             }
         }
-        Task task = new Task(inputName, inputDescription, id1, startTime, duration);
+        //ПРОБА
+        Task task;
+        if (startTime == null) {
+            task = new Task(inputName, inputDescription, id1, Task.DEFAULT_DATE.toString(), 0);
+        } else {
+            task = new Task(inputName, inputDescription, id1, startTime, duration);
+        }
+        //ПРОБА
         tasks.put(id1, task);
         sortedTasks.add(task);
         System.out.println("Задача добавлена");
