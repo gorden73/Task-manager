@@ -12,5 +12,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="library" name="java-sprint2-hw" level="project" />
+    <orderEntry type="library" name="gson-2.9.0" level="project" />
   </component>
 </module>

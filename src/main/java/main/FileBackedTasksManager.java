@@ -19,7 +19,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         this.fileToSave = fileToSave;
     }
 
-    public static void main(String[] args) throws IOException, ManagerSaveException {
+    public static void main(String[] args) throws IOException, ManagerSaveException, InterruptedException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
         fileBacked.createNewTask("First", "task", 1, "17.01.2012", 3);
         fileBacked.createNewTask("Second", "task", 2, "31.01.2012", 2);
@@ -27,9 +27,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.createNewEpic("First", "epic", 4);
         fileBacked.createNewTask("Third", "task", 3, "31.07.2015", 9);
         Epic epic = fileBacked.createNewEpic("Second", "epic", 5);
-        for (Task task1 : fileBacked.getPrioritizedTasks()) {
-            System.out.println(task1.getStartTime() + " " + task1.getId());
-        }
         fileBacked.createNewSubtask("First", "subtask", 6, "25.04.2013", 2,
                                     epic);
         fileBacked.createNewSubtask("Second", "subtask", 7, "13.06.2015", 4,
@@ -37,9 +34,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.createNewSubtask("Third", "subtask", 8, "29.12.2011", 6,
                                     epic);
         fileBacked.createNewSubtask("Fourth", "subtask", 9, epic);
-        fileBacked.updateTask(6, new Task("a", "b", 15));
-        fileBacked.updateTask(2, new Task("c", "d", 33));
-        fileBacked.updateTask(1, new Task("f", "e", 16, "10.09.2023", 3));
         fileBacked.getTask(1);
         fileBacked.getTask(3);
         fileBacked.getEpic(5);
@@ -49,27 +43,12 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         fileBacked.getSubtask(7);
         fileBacked.getSubtask(8);
         fileBacked.getSubtask(7);
-        for (Task t : fileBacked.getHistory()) {
-            System.out.println(t);
-        }
-        for (Task task1 : fileBacked.getPrioritizedTasks()) {
-            System.out.println(task1.getStartTime() + " " + task1.getId());
-        }
-        System.out.println("Размер списка");
-        System.out.println(fileBacked.getPrioritizedTasks().size());
-        fileBacked.setDuration(10, 1);
-        fileBacked.setStartTime("15.04.2013", 2);
         fileBacked.createNewSubtask("a", "b", 11, "12.12.2012", 6,
                                     fileBacked.getEpics().get(4L));
         fileBacked.createNewSubtask("a", "b", 17, "12.12.2012", 1,
                                     fileBacked.getEpics().get(4L));
         fileBacked.createNewSubtask("a", "b", 18, "12.12.2012", 2,
                                     fileBacked.getEpics().get(4L));
-        System.out.println(fileBacked.getTask(3).getDuration().toDays());
-        System.out.println(fileBacked.getEpic(5).getDuration().toDays());
-        fileBacked.updateSubtask(7, new Subtask("Updated", "Subtask", 7, "20.06.2016",
-        6, epic));
-        fileBacked.removeSubtask(8);
     }
 
     @Override
@@ -409,6 +388,24 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     @Override
     public void removeTask(long inputId) throws ManagerSaveException {
         super.removeTask(inputId);
+        save();
+    }
+
+    @Override
+    public void removeAllTasks(HashMap<Long, Task> tasks) throws ManagerSaveException {
+        super.removeAllTasks(tasks);
+        save();
+    }
+
+    @Override
+    public void removeAllSubtasks(HashMap<Long, Subtask> subtasks) throws ManagerSaveException {
+        super.removeAllSubtasks(subtasks);
+        save();
+    }
+
+    @Override
+    public void removeAllEpics(HashMap<Long, Epic> epics) throws ManagerSaveException {
+        super.removeAllEpics(epics);
         save();
     }
 

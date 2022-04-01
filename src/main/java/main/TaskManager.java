@@ -64,6 +64,12 @@ public interface TaskManager {
 
     void removeSubtask(long inputId) throws ManagerSaveException;
 
+    void removeAllTasks(HashMap<Long, Task> tasks) throws ManagerSaveException;
+
+    void removeAllSubtasks(HashMap<Long, Subtask> subtasks) throws ManagerSaveException;
+
+    void removeAllEpics(HashMap<Long, Epic> epics) throws ManagerSaveException;
+
     void removeAllTasks(HashMap<Long, Task> tasks, HashMap<Long, Subtask> subtasks, HashMap<Long, Epic> epics)
                         throws ManagerSaveException;
 }
