@@ -34,6 +34,7 @@ public class HttpTaskServer {
     public static void main(String[] args) throws IOException, InterruptedException {
         HttpTaskServer httpTaskServer = new HttpTaskServer();
         new KVServer().start();
+        new KVTaskClient(URI.create("http://localhost:8078/"));
     }
 
     public HttpTaskServer() throws IOException, InterruptedException {
