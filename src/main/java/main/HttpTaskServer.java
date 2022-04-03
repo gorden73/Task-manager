@@ -33,6 +33,7 @@ public class HttpTaskServer {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         HttpTaskServer httpTaskServer = new HttpTaskServer();
+        new KVServer().start();
     }
 
     public HttpTaskServer() throws IOException, InterruptedException {
@@ -81,9 +82,8 @@ public class HttpTaskServer {
                         break;
                     }
                 case "POST":
-                    InputStream inputStream = httpExchange.getRequestBody();
-                    String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-                    Task task = gson.fromJson(body, Task.class);
+                    final String json = new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                    final Task task = gson.fromJson(json, Task.class);
                     if (pathGet.contains("id=")) {
                         long id = Long.parseLong(pathGet.split("=")[1]);
                         try {
@@ -218,9 +218,8 @@ public class HttpTaskServer {
                         break;
                     }
                 case "POST":
-                    InputStream inputStream = httpExchange.getRequestBody();
-                    String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-                    Subtask subtask = gson.fromJson(body, Subtask.class);
+                    final String json = new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                    final Subtask subtask = gson.fromJson(json, Subtask.class);
                     if (pathGet.contains("id=")) {
                         long id = Long.parseLong(pathGet.split("=")[1]);
                         try {
@@ -306,18 +305,20 @@ public class HttpTaskServer {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
             Subtask subtask = null;
             try {
+                Epic epic = fileBacked.getEpic(jsonObject.get("epic").getAsLong());
+                fileBacked.getHistoryManager().remove(epic.getId());
                 if (jsonObject.get("startTime") == null) {
                     subtask = fileBacked.createNewSubtask(jsonObject.get("name").getAsString(),
                                                           jsonObject.get("description").getAsString(),
                                                           jsonObject.get("id").getAsLong(),
-                                                          fileBacked.getEpic(jsonObject.get("epic").getAsLong()));
+                                                          epic);
                 } else {
                     subtask = fileBacked.createNewSubtask(jsonObject.get("name").getAsString(),
                                                           jsonObject.get("description").getAsString(),
                                                           jsonObject.get("id").getAsLong(),
                                                           jsonObject.get("startTime").getAsString(),
                                                           jsonObject.get("duration").getAsInt(),
-                                                          fileBacked.getEpic(jsonObject.get("epic").getAsLong()));
+                                                          epic);
                 }
                 if (jsonObject.get("status") != null) {
                     subtask.setStatus(jsonObject.get("status").getAsString());
@@ -335,8 +336,8 @@ public class HttpTaskServer {
         public void handle(HttpExchange httpExchange) throws IOException {
             String response = null;
             Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(Epic.class, new EpicAdapter())
-                    .create();
+                            .registerTypeAdapter(Epic.class, new EpicAdapter())
+                            .create();
             String method = httpExchange.getRequestMethod();
             String pathGet = httpExchange.getRequestURI().toString();
 
@@ -359,9 +360,8 @@ public class HttpTaskServer {
                         break;
                     }
                 case "POST":
-                    InputStream inputStream = httpExchange.getRequestBody();
-                    String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-                    Epic epic = gson.fromJson(body, Epic.class);
+                    final String json = new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                    final Epic epic = gson.fromJson(json, Epic.class);
                     if (pathGet.contains("id=")) {
                         long id = Long.parseLong(pathGet.split("=")[1]);
                         try {
@@ -378,11 +378,7 @@ public class HttpTaskServer {
                         }
                         break;
                     } else if (pathGet.split("/")[2].contains("epic")) {
-                        try {
-                            fileBacked.createNewEpic(epic.getName(), epic.getDescription(), epic.getId());
-                        } catch (ManagerSaveException e) {
-                            e.printStackTrace();
-                        }
+                        fileBacked.setEpics(epic);
                         response = "Эпик добавлен.";
                         break;
                     }
