@@ -3,10 +3,13 @@ package main;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.io.IOException;
+import java.net.URI;
+
 class InMemoryTasksManagerTest extends TaskManagerTest {
     @BeforeEach
-    void start() {
-        taskManager = Managers.getDefault();
+    void start() throws IOException, InterruptedException {
+        taskManager = Managers.getDefault(URI.create("http://localhost:8078"));
     }
 
     @AfterEach

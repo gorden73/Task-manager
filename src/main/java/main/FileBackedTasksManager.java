@@ -18,6 +18,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     public FileBackedTasksManager(File fileToSave) {
         this.fileToSave = fileToSave;
     }
+    public FileBackedTasksManager() {};
 
     public static void main(String[] args) throws IOException, ManagerSaveException, InterruptedException {
         FileBackedTasksManager fileBacked = Managers.getBackup(new File("backup.csv"));
@@ -53,24 +54,26 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
 
     @Override
     public void save() throws ManagerSaveException {
-        try (FileWriter writer = new FileWriter(fileToSave, StandardCharsets.UTF_8)) {
-            writer.append("id,type,name,status,description,startTime,duration,endTime,epic" + "\n");
-            for (Task task : getTasks().values()) {
-                writer.write(toString(task) + "\n");
+        if (fileToSave != null) {
+            try (FileWriter writer = new FileWriter(fileToSave, StandardCharsets.UTF_8)) {
+                writer.append("id,type,name,status,description,startTime,duration,endTime,epic" + "\n");
+                for (Task task : getTasks().values()) {
+                    writer.write(toString(task) + "\n");
+                }
+                for (Task task : getEpics().values()) {
+                    writer.write(toString(task) + "\n");
+                }
+                for (Task task : getSubtasks().values()) {
+                    writer.write(toString(task) + "\n");
+                }
+                writer.append(" " + "\n");
+                for (Task history : getHistory()) {
+                    Long id1 = history.getId();
+                    writer.append(id1 + ",");
+                }
+            } catch (IOException e) {
+                throw new ManagerSaveException();
             }
-            for (Task task : getEpics().values()) {
-                writer.write(toString(task) + "\n");
-            }
-            for (Task task : getSubtasks().values()) {
-                writer.write(toString(task) + "\n");
-            }
-            writer.append(" " + "\n");
-            for (Task history : getHistory()) {
-                Long id1 = history.getId();
-                writer.append(id1 + ",");
-            }
-        } catch (IOException e) {
-            throw new ManagerSaveException();
         }
     }
 
@@ -209,18 +212,20 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
                 break;
             }
             if (time.plusDays(task.getDuration().toDays()).isBefore(someTask.getStartTime())
-                || time.isAfter(someTask.getEndTime())) {
+                || time.isAfter(someTask.getEndTime())
+                || (time.isEqual(someTask.getStartTime()) && ((getTasks().containsKey(id) ||
+                    getSubtasks().containsKey(id) || getEpics().containsKey(id))))) { //ДОБАВИЛ УСЛОВИЕ НАЛИЧИЯ ТАКОГО ЖЕ ID В МАПАХ
             } else {
                 check = true;
             }
         }
         if (check) {
             System.out.println("Время выполнения задачи пересекается с другими задачами." + "\n"
-                    + "Попробуйте выбрать другое время.");
+                    + "Попробуйте выбрать другое время.  check"); // sdjhgksjhgsd
             return check;
         }
         return check;
-    }
+    } /////
 
     private Task checkTaskAvailability(long id) {
         if (getTasks().containsKey(id)) {
@@ -325,7 +330,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         }
         return new Task(inputName, inputDescription, id,
                         Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0);
-    }
+    } /////
 
     @Override
     public void updateTask(long inputId, Task task) throws ManagerSaveException {

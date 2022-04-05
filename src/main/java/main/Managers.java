@@ -2,10 +2,11 @@ package main;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 public final class Managers {
-    public static InMemoryTasksManager getDefault() {
-        return new InMemoryTasksManager();
+    public static HTTPTaskManager getDefault(URI uri) throws IOException, InterruptedException {
+        return new HTTPTaskManager(uri);
     }
 
     public static FileBackedTasksManager getBackup(File file) throws IOException {

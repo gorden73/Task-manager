@@ -3,6 +3,7 @@ package tasktracker;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class Task {
     protected String name;
@@ -28,7 +29,12 @@ public class Task {
         this.description = description;
         this.id = id;
         this.status = StatusOfTasks.NEW;
-        this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        try {
+            this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } catch (DateTimeParseException e) {
+            this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        }
+        //this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         this.duration = Duration.ofDays(duration);
     }
 
