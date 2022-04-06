@@ -9,9 +9,6 @@ import tasktracker.Task;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 
 public class HTTPTaskManager extends FileBackedTasksManager {
     KVTaskClient client;
@@ -142,27 +139,6 @@ public class HTTPTaskManager extends FileBackedTasksManager {
         }
     }
 
-    /*public List<Task> load(String key) throws IOException, InterruptedException {
-        List<Task> list = new ArrayList<>();
-
-        switch (key) {
-            case "tasks":
-                list = gson.fromJson(client.load(key), new TypeToken<ArrayList<Task>>() {}.getType());
-                break;
-            case "subtasks":
-                list = gson.fromJson(client.load(key), new TypeToken<ArrayList<Subtask>>() {}.getType());
-                break;
-            case "epics":
-                list = gson.fromJson(client.load(key), new TypeToken<ArrayList<Epic>>() {}.getType());
-                break;
-            case "history":
-                list = gson.fromJson(client.load(key), new TypeToken<ArrayList<Task>>() {}.getType());
-                break;
-        }
-
-        return list;
-    }*/
-
     public String load(String key) throws IOException, InterruptedException {
         return client.load(key);
     }
@@ -179,146 +155,5 @@ public class HTTPTaskManager extends FileBackedTasksManager {
         } catch (IOException | InterruptedException | ManagerSaveException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void setStatus(String status, long id) throws ManagerSaveException {
-        super.setStatus(status, id);
-        save();
-    }
-
-    @Override
-    public Set<Task> getPrioritizedTasks() {
-        return super.getPrioritizedTasks();
-    }
-
-    @Override
-    public HashMap<Long, Task> getTasks() {
-       return super.getTasks();
-    }
-
-    @Override
-    public HashMap<Long, Subtask> getSubtasks() {
-        return super.getSubtasks();
-    }
-
-    @Override
-    public HashMap<Long, Epic> getEpics() {
-        return super.getEpics();
-    }
-
-    @Override
-    public Subtask createNewSubtask(String inputName, String inputDescription, long id, Epic epic) throws ManagerSaveException {
-        Subtask subtask = super.createNewSubtask(inputName, inputDescription, id, epic);
-        save();
-        return subtask;
-    }
-
-    @Override
-    public Task createNewTask(String inputName, String inputDescription, long id) throws ManagerSaveException {
-        Task task = super.createNewTask(inputName, inputDescription, id);
-        save();
-        return task;
-    }
-
-    @Override
-    public Epic createNewEpic(String inputName, String inputDescription, long id) throws ManagerSaveException {
-        Epic epic = super.createNewEpic(inputName, inputDescription, id);
-        save();
-        return epic;
-    }
-
-    @Override
-    public Subtask createNewSubtask(String inputName, String inputDescription, long id, String startTime, int duration, Epic epic) throws ManagerSaveException {
-        Subtask subtask = super.createNewSubtask(inputName, inputDescription, id, startTime, duration, epic);
-        save();
-        return subtask;
-    }
-
-    @Override
-    public Task createNewTask(String inputName, String inputDescription, long id, String startTime, int duration) throws ManagerSaveException {
-        Task task = super.createNewTask(inputName, inputDescription, id, startTime, duration);
-        save();
-        return task;
-    }
-
-    @Override
-    public List<Task> getHistory() {
-        return super.getHistory();
-    }
-
-    @Override
-    public void updateTask(long inputId, Task task) throws ManagerSaveException {
-        super.updateTask(inputId, task);
-        save();
-    }
-
-    @Override
-    public void updateSubtask(long inputId, Subtask subtask) throws ManagerSaveException {
-        super.updateSubtask(inputId, subtask);
-        save();
-    }
-
-    @Override
-    public void updateEpic(long inputId, Epic epic) throws ManagerSaveException {
-        super.updateEpic(inputId, epic);
-        save();
-    }
-
-    @Override
-    public Task getTask(long inputId) throws ManagerSaveException {
-        Task task = super.getTask(inputId);
-        save();
-        return task;
-    }
-
-    @Override
-    public Subtask getSubtask(long inputId) throws ManagerSaveException {
-        Subtask subtask = super.getSubtask(inputId);
-        save();
-        return subtask;
-    }
-
-    @Override
-    public Epic getEpic(long inputId) throws ManagerSaveException {
-        Epic epic = super.getEpic(inputId);
-        save();
-        return epic;
-    }
-
-    @Override
-    public void removeTask(long inputId) throws ManagerSaveException {
-        super.removeTask(inputId);
-        save();
-    }
-
-    @Override
-    public void removeAllTasks(HashMap<Long, Task> tasks) throws ManagerSaveException {
-        super.removeAllTasks(tasks);
-        save();
-    }
-
-    @Override
-    public void removeAllSubtasks(HashMap<Long, Subtask> subtasks) throws ManagerSaveException {
-        super.removeAllSubtasks(subtasks);
-        save();
-    }
-
-    @Override
-    public void removeAllEpics(HashMap<Long, Epic> epics) throws ManagerSaveException {
-        super.removeAllEpics(epics);
-        save();
-    }
-
-    @Override
-    public void removeEpic(long inputId) throws ManagerSaveException {
-        super.removeEpic(inputId);
-        save();
-    }
-
-    @Override
-    public void removeSubtask(long inputId) throws ManagerSaveException {
-        super.removeSubtask(inputId);
-        save();
     }
 }

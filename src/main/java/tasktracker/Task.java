@@ -34,7 +34,6 @@ public class Task {
         } catch (DateTimeParseException e) {
             this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         }
-        //this.startTime = LocalDate.parse(startTime, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
         this.duration = Duration.ofDays(duration);
     }
 

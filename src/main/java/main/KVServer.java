@@ -82,14 +82,12 @@ public class KVServer {
                             h.sendResponseHeaders(400, 0);
                             return;
                         }
-
-                        if (data.get(key) != null) {///
-                            sendText(h, data.get(key));///
-                            break;///
-                        } else {///
-                            sendText(h, null);///
-                        }///
-
+                        //if (data.get(key) != null) {
+                            sendText(h, data.get(key));
+                           // break;
+                       // } else {
+                        //    sendText(h, null);
+                        //}
                         break;
                     default:
                         System.out.println("/load ждёт GET-запрос, а получил: " + h.getRequestMethod());
@@ -122,9 +120,13 @@ public class KVServer {
     }
 
     protected void sendText(HttpExchange h, String text) throws IOException {
-        byte[] resp = text.getBytes("UTF-8");
-        h.getResponseHeaders().add("Content-Type", "application/json");
-        h.sendResponseHeaders(200, resp.length);
-        h.getResponseBody().write(resp);
+        if (text != null) {
+            byte[] resp = text.getBytes("UTF-8");
+            h.getResponseHeaders().add("Content-Type", "application/json");
+            h.sendResponseHeaders(200, resp.length);
+            h.getResponseBody().write(resp);
+        } else {
+            h.sendResponseHeaders(404, 0);
+        }
     }
 }

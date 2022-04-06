@@ -230,7 +230,7 @@ public class InMemoryTasksManager implements TaskManager {
             Iterator<Task> iterator = sortedTasks.iterator();
             Task task1 = tasks.get(inputId);
             while(iterator.hasNext()) {
-                if (iterator.next().equals(task)) {
+                if (iterator.next().equals(task1)) {
                     iterator.remove();
                 }
             }
