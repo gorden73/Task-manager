@@ -145,7 +145,6 @@ public class InMemoryTasksManager implements TaskManager {
     @Override
     public Task createNewTask(String inputName, String inputDescription, long id) throws ManagerSaveException {
         long id1 = id;
-
         if (tasks.containsKey(id1) || subtasks.containsKey(id1) || epics.containsKey(id1)) {
             System.out.println("Такой id уже используется");
             System.out.println("Он будет изменён автоматически");

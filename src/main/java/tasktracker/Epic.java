@@ -39,6 +39,9 @@ public class Epic extends Task {
         int i = 0;
         while (subtaskList.get(i).getStartTime().equals(Task.DEFAULT_DATE)) {
             i++;
+            if (i == subtaskList.size()) {
+                return subtaskList.get(i - 1).getStartTime();
+            }
         }
         return subtaskList.get(i).getStartTime();
     }
@@ -79,6 +82,9 @@ public class Epic extends Task {
         int i = subtaskList.size()-1;
         while (subtaskList.get(i).getEndTime().equals(Task.DEFAULT_DATE)) {
             i--;
+            if (i == -1) {
+                return subtaskList.get(0).getStartTime();
+            }
         }
         return subtaskList.get(i).getEndTime();
     }

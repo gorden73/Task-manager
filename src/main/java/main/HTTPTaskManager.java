@@ -42,7 +42,7 @@ public class HTTPTaskManager extends FileBackedTasksManager {
         public Task read(JsonReader jsonReader) {
             JsonElement jsonElement = JsonParser.parseReader(jsonReader);
             JsonObject jsonObject = jsonElement.getAsJsonObject();
-            Task task = null;
+            Task task;
 
             if (jsonObject.get("startTime") == null) {
                 task = new Task(jsonObject.get("name").getAsString(),
@@ -131,7 +131,7 @@ public class HTTPTaskManager extends FileBackedTasksManager {
         public Epic read(JsonReader jsonReader) throws IOException {
             JsonElement jsonElement = JsonParser.parseReader(jsonReader);
             JsonObject jsonObject = jsonElement.getAsJsonObject();
-            Epic epic = null;
+            Epic epic;
             epic = new Epic(jsonObject.get("name").getAsString(),
                     jsonObject.get("description").getAsString(),
                     jsonObject.get("id").getAsLong());

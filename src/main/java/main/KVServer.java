@@ -94,12 +94,7 @@ public class KVServer {
                             h.sendResponseHeaders(400, 0);
                             return;
                         }
-                        //if (data.get(key) != null) {
                         sendText(h, data.get(key));
-                        // break;
-                        // } else {
-                        //    sendText(h, null);
-                        //}
                         break;
                     default:
                         System.out.println("/load ждёт GET-запрос, а получил: " + h.getRequestMethod());

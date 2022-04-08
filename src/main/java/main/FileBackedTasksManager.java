@@ -214,18 +214,18 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
             if (time.plusDays(task.getDuration().toDays()).isBefore(someTask.getStartTime())
                 || time.isAfter(someTask.getEndTime())
                 || (time.isEqual(someTask.getStartTime()) && ((getTasks().containsKey(id) ||
-                    getSubtasks().containsKey(id) || getEpics().containsKey(id))))) { //ДОБАВИЛ УСЛОВИЕ НАЛИЧИЯ ТАКОГО ЖЕ ID В МАПАХ
+                    getSubtasks().containsKey(id) || getEpics().containsKey(id))))) {
             } else {
                 check = true;
             }
         }
         if (check) {
             System.out.println("Время выполнения задачи пересекается с другими задачами." + "\n"
-                    + "Попробуйте выбрать другое время.  check"); // sdjhgksjhgsd
+                    + "Попробуйте выбрать другое время.  check");
             return check;
         }
         return check;
-    } /////
+    }
 
     private Task checkTaskAvailability(long id) {
         if (getTasks().containsKey(id)) {
@@ -330,7 +330,7 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
         }
         return new Task(inputName, inputDescription, id,
                         Task.DEFAULT_DATE.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")), 0);
-    } /////
+    }
 
     @Override
     public void updateTask(long inputId, Task task) throws ManagerSaveException {
