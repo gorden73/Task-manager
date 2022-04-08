@@ -9,8 +9,5 @@
         <module name="java-sprint2-hw" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="java-sprint2-hw" target="11" />
-    </bytecodeTargetLevel>
   </component>
 </project>

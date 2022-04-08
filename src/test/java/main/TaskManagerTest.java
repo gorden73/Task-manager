@@ -1,18 +1,50 @@
 package main;
 
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tasktracker.Epic;
 import tasktracker.StatusOfTasks;
 import tasktracker.Subtask;
 import tasktracker.Task;
 
+import java.io.IOException;
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 abstract class TaskManagerTest {
+
     protected InMemoryTasksManager taskManager;
+    //protected TaskManager taskManager;
+    KVServer kvServer;
+    HttpTaskServer server;
+    /*protected TaskManagerTest() throws IOException, InterruptedException {
+        this.taskManager = Managers.getDefault(URI.create("http://localhost:8078"));
+        this.server = new KVServer();
+    }*/
+
+    @BeforeEach
+    public void startServer() throws IOException, InterruptedException, ManagerSaveException {
+        kvServer = new KVServer();
+        kvServer.start();
+
+        taskManager = Managers.getDefault(URI.create("http://localhost:8078"));
+        server = new HttpTaskServer((HTTPTaskManager) taskManager);
+        server.start();
+       /* taskManager = Managers.getDefault(URI.create("http://localhost:8078"));
+        server = new HttpTaskServer((HTTPTaskManager) taskManager);
+        server.start();*/
+    }
+
+    @AfterEach
+    public void stopServer() {
+        server.stop();
+        kvServer.stop();
+    }
 
     @Test
     public void getPrioritizedTasks() {
@@ -35,13 +67,13 @@ abstract class TaskManagerTest {
         assertNotNull(subtask.getEpic());
         assertEquals(subtask, taskManager.getSubtask(2), "Подзадачи не совпадают.");
         assertTrue(subtask.getEpic().getSubtaskList().contains(subtask),
-          "Список внутри эпика не содержит задачу.");
+                "Список внутри эпика не содержит задачу.");
         Subtask subtask1 = taskManager.createNewSubtask("C", "D", 3, "09.08.2002",
-                                                3, new Epic("c", "d", 4));
+                3, new Epic("c", "d", 4));
         assertNotNull(taskManager.getSubtask(3), "Подзадача не найдена.");
         assertEquals(subtask1, taskManager.getSubtask(3), "Подзадачи не совпадают.");
         assertTrue(subtask1.getEpic().getSubtaskList().contains(subtask1),
-          "Список внутри эпика не содержит задачу.");
+                "Список внутри эпика не содержит задачу.");
     }
 
     @Test
@@ -67,15 +99,15 @@ abstract class TaskManagerTest {
         Epic epic = taskManager.createNewEpic("a", "b", 2);
         epic.setStartTime("01.02.2003");
         assertEquals(LocalDate.parse("9999-01-01"), epic.getStartTime(),
-            "Дата начала выполнения эпика не совпадает с заданной.");
+                "Дата начала выполнения эпика не совпадает с заданной.");
         Subtask subtask = taskManager.createNewSubtask("a", "b", 3, "05.07.2005",
-                                               3, epic);
+                3, epic);
         task.setStartTime("03.02.2001");
         subtask.setStartTime("07.11.2013");
         assertEquals(LocalDate.parse("2001-02-03"), task.getStartTime(),
-            "Дата начала выполнения задачи не совпадает с заданной.");
+                "Дата начала выполнения задачи не совпадает с заданной.");
         assertEquals(LocalDate.parse("2013-11-07"), subtask.getStartTime(),
-            "Дата начала выполнения подзадачи не совпадает с заданной.");
+                "Дата начала выполнения подзадачи не совпадает с заданной.");
     }
 
     @Test
@@ -84,15 +116,15 @@ abstract class TaskManagerTest {
         Epic epic = taskManager.createNewEpic("a", "b", 2);
         epic.setDuration(5);
         assertEquals(0, epic.getDuration().toDays(),
-            "Продолжительность выполнения эпика не совпадает с заданной.");
+                "Продолжительность выполнения эпика не совпадает с заданной.");
         Subtask subtask = taskManager.createNewSubtask("a", "b", 3, "05.07.2005",
-                                               3, epic);
+                3, epic);
         task.setDuration(1);
         subtask.setDuration(4);
         assertEquals(1, task.getDuration().toDays(),
-            "Продолжительность выполнения задачи не совпадает с заданной.");
+                "Продолжительность выполнения задачи не совпадает с заданной.");
         assertEquals(4, subtask.getDuration().toDays(),
-            "Продолжительность выполнения подзадачи не совпадает с заданной.");
+                "Продолжительность выполнения подзадачи не совпадает с заданной.");
     }
 
     @Test
@@ -209,7 +241,7 @@ abstract class TaskManagerTest {
         assertNull(subtask1); //проверка при пустом списке задач
         Epic epic = taskManager.createNewEpic("a", "b", 2);
         Subtask subtask = taskManager.createNewSubtask("a", "b", 3, "05.07.2005",
-                                               3, epic);
+                3, epic);
         assertEquals(subtask, taskManager.getSubtask(3), "Задачи не совпадают.");
         assertEquals(1, taskManager.getSubtasks().size());
         Subtask task3 = taskManager.getSubtasks().get(5L);
@@ -248,20 +280,20 @@ abstract class TaskManagerTest {
     public void updateSubtask() throws ManagerSaveException {
         assertEquals(0, taskManager.getSubtasks().size());
         taskManager.updateTask(1, new Subtask("b", "c", 4,
-                               new Epic("q", "w", 7)));
+                new Epic("q", "w", 7)));
         assertEquals(0, taskManager.getSubtasks().size());
         Epic epic = taskManager.createNewEpic("a", "b", 1);
         Subtask subtask = taskManager.createNewSubtask("a", "b", 2, "05.07.2005",
-                                               3, epic);
+                3, epic);
         Subtask subtask1 = taskManager.createNewSubtask("t", "y", 3, "11.11.2015",
-                                                6, epic);
+                6, epic);
         taskManager.updateSubtask(2, subtask1);
         assertEquals(epic, subtask.getEpic());
         assertEquals(subtask1.getName(), subtask.getName(), "Названия не совпадают.");
         assertEquals(subtask1.getDescription(), subtask.getDescription(), "Описание не совпадает.");
         assertEquals(subtask1.getStatus(), subtask.getStatus(), "Статусы не совпадают.");
         assertEquals(subtask1.getStartTime(), subtask.getStartTime(),
-            "Даты начала выполнения задачи не совпадают.");
+                "Даты начала выполнения задачи не совпадают.");
         assertEquals(subtask1.getDuration(), subtask.getDuration(), "Продолжительности не совпадают.");
         assertNotEquals(subtask1.getId(), subtask.getId(), "Id не должны совпадать.");
         assertEquals(subtask1.getEndTime(), epic.getEndTime());
@@ -309,7 +341,7 @@ abstract class TaskManagerTest {
         assertEquals(0, taskManager.getSubtasks().size());
         Epic epic = taskManager.createNewEpic("a", "b", 1);
         Subtask subtask = taskManager.createNewSubtask("a", "b", 2, "05.07.2005",
-                                               3, epic);
+                3, epic);
         assertEquals(subtask, taskManager.getSubtask(2));
         assertTrue(epic.getSubtaskList().contains(subtask));
         taskManager.removeSubtask(2);
@@ -328,7 +360,7 @@ abstract class TaskManagerTest {
         assertEquals(0, taskManager.getEpics().size());
         Epic epic = taskManager.createNewEpic("a", "b", 1);
         Subtask subtask = taskManager.createNewSubtask("a", "b", 2, "05.07.2005",
-                                               3, epic);
+                3, epic);
         Task task = taskManager.createNewTask("a", "b", 3, "09.08.2002", 3);
         assertEquals(task, taskManager.getTask(3));
         assertEquals(subtask, taskManager.getSubtask(2));
@@ -341,4 +373,5 @@ abstract class TaskManagerTest {
         assertEquals(0, taskManager.getSubtasks().size());
         assertEquals(0, taskManager.getEpics().size());
     }
+
 }

@@ -9,6 +9,7 @@ import tasktracker.Task;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,19 +17,27 @@ import static org.junit.jupiter.api.Assertions.*;
 class FileBackedTasksManagerTest extends TaskManagerTest {
     File fileToSave;
 
-    @BeforeEach
-    void start() throws IOException, ManagerSaveException {
+    /*@BeforeEach
+    void start() throws IOException, ManagerSaveException, InterruptedException {
         fileToSave = new File("backup.csv");
-        taskManager = Managers.getBackup(fileToSave);
+        //taskManager = Managers.getBackup(fileToSave);
+        *//*kvServer = new KVServer();
+        kvServer.start();*//*
+
+        *//*taskManager = Managers.getDefault(URI.create("http://localhost:8078"));
+        server = new HttpTaskServer((HTTPTaskManager) taskManager);
+        server.start();*//*
+
+        //taskManager = Managers.getDefault(URI.create("http://localhost:8078"));
         taskManager.getTasks().clear();
         taskManager.getSubtasks().clear();
         taskManager.getEpics().clear();
         taskManager.getPrioritizedTasks().clear();
         taskManager.getHistory().clear();
         taskManager.save();
-    }
+    }*/
 
-    @AfterEach
+    /*@AfterEach
     void end() throws ManagerSaveException {
         taskManager.getTasks().clear();
         taskManager.getSubtasks().clear();
@@ -36,7 +45,9 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         taskManager.getPrioritizedTasks().clear();
         taskManager.getHistory().clear();
         taskManager.save();
-    }
+        server.stop();
+        //kvServer.stop();
+    }*/
 
     @Test
     public void saveWhenFileIsEmpty() throws ManagerSaveException, IOException {
@@ -216,7 +227,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         Task task = taskManager.createNewTask("a", "b", 1, "09.08.2002", 3);
         Epic epic = taskManager.createNewEpic("a", "b", 2);
         Subtask subtask = taskManager.createNewSubtask("a", "b", 3, "05.07.2005",
-                                               3, epic);
+                3, epic);
         taskManager.getTask(1);
         taskManager.getSubtask(3);
         taskManager.getEpic(2);

@@ -11,22 +11,23 @@ import tasktracker.Epic;
 import tasktracker.Subtask;
 import tasktracker.Task;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class HttpTaskServer {
-    protected HTTPTaskManager fileBacked = Managers.getDefault(URI.create("http://localhost:8078"));
+    protected HTTPTaskManager fileBacked; // = Managers.getDefault(URI.create("http://localhost:8078"));
     protected HttpServer httpServer;
 
     public static void main(String[] args) throws IOException, InterruptedException, ManagerSaveException {
         new KVServer().start();
-        HttpTaskServer server = new HttpTaskServer();
+        HttpTaskServer server = new HttpTaskServer(Managers.getDefault(URI.create("http://localhost:8078")));
         server.start();
         server.fileBacked.createNewTask("название", "описание", 1);
         Epic epic = server.fileBacked.createNewEpic("название1", "описание1", 2);
@@ -39,10 +40,11 @@ public class HttpTaskServer {
         server.fileBacked.getEpics().clear();
         server.fileBacked.getHistory().clear();
         server.fileBacked.getPrioritizedTasks().clear();
-        server.backup();
+        //server.backup();
     }
 
-    public HttpTaskServer() throws IOException, InterruptedException {
+    public HttpTaskServer(HTTPTaskManager taskManager) throws IOException, InterruptedException {
+        fileBacked = taskManager;
         httpServer = HttpServer.create(new InetSocketAddress(8080), 0);
         createContext();
     }
@@ -57,107 +59,66 @@ public class HttpTaskServer {
 
     public void start() throws IOException, ManagerSaveException, InterruptedException {
         httpServer.start();
-        System.out.println("Сервер запущен.");
-        //backup(); //восстановление состояния менеджера
+        System.out.println("TaskServer запущен.");
+        backup();
     }
 
-    public void backup() throws IOException, InterruptedException, ManagerSaveException {
+    public void stop() {
+        httpServer.stop(0);
+        System.out.println("TaskServer остановлен.");
+    }
+
+    public void backup() throws IOException, InterruptedException {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Task.class, new TaskAdapter())
                 .registerTypeAdapter(Subtask.class, new SubtaskAdapter())
                 .registerTypeAdapter(Epic.class, new EpicAdapter())
                 .create();
-        //if (!fileBacked.load("tasks").equals("{}")) {
-        //if (fileBacked.load("tasks") != null) {///
-            HashMap<Long, Task> tasks = gson.fromJson(fileBacked.load("tasks"),
-                    new TypeToken<HashMap<Long, Task>>() {
-                    }.getType());
-
-            if (tasks != null) {
-
-                for (Task task : tasks.values()) {
-                /*if (task.getStartTime().isEqual(Task.DEFAULT_DATE)) {
-                    fileBacked.createNewTask(task.getName(),
-                            task.getDescription(),
-                            task.getId());
-                } else {
-                    fileBacked.createNewTask(task.getName(),
-                            task.getDescription(),
-                            task.getId(),
-                            task.getStartTime().toString(),
-                            (int) task.getDuration().toDays());
-                }*/
-                    fileBacked.getTasks().put(task.getId(), task);///
-                    fileBacked.getPrioritizedTasks().add(task);///
-
-                    //fileBacked.setStatus(task.getStatus().toString(), task.getId());
+        HashMap<Long, Task> tasks = gson.fromJson(fileBacked.load("tasks"),
+                                                  new TypeToken<HashMap<Long, Task>>() {}.getType());
+        if (tasks != null) {
+            for (Task task : tasks.values()) {
+                fileBacked.getTasks().put(task.getId(), task);
+                fileBacked.getPrioritizedTasks().add(task);
+            }
+        }
+        HashMap<Long, Epic> epics = gson.fromJson(fileBacked.load("epics"),
+                                                  new TypeToken<HashMap<Long, Epic>>() {}.getType());
+        if (epics != null) {
+            for (Epic epic : epics.values()) {
+                fileBacked.getEpics().put(epic.getId(), epic);
+                fileBacked.getPrioritizedTasks().add(epic);
+            }
+        }
+        HashMap<Long, Subtask> subtasks = gson.fromJson(fileBacked.load("subtasks"),
+                                                        new TypeToken<HashMap<Long, Subtask>>() {}.getType());
+        if (subtasks != null) {
+            for (Subtask subtask : subtasks.values()) {
+                fileBacked.getSubtasks().put(subtask.getId(), subtask);
+                subtask.getEpic().getSubtaskList().add(subtask);
+                fileBacked.getPrioritizedTasks().add(subtask);
+            }
+        }
+        List<Task> history = gson.fromJson(fileBacked.load("history"),
+                                           new TypeToken<ArrayList<Task>>() {}.getType());
+        if (history != null) {
+            for (Task task : history) {
+                if (fileBacked.getTasks().containsKey(task.getId())) {
+                    fileBacked.getHistoryManager().add(fileBacked.getTasks().get(task.getId()));
+                } else if (fileBacked.getSubtasks().containsKey(task.getId())) {
+                    fileBacked.getHistoryManager().add(fileBacked.getSubtasks().get(task.getId()));
+                } else if (fileBacked.getEpics().containsKey(task.getId())) {
+                    fileBacked.getHistoryManager().add(fileBacked.getEpics().get(task.getId()));
                 }
             }
-        //}
-        //if (!fileBacked.load("epics").equals("{}")) {
-           // if (fileBacked.load("epics") != null) {///
-            HashMap<Long, Epic> epics = gson.fromJson(fileBacked.load("epics"),
-                    new TypeToken<HashMap<Long, Epic>>() {
-                    }.getType());
-
-            if (epics != null) {
-
-                for (Epic epic : epics.values()) {
-                    //fileBacked.createNewEpic(epic.getName(), epic.getDescription(), epic.getId());
-                    fileBacked.getEpics().put(epic.getId(), epic);///
-                    fileBacked.getPrioritizedTasks().add(epic);
-                }
+        }
+        Set<Task> sortedTasks = gson.fromJson(fileBacked.load("sortedTask"),
+                                              new TypeToken<Set<Task>>() {}.getType());
+        if (sortedTasks != null) {
+            for (Task task : sortedTasks) {
+                fileBacked.sortedTasks.add(task);
             }
-       // }
-        //if (!fileBacked.load("subtasks").equals("{}")) {
-        //if (fileBacked.load("subtasks") != null) {
-            HashMap<Long, Subtask> subtasks = gson.fromJson(fileBacked.load("subtasks"),
-                    new TypeToken<HashMap<Long, Subtask>>() {
-                    }.getType());
-
-            if (subtasks != null) {
-
-                for (Subtask subtask : subtasks.values()) {
-                /*if (subtask.getStartTime().isEqual(Task.DEFAULT_DATE)) {
-                    fileBacked.createNewSubtask(subtask.getName(),
-                            subtask.getDescription(),
-                            subtask.getId(), subtask.getEpic());
-                } else {
-                    fileBacked.createNewSubtask(subtask.getName(),
-                            subtask.getDescription(),
-                            subtask.getId(),
-                            subtask.getStartTime().toString(),
-                            (int) subtask.getDuration().toDays(), subtask.getEpic());
-                }*/
-
-                    fileBacked.getSubtasks().put(subtask.getId(), subtask);///
-                    subtask.getEpic().getSubtaskList().add(subtask);///
-                    fileBacked.getPrioritizedTasks().add(subtask);///
-
-                    //fileBacked.setStatus(subtask.getStatus().toString(), subtask.getId());
-                }
-            }
-        //}
-        //if (!fileBacked.load("history").equals("{}")) {
-            List<Task> history = gson.fromJson(fileBacked.load("history"),
-                    new TypeToken<List<Task>>() {
-                    }.getType());
-            if (history != null) {
-                for (Task task : history) {
-                    fileBacked.getHistoryManager().add(task);
-                }
-            }
-        //}
-        //if (!fileBacked.load("sortedTasks").equals("{}")) {
-            Set<Task> sortedTasks = gson.fromJson(fileBacked.load("sortedTask"),
-                    new TypeToken<Set<Task>>() {
-                    }.getType());
-            if (sortedTasks != null) {
-                for (Task task : sortedTasks) {
-                    fileBacked.sortedTasks.add(task);
-                }
-            }
-        //}
+        }
         System.out.println("Данные с сервера успешно загружены.");
     }
 
@@ -171,48 +132,27 @@ public class HttpTaskServer {
                             .create();
             String method = httpExchange.getRequestMethod();
             String pathGet = httpExchange.getRequestURI().toString();
-
             switch(method) {
                 case "GET":
                     if (pathGet.contains("id=")) {
                         long id = Long.parseLong(pathGet.split("=")[1]);
-                        //try {
-                            if (fileBacked.getTasks().isEmpty()) {
-                                response = "Задач нет.";
-                                break;
-                            }
-                            /*HashMap<Long, Task> tasks = gson.fromJson(fileBacked.load("tasks"),
-                                                                      new TypeToken<HashMap<Long, Task>>() {}.getType());
-
-                            fileBacked.getHistoryManager().add(tasks.get(id));///
-                            fileBacked.save();///*/
-
+                        if (fileBacked.getTasks().isEmpty()) {
+                            response = "Задач нет.";
+                            break;
+                        }
                         try {
-                            response = gson.toJson(fileBacked.getTask(id));///
+                            response = gson.toJson(fileBacked.getTask(id));
                         } catch (ManagerSaveException e) {
                             e.printStackTrace();
                         }
-
-                        //response = gson.toJson(tasks.get(id));
-                        /*} catch (InterruptedException e) {
-                            e.printStackTrace();*/
-                        /*} catch (ManagerSaveException e) {
-                            e.printStackTrace();
-                        }*/
                         break;
                     } else if (pathGet.split("/")[2].contains("task")) {
-                        /*try {
-                            response = fileBacked.load("tasks");
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }*/
-
                         response = gson.toJson(fileBacked.getTasks());
-
                         break;
                     }
                 case "POST":
-                    final String json = new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                    final String json = new String(httpExchange.getRequestBody().readAllBytes(),
+                                                   StandardCharsets.UTF_8);
                     final Task task = gson.fromJson(json, Task.class);
                     if (pathGet.contains("id=")) {
                         long id = Long.parseLong(pathGet.split("=")[1]);
@@ -282,7 +222,8 @@ public class HttpTaskServer {
                         break;
                     }
                 default:
-                    System.out.println("Некорректный метод!");
+                    System.out.println("Некорректный метод " + method);
+                    httpExchange.sendResponseHeaders(404, 0);
             }
             httpExchange.sendResponseHeaders(200, 0);
             try (OutputStream os = httpExchange.getResponseBody()) {
@@ -343,48 +284,23 @@ public class HttpTaskServer {
                 case "GET":
                     if (pathGet.contains("id=")) {
                         long id = Long.parseLong(pathGet.split("=")[1]);
-                        //try {
-                            if (fileBacked.getSubtasks().isEmpty()) {
-                                response = "Подзадач нет.";
-                                break;
-                            }
-                            /*HashMap<Long, Subtask> subtasks = gson.fromJson(fileBacked.load("subtasks"),
-                                    new TypeToken<HashMap<Long, Subtask>>() {}.getType());
-
-                            fileBacked.getHistoryManager().add(subtasks.get(id));///
-
-                            fileBacked.save();///*/
-
+                        if (fileBacked.getSubtasks().isEmpty()) {
+                            response = "Подзадач нет.";
+                            break;
+                        }
                         try {
-                            response = gson.toJson(fileBacked.getSubtask(id));///
+                            response = gson.toJson(fileBacked.getSubtask(id));
                         } catch (ManagerSaveException e) {
                             e.printStackTrace();
                         }
-
-                        //response = gson.toJson(subtasks.get(id));
-                       /* } catch (InterruptedException e) {
-                            e.printStackTrace();*/
-                        /*} catch (ManagerSaveException e) {
-                            e.printStackTrace();
-                        }*/
-                        //response = gson.toJson(fileBacked.getSubtask(id));
-                        /*} catch (ManagerSaveException e) {
-                            e.printStackTrace();
-                        }*/
                         break;
                     } else if (pathGet.split("/")[2].contains("subtask")) {
-
-                        response = gson.toJson(fileBacked.getSubtasks());///
-
-                        /*try {
-                            response = fileBacked.load("subtasks");
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }*/
+                        response = gson.toJson(fileBacked.getSubtasks());
                         break;
                     }
                 case "POST":
-                    final String json = new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                    final String json = new String(httpExchange.getRequestBody().readAllBytes(),
+                                                   StandardCharsets.UTF_8);
                     final Subtask subtask = gson.fromJson(json, Subtask.class);
                     if (pathGet.contains("id=")) {
                         long id = Long.parseLong(pathGet.split("=")[1]);
@@ -406,7 +322,6 @@ public class HttpTaskServer {
                         }
                         break;
                     } else if (pathGet.split("/")[2].equals("subtask")) {
-                        //fileBacked.setSubtasks(subtask);
                         try {
                             if (subtask.getStartTime().isEqual(Task.DEFAULT_DATE)) {
                                 fileBacked.createNewSubtask(subtask.getName(),
@@ -456,7 +371,8 @@ public class HttpTaskServer {
                         break;
                     }
                 default:
-                    System.out.println("Некорректный метод!");
+                    System.out.println("Некорректный метод " + method);
+                    httpExchange.sendResponseHeaders(404, 0);
             }
             httpExchange.sendResponseHeaders(200, 0);
             try (OutputStream os = httpExchange.getResponseBody()) {
@@ -486,44 +402,23 @@ public class HttpTaskServer {
             JsonElement jsonElement = JsonParser.parseReader(jsonReader);
             JsonObject jsonObject = jsonElement.getAsJsonObject();
             Subtask subtask = null;
-            //try {
-                Epic epic = fileBacked.getEpics().get(jsonObject.get("epicId").getAsLong());///
-            //Epic epic = fileBacked.getEpics().get(jsonObject.get("epicId").getAsLong());///не понятно, то нужно писать epic, то epicId
-
-                //fileBacked.getHistoryManager().remove(epic.getId());/// ПРОБА
-
-                /*if (jsonObject.get("startTime") == null) {
-                    subtask = fileBacked.createNewSubtask(jsonObject.get("name").getAsString(),
-                                                          jsonObject.get("description").getAsString(),
-                                                          jsonObject.get("id").getAsLong(),
-                                                          epic);
-                } else {
-                    subtask = fileBacked.createNewSubtask(jsonObject.get("name").getAsString(),
-                                                          jsonObject.get("description").getAsString(),
-                                                          jsonObject.get("id").getAsLong(),
-                                                          jsonObject.get("startTime").getAsString(),
-                                                          jsonObject.get("duration").getAsInt(),
-                                                          epic);
-                }*/
-                if (jsonObject.get("startTime") == null) {
-                    subtask = new Subtask(jsonObject.get("name").getAsString(),
-                            jsonObject.get("description").getAsString(),
-                            jsonObject.get("id").getAsLong(),
-                            epic);
-                } else {
-                    subtask = new Subtask(jsonObject.get("name").getAsString(),
-                            jsonObject.get("description").getAsString(),
-                            jsonObject.get("id").getAsLong(),
-                            jsonObject.get("startTime").getAsString(),
-                            jsonObject.get("duration").getAsInt(),
-                            epic);
+            Epic epic = fileBacked.getEpics().get(jsonObject.get("epicId").getAsLong());
+            if (jsonObject.get("startTime") == null) {
+                subtask = new Subtask(jsonObject.get("name").getAsString(),
+                                      jsonObject.get("description").getAsString(),
+                                      jsonObject.get("id").getAsLong(),
+                                      epic);
+            } else {
+                subtask = new Subtask(jsonObject.get("name").getAsString(),
+                                      jsonObject.get("description").getAsString(),
+                                      jsonObject.get("id").getAsLong(),
+                                      jsonObject.get("startTime").getAsString(),
+                                      jsonObject.get("duration").getAsInt(),
+                                      epic);
                 }
-                if (jsonObject.get("status") != null) {
-                    subtask.setStatus(jsonObject.get("status").getAsString());
-                }
-            /*} catch (ManagerSaveException e) {
-                e.printStackTrace();
-            }*/
+            if (jsonObject.get("status") != null) {
+                subtask.setStatus(jsonObject.get("status").getAsString());
+            }
             return subtask;
         }
     }
@@ -538,7 +433,6 @@ public class HttpTaskServer {
                             .create();
             String method = httpExchange.getRequestMethod();
             String pathGet = httpExchange.getRequestURI().toString();
-
             switch (method) {
                 case "GET":
                     if (pathGet.contains("id=")) {
@@ -548,34 +442,13 @@ public class HttpTaskServer {
                                 response = "Эпиков нет.";
                                 break;
                             }
-                            /*HashMap<Long, Epic> epics = gson.fromJson(fileBacked.load("epics"),
-                                    new TypeToken<HashMap<Long, Epic>>() {}.getType());
-
-                            fileBacked.getHistoryManager().add(epics.get(id));///
-                            fileBacked.save();///*/
-
-                            //response = gson.toJson(epics.get(id));
-
-                            response = gson.toJson(fileBacked.getEpic(id)); /// работает
-                        /*} catch (InterruptedException e) {
-                            e.printStackTrace();*/
+                            response = gson.toJson(fileBacked.getEpic(id));
                         } catch (ManagerSaveException e) {
                             e.printStackTrace();
                         }
-                        //response = gson.toJson(fileBacked.getEpic(id));
-                        /*} catch (ManagerSaveException e) {
-                            e.printStackTrace();
-                        }*/
                         break;
                     } else if (pathGet.split("/")[2].contains("epic")) {
-
                         response = gson.toJson(fileBacked.getEpics());
-
-                        /*try {
-                            //response = fileBacked.load("epics");
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }*/
                         break;
                     }
                 case "POST":
@@ -585,7 +458,6 @@ public class HttpTaskServer {
                         long id = Long.parseLong(pathGet.split("=")[1]);
                         try {
                             fileBacked.updateEpic(id, epic);
-                            //fileBacked.getEpics().get(epic.getId()).getStatus();
                             if (fileBacked.getEpics().get(id).getName().equals(epic.getName())
                                 && fileBacked.getEpics().get(id).getDescription().equals(epic.getDescription())) {
                                 response = "Эпик " + id + " успешно обновлен.";
@@ -598,13 +470,8 @@ public class HttpTaskServer {
                         }
                         break;
                     } else if (pathGet.split("/")[2].contains("epic")) {
-                        //fileBacked.setEpics(epic);
                         try {
                             fileBacked.createNewEpic(epic.getName(), epic.getDescription(), epic.getId());
-
-                            fileBacked.getEpics().get(epic.getId()).getStartTime();///
-                            fileBacked.getEpics().get(epic.getId()).getDuration();///
-
                         } catch (ManagerSaveException e) {
                             e.printStackTrace();
                         }
@@ -628,11 +495,11 @@ public class HttpTaskServer {
                         }
                         break;
                     } else if (pathGet.split("/")[2].equals("epic")) {
-                            try {
-                                fileBacked.removeAllEpics(fileBacked.getEpics());
-                            } catch (ManagerSaveException e) {
-                                e.printStackTrace();
-                            }
+                        try {
+                            fileBacked.removeAllSubtasks(fileBacked.getSubtasks());
+                        } catch (ManagerSaveException e) {
+                            e.printStackTrace();
+                        }
                         if (!fileBacked.getEpics().isEmpty()) {
                             response = "Что-то пошло не так, эпики не удалены.";
                             break;
@@ -641,7 +508,8 @@ public class HttpTaskServer {
                         break;
                     }
                 default:
-                    System.out.println("Некорректный метод!");
+                    System.out.println("Некорректный метод " + method);
+                    httpExchange.sendResponseHeaders(404, 0);
             }
             httpExchange.sendResponseHeaders(200, 0);
             try (OutputStream os = httpExchange.getResponseBody()) {
@@ -695,22 +563,14 @@ public class HttpTaskServer {
                         .create();
             String method = httpExchange.getRequestMethod();
             String pathGet = httpExchange.getRequestURI().toString();
-            if (method.equals("GET") /*&& !fileBacked.getHistory().isEmpty()*/
-                && pathGet.split("/")[2].equals("history")) {
-
-                response = gson.toJson(fileBacked.getHistory());///
-
-                /*try {
-                    response = fileBacked.load("history");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
-
+            if (method.equals("GET") && pathGet.split("/")[2].equals("history")) {
+                response = gson.toJson(fileBacked.getHistory());
+                httpExchange.sendResponseHeaders(200, 0);
             } else {
-                //response = "История просмотров пустая.";
-                response = "Неверный запрос.";
+                response = "/history ждёт GET-запрос, а получил  " + method;
+                httpExchange.sendResponseHeaders(404, 0);
             }
-            httpExchange.sendResponseHeaders(200, 0);
+            //httpExchange.sendResponseHeaders(200, 0);
             try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(response.getBytes());
             }
@@ -730,22 +590,14 @@ public class HttpTaskServer {
             String method = httpExchange.getRequestMethod();
             String pathGet = httpExchange.getRequestURI().toString();
             String[] path = pathGet.split("/");
-            if (method.equals("GET") /*&& !fileBacked.getPrioritizedTasks().isEmpty()*/
-                    && path[1].equals("tasks")) {
-
-                response = gson.toJson(fileBacked.getPrioritizedTasks());///
-
-                /*try {
-                    response = fileBacked.load("sortedTasks");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
+            if (method.equals("GET") && path[1].equals("tasks")) {
+                response = gson.toJson(fileBacked.getPrioritizedTasks());
+                httpExchange.sendResponseHeaders(200, 0);
             } else {
-                //response = "Список пуст.";
-
-                response = "Неверный запрос.";
+                response = "/tasks/ ждёт GET-запрос, а получил " + method;
+                httpExchange.sendResponseHeaders(404, 0);
             }
-            httpExchange.sendResponseHeaders(200, 0);
+            //httpExchange.sendResponseHeaders(200, 0);
             try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(response.getBytes());
             }

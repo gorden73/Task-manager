@@ -17,6 +17,12 @@ public class KVServer {
     public KVServer() throws IOException {
         API_KEY = generateApiKey();
         server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
+        createRegisterContext();
+        createSaveContext();
+        createLoadContext();
+    }
+
+    private void createRegisterContext() {
         server.createContext("/register", (h) -> {
             try {
                 System.out.println("\n/register");
@@ -32,6 +38,9 @@ public class KVServer {
                 h.close();
             }
         });
+    }
+
+    private void createSaveContext() {
         server.createContext("/save", (h) -> {
             try {
                 System.out.println("\n/save");
@@ -66,6 +75,9 @@ public class KVServer {
                 h.close();
             }
         });
+    }
+
+    private void createLoadContext() {
         server.createContext("/load", (h) -> {
             try {
                 System.out.println("\n/load");
@@ -83,9 +95,9 @@ public class KVServer {
                             return;
                         }
                         //if (data.get(key) != null) {
-                            sendText(h, data.get(key));
-                           // break;
-                       // } else {
+                        sendText(h, data.get(key));
+                        // break;
+                        // } else {
                         //    sendText(h, null);
                         //}
                         break;
@@ -104,6 +116,11 @@ public class KVServer {
         System.out.println("Открой в браузере http://localhost:" + PORT + "/");
         System.out.println("API_KEY: " + API_KEY);
         server.start();
+    }
+
+    public void stop() {
+        server.stop(0);
+        System.out.println("KVServer остановлен.");
     }
 
     private String generateApiKey() {

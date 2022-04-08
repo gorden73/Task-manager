@@ -409,12 +409,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     @Override
-    public void removeAllEpics(HashMap<Long, Epic> epics) throws ManagerSaveException {
-        super.removeAllEpics(epics);
-        save();
-    }
-
-    @Override
     public void removeEpic(long inputId) throws ManagerSaveException {
         super.removeEpic(inputId);
         save();
