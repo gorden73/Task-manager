@@ -742,63 +742,62 @@ class HttpTaskServerTest extends TaskManagerTest {
                 new TypeToken<HashMap<Long, Epic>>() {}.getType());
         assertEquals(0, tasks1.size(), "HashMap должна быть пустой.");
     }
-    ///
 
     @Test
     void shouldReturnNullWhenHistoryIsEmpty() throws IOException, InterruptedException {
-        List<Task> history = gson.fromJson(server.fileBacked.load("history"),
-                new TypeToken<ArrayList<Task>>() {}.getType());
+        List<Long> history = gson.fromJson(server.fileBacked.load("history"),
+                new TypeToken<ArrayList<Long>>() {}.getType());
         assertNull(history, "Список должен быть равен null.");
     }
 
     @Test
     void shouldReturnHistoryWhenHistoryContainsTask() throws IOException, InterruptedException, ManagerSaveException {
-        List<Task> history = gson.fromJson(server.fileBacked.load("history"),
-                new TypeToken<ArrayList<Task>>() {}.getType());
+        List<Long> history = gson.fromJson(server.fileBacked.load("history"),
+                new TypeToken<ArrayList<Long>>() {}.getType());
         assertNull(history, "Список должен быть равен null.");
         Task task1 = server.fileBacked.createNewTask("Задача1", "Описание1", 1);
         server.fileBacked.getTask(1L);
-        List<Task> history1 = gson.fromJson(server.fileBacked.load("history"),
-                new TypeToken<ArrayList<Task>>() {}.getType());
+        List<Long> history1 = gson.fromJson(server.fileBacked.load("history"),
+                new TypeToken<ArrayList<Long>>() {}.getType());
         assertEquals(1, history1.size(), "Размер списка истории должен быть равен 1.");
-        assertEquals(task1, history1.get(0), "Задача из списка истории не равна задаче 1");
+        assertEquals(task1.getId(), history1.get(0), "Id задачи из списка истории не равен Id задачи1");
     }
 
     @Test
     void shouldReturnHistoryWhenHistoryContainsSubtask() throws IOException, InterruptedException,
                                                                 ManagerSaveException {
-        List<Task> history = gson.fromJson(server.fileBacked.load("history"),
-                new TypeToken<ArrayList<Task>>() {}.getType());
+        List<Long> history = gson.fromJson(server.fileBacked.load("history"),
+                new TypeToken<ArrayList<Long>>() {}.getType());
         assertNull(history, "Список должен быть равен null.");
         Epic epic = server.fileBacked.createNewEpic("Эпик1", "ОписаниеЭпика1", 2);
         Subtask task1 = server.fileBacked.createNewSubtask("Подзадача1", "Описание1", 1,
                                                            epic);
         server.fileBacked.getSubtask(1L);
-        List<Task> history1 = gson.fromJson(server.fileBacked.load("history"),
-                new TypeToken<ArrayList<Task>>() {}.getType());
+        List<Long> history1 = gson.fromJson(server.fileBacked.load("history"),
+                new TypeToken<ArrayList<Long>>() {}.getType());
         assertEquals(1, history1.size(), "Размер списка истории должен быть равен 1.");
-        assertEquals(task1, server.fileBacked.getSubtasks().get(history1.get(0).getId()),
-                "Подзадача из списка истории не равна задаче 1");
+        assertEquals(task1.getId(), history1.get(0),
+                "Id подзадачи из списка истории не равен id подзадачи1");
     }
 
     @Test
     void shouldReturnHistoryWhenHistoryContainsEpic() throws IOException, InterruptedException, ManagerSaveException {
-        List<Task> history = gson.fromJson(server.fileBacked.load("history"),
-                new TypeToken<ArrayList<Task>>() {}.getType());
+        List<Long> history = gson.fromJson(server.fileBacked.load("history"),
+                new TypeToken<ArrayList<Long>>() {}.getType());
         assertNull(history, "Список должен быть равен null.");
         Epic epic = server.fileBacked.createNewEpic("Эпик1", "ОписаниеЭпика1", 1);
         server.fileBacked.getEpic(1L);
-        List<Task> history1 = gson.fromJson(server.fileBacked.load("history"),
-                new TypeToken<ArrayList<Task>>() {}.getType());
+        List<Long> history1 = gson.fromJson(server.fileBacked.load("history"),
+                new TypeToken<ArrayList<Long>>() {}.getType());
         assertEquals(1, history1.size(), "Размер списка истории должен быть равен 1.");
-        assertEquals(epic, server.fileBacked.getEpics().get(history1.get(0).getId()),
-                "Эпик из списка истории не равен эпику 1");
+        assertEquals(epic.getId(), history1.get(0),
+                "Id эпика из списка истории не равен id эпика1");
     }
 
     @Test
     void shouldReturnHistory() throws ManagerSaveException, IOException, InterruptedException {
-        List<Task> history = gson.fromJson(server.fileBacked.load("history"),
-                new TypeToken<ArrayList<Task>>() {}.getType());
+        List<Long> history = gson.fromJson(server.fileBacked.load("history"),
+                new TypeToken<ArrayList<Long>>() {}.getType());
         assertNull(history, "Список должен быть равен null.");
         Task task = server.fileBacked.createNewTask("Задача1", "Описание1", 1);
         Epic epic = server.fileBacked.createNewEpic("Эпик1", "ОписаниеЭпика1", 2);
@@ -807,96 +806,86 @@ class HttpTaskServerTest extends TaskManagerTest {
         server.fileBacked.getTask(1L);
         server.fileBacked.getEpic(2L);
         server.fileBacked.getSubtask(3L);
-        List<Task> history1 = gson.fromJson(server.fileBacked.load("history"),
-                new TypeToken<ArrayList<Task>>() {}.getType());
+        List<Long> history1 = gson.fromJson(server.fileBacked.load("history"),
+                new TypeToken<ArrayList<Long>>() {}.getType());
         assertEquals(3, history1.size(), "Размер списка истории должен быть равен 3.");
-        assertEquals(task, history1.get(0), "Задача 1 не равна задаче 1 при загрузке с сервера");
-        assertEquals(epic, server.fileBacked.getEpics().get(history1.get(1).getId()),
-                "Эпик 2 не равен эпику 2 при загрузке с сервера");
-        assertEquals(subtask, server.fileBacked.getSubtasks().get(history1.get(2).getId()),
-                "Подзадача 3 не равна подзадаче 3 при загрузке с сервера");
+        assertEquals(task.getId(), history1.get(0), "Id задачи 1 не равен id задачи 1 при загрузке с сервера");
+        assertEquals(epic.getId(), history1.get(1),"Id эпика 2 не равен Id эпика 2 при загрузке с сервера");
+        assertEquals(subtask.getId(), history1.get(2),
+                "Id подзадачи 3 не равен Id подзадачи 3 при загрузке с сервера");
     }
 
     @Test
-    void shouldReturnNullWhenPrioritizedTasksIsEmpty() throws IOException, InterruptedException {
-        Set<Task> history = gson.fromJson(server.fileBacked.load("sortedTasks"),
-                new TypeToken<Set<Task>>() {}.getType());
-        assertNull(history, "Список должен быть равен null.");
+    void shouldReturnNullWhenPrioritizedTasksIsEmpty() {
+        assertEquals(0, server.fileBacked.sortedTasks.size(), "Размер списка должен быть равен 0.");
     }
 
     @Test
-    void shouldReturnPrioritizedTasksWhenPrioritizedTasksContainsTask() throws IOException, InterruptedException, ManagerSaveException {
-        Set<Task> sortedTasks = gson.fromJson(server.fileBacked.load("sortedTasks"),
-                new TypeToken<Set<Task>>() {}.getType());
-        assertNull(sortedTasks, "Список должен быть равен null.");
+    void shouldReturnPrioritizedTasksWhenPrioritizedTasksContainsTask() throws ManagerSaveException {
+        assertEquals(0, server.fileBacked.sortedTasks.size(), "Размер списка должен быть равен 0.");
         Task task1 = server.fileBacked.createNewTask("Задача1", "Описание1", 1);
-        Set<Task> sortedTasks1 = gson.fromJson(server.fileBacked.load("sortedTasks"),
-                new TypeToken<Set<Task>>() {}.getType());
-        assertEquals(1, sortedTasks1.size(), "Размер списка истории должен быть равен 1.");
-        Iterator<Task> iterator = sortedTasks1.iterator();
-        assertEquals(task1, iterator.next(), "Задача из списка истории не равна задаче 1");
+        assertEquals(1, server.fileBacked.sortedTasks.size(), "Размер списка должен быть равен 1.");
+        Iterator<Task> iterator =  server.fileBacked.sortedTasks.iterator();
+        assertEquals(task1, iterator.next(), "Задача из списка не равна задаче 1");
     }
 
     @Test
-    void shouldReturnPrioritizedTasksWhenPrioritizedTasksContainsSubtask() throws IOException, InterruptedException,
-            ManagerSaveException {
-        Set<Task> sortedTasks = gson.fromJson(server.fileBacked.load("sortedTasks"),
-                new TypeToken<Set<Task>>() {}.getType());
-        assertNull(sortedTasks, "Список должен быть равен null.");
+    void shouldReturnPrioritizedTasksWhenPrioritizedTasksContainsSubtask() throws ManagerSaveException {
+        assertEquals(0, server.fileBacked.sortedTasks.size(), "Размер списка должен быть равен 0.");
         Epic epic = server.fileBacked.createNewEpic("Эпик1", "ОписаниеЭпика1", 2);
         Subtask task1 = server.fileBacked.createNewSubtask("Подзадача1", "Описание1", 1,
                 epic);
-        Set<Task> sortedTasks1 = gson.fromJson(server.fileBacked.load("sortedTasks"),
-                new TypeToken<Set<Task>>() {}.getType());
-        assertEquals(2, sortedTasks1.size(), "Размер списка истории должен быть равен 2.");
-        Iterator<Task> iterator = sortedTasks1.iterator();
-        assertEquals(task1, server.fileBacked.getSubtasks().get(iterator.next().getId()),"Подзадача из списка истории не равна задаче 1");
+        assertEquals(2, server.fileBacked.sortedTasks.size(), "Размер списка должен быть равен 2.");
+        Iterator<Task> iterator =  server.fileBacked.sortedTasks.iterator();
+        boolean checkEpic = false;
+        boolean checkSubtask = false;
+        while (iterator.hasNext()) {
+            Task iter = iterator.next();
+            if (iter.equals(task1)) {
+                checkSubtask = true;
+            } else if (iter.equals(epic)) {
+                checkEpic = true;
+            }
+        }
+        assertTrue(checkSubtask, "Подзадача из списка не равна подзадаче 1");
+        assertTrue(checkEpic, "Эпик из списка не равен эпику 1");
     }
 
     @Test
-    void shouldReturnPrioritizedTasksWhenPrioritizedTasksContainsEpic() throws IOException, InterruptedException, ManagerSaveException {
-        Set<Task> sortedTasks = gson.fromJson(server.fileBacked.load("sortedTasks"),
-                new TypeToken<Set<Task>>() {}.getType());
-        assertNull(sortedTasks, "Список должен быть равен null.");
+    void shouldReturnPrioritizedTasksWhenPrioritizedTasksContainsEpic() throws ManagerSaveException {
+        assertEquals(0, server.fileBacked.sortedTasks.size(), "Размер списка должен быть равен 0.");
         Epic epic = server.fileBacked.createNewEpic("Эпик1", "ОписаниеЭпика1", 1);
-        Set<Task> sortedTasks1 = gson.fromJson(server.fileBacked.load("sortedTasks"),
-                new TypeToken<Set<Task>>() {}.getType());
-        assertEquals(1, sortedTasks1.size(), "Размер списка истории должен быть равен 1.");
-        Iterator<Task> iterator = sortedTasks1.iterator();
+        assertEquals(1, server.fileBacked.sortedTasks.size(), "Размер списка должен быть равен 1.");
+        Iterator<Task> iterator = server.fileBacked.sortedTasks.iterator();
         while (iterator.hasNext()) {
-            Task iter = iterator.next();
-            if (epic.equals(iter)) {
-                assertEquals(epic, iter, "Эпик из списка истории не равен эпику 1");
-                break;
-            }
+            assertEquals(epic, iterator.next(), "Эпик из списка истории не равен эпику 1");
         }
     }
 
     @Test
-    void shouldReturnPrioritizedTasks() throws ManagerSaveException, IOException, InterruptedException {
-        Set<Task> sortedTasks = gson.fromJson(server.fileBacked.load("sortedTasks"),
-                new TypeToken<Set<Task>>() {}.getType());
-        assertNull(sortedTasks, "Список должен быть равен null.");
+    void shouldReturnPrioritizedTasks() throws ManagerSaveException {
+        assertEquals(0, server.fileBacked.sortedTasks.size(), "Размер списка должен быть равен 0.");
         Task task = server.fileBacked.createNewTask("Задача1", "Описание1", 1);
         Epic epic = server.fileBacked.createNewEpic("Эпик1", "ОписаниеЭпика1", 2);
         Subtask subtask = server.fileBacked.createNewSubtask("Подзадача1", "ОписаниеПодзадачи1",
                 3, epic);
-        Set<Task> sortedTasks1 = gson.fromJson(server.fileBacked.load("sortedTasks"),
-                new TypeToken<Set<Task>>() {}.getType());
-        assertEquals(sortedTasks1.size(), sortedTasks1.size(), "Размер списка истории должен быть равен 3.");
-        Iterator<Task> iterator = sortedTasks1.iterator();
+        assertEquals(3, server.fileBacked.sortedTasks.size(), "Размер списка должен быть равен 3.");
+        Iterator<Task> iterator = server.fileBacked.sortedTasks.iterator();
+        boolean checkTask = false;
+        boolean checkEpic = false;
+        boolean checkSubtask = false;
         while(iterator.hasNext()) {
             Task iter = iterator.next();
             if (iter.equals(task)) {
-                assertEquals(task, iter, "Задача 1 не равна задаче 1 при загрузке с сервера");
-                break;
+                checkTask = true;
             } else if (iter.equals(subtask)) {
-                assertEquals(subtask, iter,"Подзадача 3 не равна подзадаче 3 при загрузке с сервера");
-                break;
+               checkSubtask = true;
             } else {
-                assertEquals(epic, iter,"Эпик 2 не равен эпику 2 при загрузке с сервера");
-                break;
+                checkEpic = true;
             }
         }
+        assertTrue(checkTask, "Задача из списка не равна задаче 1");
+        assertTrue(checkSubtask, "Подзадача из списка не равна подзадаче 1");
+        assertTrue(checkEpic, "Эпик из списка не равен эпику 1");
     }
 }

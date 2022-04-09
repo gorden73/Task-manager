@@ -53,6 +53,7 @@ public class HttpTaskServer {
         httpServer.createContext("/tasks/task", new TaskHandler());
         httpServer.createContext("/tasks/subtask", new SubtasksHandler());
         httpServer.createContext("/tasks/epic", new EpicsHandler());
+        httpServer.createContext("/tasks/subtask/epic/?id=", new SubtasksHandler());
         httpServer.createContext("/tasks/history", new HistoryHandler());
         httpServer.createContext("/tasks/", new PrioritizedHandler());
     }
@@ -99,27 +100,19 @@ public class HttpTaskServer {
                 fileBacked.getPrioritizedTasks().add(subtask);
             }
         }
-        List<Task> history = gson.fromJson(fileBacked.load("history"),
-                                           new TypeToken<ArrayList<Task>>() {}.getType());
-        if (history != null) {
-            for (Task task : history) {
-                if (fileBacked.getTasks().containsKey(task.getId())) {
-                    fileBacked.getHistoryManager().add(fileBacked.getTasks().get(task.getId()));
-                } else if (fileBacked.getSubtasks().containsKey(task.getId())) {
-                    fileBacked.getHistoryManager().add(fileBacked.getSubtasks().get(task.getId()));
-                } else if (fileBacked.getEpics().containsKey(task.getId())) {
-                    fileBacked.getHistoryManager().add(fileBacked.getEpics().get(task.getId()));
+        List<Long> historyId = gson.fromJson(fileBacked.load("history"),
+                new TypeToken<ArrayList<Long>>() {}.getType());
+        if (historyId != null) {
+            for (Long id : historyId) {
+                if (fileBacked.getTasks().containsKey(id)) {
+                    fileBacked.getHistoryManager().add(fileBacked.getTasks().get(id));
+                } else if (fileBacked.getSubtasks().containsKey(id)) {
+                    fileBacked.getHistoryManager().add(fileBacked.getSubtasks().get(id));
+                } else if (fileBacked.getEpics().containsKey(id)) {
+                    fileBacked.getHistoryManager().add(fileBacked.getEpics().get(id));
                 }
             }
         }
-        Set<Task> sortedTasks = gson.fromJson(fileBacked.load("sortedTask"),
-                                              new TypeToken<Set<Task>>() {}.getType());
-        if (sortedTasks != null) {
-            for (Task task : sortedTasks) {
-                fileBacked.sortedTasks.add(task);
-            }
-        }
-        System.out.println("Данные с сервера успешно загружены.");
     }
 
     public class TaskHandler implements HttpHandler {
@@ -282,21 +275,31 @@ public class HttpTaskServer {
             String pathGet = httpExchange.getRequestURI().toString();
             switch(method) {
                 case "GET":
-                    if (pathGet.contains("id=")) {
-                        long id = Long.parseLong(pathGet.split("=")[1]);
-                        if (fileBacked.getSubtasks().isEmpty()) {
-                            response = "Подзадач нет.";
-                            break;
-                        }
-                        try {
-                            response = gson.toJson(fileBacked.getSubtask(id));
-                        } catch (ManagerSaveException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    } else if (pathGet.split("/")[2].contains("subtask")) {
+                    if (pathGet.split("/")[2].equals("subtask") && pathGet.split("/").length == 3) {
                         response = gson.toJson(fileBacked.getSubtasks());
                         break;
+                    } else if (pathGet.split("/")[2].equals("subtask")
+                        && pathGet.split("/")[3].equals("epic")
+                        && pathGet.split("/")[4].contains("?id=")) {
+                    long id = Long.parseLong(pathGet.split("=")[1]);
+                    if (fileBacked.getSubtasks().isEmpty()) {
+                        response = "Подзадач нет.";
+                        break;
+                    }
+                    response = gson.toJson(fileBacked.getEpics().get(id).getSubtaskList());
+                    break;
+                    } else if (pathGet.split("/")[2].contains("id=")) {
+                    long id = Long.parseLong(pathGet.split("=")[1]);
+                    if (fileBacked.getSubtasks().isEmpty()) {
+                        response = "Подзадач нет.";
+                        break;
+                    }
+                    try {
+                        response = gson.toJson(fileBacked.getSubtask(id));
+                    } catch (ManagerSaveException e) {
+                        e.printStackTrace();
+                    }
+                    break;
                     }
                 case "POST":
                     final String json = new String(httpExchange.getRequestBody().readAllBytes(),

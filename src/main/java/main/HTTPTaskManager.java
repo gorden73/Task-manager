@@ -9,6 +9,8 @@ import tasktracker.Task;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HTTPTaskManager extends FileBackedTasksManager {
     KVTaskClient client;
@@ -79,7 +81,7 @@ public class HTTPTaskManager extends FileBackedTasksManager {
         }
 
         @Override
-        public Subtask read(JsonReader jsonReader) throws IOException {
+        public Subtask read(JsonReader jsonReader) {
             JsonElement jsonElement = JsonParser.parseReader(jsonReader);
             JsonObject jsonObject = jsonElement.getAsJsonObject();
             Subtask subtask = null;
@@ -128,7 +130,7 @@ public class HTTPTaskManager extends FileBackedTasksManager {
         }
 
         @Override
-        public Epic read(JsonReader jsonReader) throws IOException {
+        public Epic read(JsonReader jsonReader) {
             JsonElement jsonElement = JsonParser.parseReader(jsonReader);
             JsonObject jsonObject = jsonElement.getAsJsonObject();
             Epic epic;
@@ -150,8 +152,12 @@ public class HTTPTaskManager extends FileBackedTasksManager {
             client.put("tasks", gson.toJson(getTasks()));
             client.put("epics", gson.toJson(getEpics()));
             client.put("subtasks", gson.toJson(getSubtasks()));
-            client.put("history", gson.toJson(getHistory()));
-            client.put("sortedTasks", gson.toJson(getPrioritizedTasks()));
+            List<Task> history = getHistory();
+            ArrayList<Long> historyId = new ArrayList<>();
+            for (Task task : history) {
+                historyId.add(task.getId());
+            }
+            client.put("history", gson.toJson(historyId));
         } catch (IOException | InterruptedException | ManagerSaveException e) {
             e.printStackTrace();
         }
