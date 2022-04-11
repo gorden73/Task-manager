@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.net.URI;
 
 public final class Managers {
-    public static HTTPTaskManager getDefault(URI uri) throws IOException, InterruptedException {
-        return new HTTPTaskManager(uri);
+    public static HTTPTaskManager getDefault() throws IOException, InterruptedException {
+        return new HTTPTaskManager();
     }
 
     public static FileBackedTasksManager getBackup(File file) throws IOException {

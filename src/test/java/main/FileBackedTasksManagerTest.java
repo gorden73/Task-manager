@@ -17,38 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class FileBackedTasksManagerTest extends TaskManagerTest {
     File fileToSave;
 
-    /*@BeforeEach
-    void start() throws IOException, ManagerSaveException, InterruptedException {
-        fileToSave = new File("backup.csv");
-        //taskManager = Managers.getBackup(fileToSave);
-        *//*kvServer = new KVServer();
-        kvServer.start();*//*
-
-        *//*taskManager = Managers.getDefault(URI.create("http://localhost:8078"));
-        server = new HttpTaskServer((HTTPTaskManager) taskManager);
-        server.start();*//*
-
-        //taskManager = Managers.getDefault(URI.create("http://localhost:8078"));
-        taskManager.getTasks().clear();
-        taskManager.getSubtasks().clear();
-        taskManager.getEpics().clear();
-        taskManager.getPrioritizedTasks().clear();
-        taskManager.getHistory().clear();
-        taskManager.save();
-    }*/
-
-    /*@AfterEach
-    void end() throws ManagerSaveException {
-        taskManager.getTasks().clear();
-        taskManager.getSubtasks().clear();
-        taskManager.getEpics().clear();
-        taskManager.getPrioritizedTasks().clear();
-        taskManager.getHistory().clear();
-        taskManager.save();
-        server.stop();
-        //kvServer.stop();
-    }*/
-
     @Test
     public void saveWhenFileIsEmpty() throws ManagerSaveException, IOException {
         taskManager = FileBackedTasksManager.loadFromFile(fileToSave);

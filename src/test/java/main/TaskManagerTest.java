@@ -16,28 +16,19 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-abstract class TaskManagerTest {
+abstract class TaskManagerTest <T extends TaskManager> {
 
     protected InMemoryTasksManager taskManager;
-    //protected TaskManager taskManager;
     KVServer kvServer;
     HttpTaskServer server;
-    /*protected TaskManagerTest() throws IOException, InterruptedException {
-        this.taskManager = Managers.getDefault(URI.create("http://localhost:8078"));
-        this.server = new KVServer();
-    }*/
 
     @BeforeEach
-    public void startServer() throws IOException, InterruptedException, ManagerSaveException {
+    public void startServer() throws IOException, InterruptedException {
         kvServer = new KVServer();
         kvServer.start();
-
-        taskManager = Managers.getDefault(URI.create("http://localhost:8078"));
+        taskManager = Managers.getDefault();
         server = new HttpTaskServer((HTTPTaskManager) taskManager);
         server.start();
-       /* taskManager = Managers.getDefault(URI.create("http://localhost:8078"));
-        server = new HttpTaskServer((HTTPTaskManager) taskManager);
-        server.start();*/
     }
 
     @AfterEach

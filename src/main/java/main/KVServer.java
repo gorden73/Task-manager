@@ -10,12 +10,12 @@ import java.util.Map;
 
 public class KVServer {
     public static final int PORT = 8078;
-    private final String API_KEY;
+    private final String apiKey;
     private HttpServer server;
     private Map<String, String> data = new HashMap<>();
 
     public KVServer() throws IOException {
-        API_KEY = generateApiKey();
+        apiKey = generateApiKey();
         server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
         createRegisterContext();
         createSaveContext();
@@ -28,7 +28,7 @@ public class KVServer {
                 System.out.println("\n/register");
                 switch (h.getRequestMethod()) {
                     case "GET":
-                        sendText(h, API_KEY);
+                        sendText(h, apiKey);
                         break;
                     default:
                         System.out.println("/register ждёт GET-запрос, а получил " + h.getRequestMethod());
@@ -45,7 +45,7 @@ public class KVServer {
             try {
                 System.out.println("\n/save");
                 if (!hasAuth(h)) {
-                    System.out.println("Запрос неавторизован, нужен параметр в query API_KEY со значением апи-ключа");
+                    System.out.println("Запрос неавторизован, нужен параметр в query apiKey со значением апи-ключа");
                     h.sendResponseHeaders(403, 0);
                     return;
                 }
@@ -82,7 +82,7 @@ public class KVServer {
             try {
                 System.out.println("\n/load");
                 if (!hasAuth(h)) {
-                    System.out.println("Запрос неавторизован, нужен параметр в query API_KEY со значением апи-ключа");
+                    System.out.println("Запрос неавторизован, нужен параметр в query apiKey со значением апи-ключа");
                     h.sendResponseHeaders(403, 0);
                     return;
                 }
@@ -109,7 +109,7 @@ public class KVServer {
     public void start() {
         System.out.println("Запускаем сервер на порту " + PORT);
         System.out.println("Открой в браузере http://localhost:" + PORT + "/");
-        System.out.println("API_KEY: " + API_KEY);
+        System.out.println("apiKey: " + apiKey);
         server.start();
     }
 
@@ -124,7 +124,7 @@ public class KVServer {
 
     protected boolean hasAuth(HttpExchange h) {
         String rawQuery = h.getRequestURI().getRawQuery();
-        return rawQuery != null && (rawQuery.contains("API_KEY=" + API_KEY) || rawQuery.contains("API_KEY=DEBUG"));
+        return rawQuery != null && (rawQuery.contains("apiKey=" + apiKey) || rawQuery.contains("apiKey=DEBUG"));
     }
 
     protected String readText(HttpExchange h) throws IOException {
