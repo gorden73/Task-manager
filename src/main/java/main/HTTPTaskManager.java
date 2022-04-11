@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HTTPTaskManager extends FileBackedTasksManager {
-    private KVTaskClient client;
-    Gson gson;
-    private TaskAdapter taskAdapter;
-    private SubtaskAdapter subtaskAdapter;
-    private EpicAdapter epicAdapter;
+    private final KVTaskClient client;
+    private final Gson gson;
+    private final TaskAdapter taskAdapter;
+    private final SubtaskAdapter subtaskAdapter;
+    private final EpicAdapter epicAdapter;
 
     public HTTPTaskManager() throws IOException, InterruptedException {
         client = new KVTaskClient(URI.create("http://localhost:8078"));

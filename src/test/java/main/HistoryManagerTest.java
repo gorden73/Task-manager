@@ -28,7 +28,7 @@ class HistoryManagerTest {
     }
 
     @Test
-    void add() throws ManagerSaveException {
+    void add() {
         assertEquals(0, historyManager.getHistory().size());
         historyManager.add(task);
         assertEquals(1, historyManager.getHistory().size());

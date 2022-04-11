@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTasksManagerTest extends TaskManagerTest {
+class FileBackedTasksManagerTest extends TaskManagerTest<TaskManager> {
     File fileToSave;
 
     @Test
@@ -26,7 +26,9 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         assertEquals(0, taskManager.getHistory().size());
         assertEquals(0, taskManager.getPrioritizedTasks().size());
         taskManager.save();
-        assertTrue(fileToSave.isFile());
+        if (fileToSave != null) {
+            assertTrue(fileToSave.isFile());
+        }
     }
 
     @Test
@@ -187,21 +189,5 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         assertEquals(0, taskManager.getEpics().size());
         assertEquals(0, taskManager.getHistory().size());
         assertEquals(0, taskManager.getPrioritizedTasks().size());
-    }
-
-    @Test
-    public void getHistory() throws ManagerSaveException {
-        assertEquals(0, taskManager.getHistory().size());
-        Task task = taskManager.createNewTask("a", "b", 1, "09.08.2002", 3);
-        Epic epic = taskManager.createNewEpic("a", "b", 2);
-        Subtask subtask = taskManager.createNewSubtask("a", "b", 3, "05.07.2005",
-                3, epic);
-        taskManager.getTask(1);
-        taskManager.getSubtask(3);
-        taskManager.getEpic(2);
-        assertEquals(3, taskManager.getHistory().size());
-        assertEquals(task, taskManager.getHistory().get(0));
-        assertEquals(subtask, taskManager.getHistory().get(1));
-        assertEquals(epic, taskManager.getHistory().get(2));
     }
 }

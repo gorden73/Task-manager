@@ -15,7 +15,7 @@ import java.util.List;
 
 public class HttpTaskServer {
     protected HTTPTaskManager fileBacked;
-    private HttpServer httpServer;
+    private final HttpServer httpServer;
 
     public static void main(String[] args) throws IOException, InterruptedException, ManagerSaveException {
         new KVServer().start();
@@ -64,7 +64,7 @@ public class HttpTaskServer {
     }
 
     public void backup() throws IOException, InterruptedException {
-        HashMap<Long, Task> tasks = fileBacked.gson.fromJson(fileBacked.load("tasks"),
+        HashMap<Long, Task> tasks = fileBacked.getGson().fromJson(fileBacked.load("tasks"),
                                                   new TypeToken<HashMap<Long, Task>>() {}.getType());
         if (tasks != null) {
             for (Task task : tasks.values()) {
@@ -72,7 +72,7 @@ public class HttpTaskServer {
                 fileBacked.getPrioritizedTasks().add(task);
             }
         }
-        HashMap<Long, Epic> epics = fileBacked.gson.fromJson(fileBacked.load("epics"),
+        HashMap<Long, Epic> epics = fileBacked.getGson().fromJson(fileBacked.load("epics"),
                                                   new TypeToken<HashMap<Long, Epic>>() {}.getType());
         if (epics != null) {
             for (Epic epic : epics.values()) {
@@ -80,7 +80,7 @@ public class HttpTaskServer {
                 fileBacked.getPrioritizedTasks().add(epic);
             }
         }
-        HashMap<Long, Subtask> subtasks = fileBacked.gson.fromJson(fileBacked.load("subtasks"),
+        HashMap<Long, Subtask> subtasks = fileBacked.getGson().fromJson(fileBacked.load("subtasks"),
                                                         new TypeToken<HashMap<Long, Subtask>>() {}.getType());
         if (subtasks != null) {
             for (Subtask subtask : subtasks.values()) {
@@ -89,7 +89,7 @@ public class HttpTaskServer {
                 fileBacked.getPrioritizedTasks().add(subtask);
             }
         }
-        List<Long> historyId = fileBacked.gson.fromJson(fileBacked.load("history"),
+        List<Long> historyId = fileBacked.getGson().fromJson(fileBacked.load("history"),
                 new TypeToken<ArrayList<Long>>() {}.getType());
         if (historyId != null) {
             for (Long id : historyId) {

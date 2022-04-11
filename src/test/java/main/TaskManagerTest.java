@@ -17,7 +17,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 abstract class TaskManagerTest <T extends TaskManager> {
-
     protected InMemoryTasksManager taskManager;
     KVServer kvServer;
     HttpTaskServer server;
@@ -341,6 +340,71 @@ abstract class TaskManagerTest <T extends TaskManager> {
     }
 
     @Test
+    void removeAllSimpleTasks() throws ManagerSaveException {
+        assertEquals(0, taskManager.getTasks().size());
+        Task task1 = taskManager.createNewTask("a", "b", 1, "09.08.2002", 3);
+        Task task2 = taskManager.createNewTask("c", "d", 2, "09.08.2003", 4);
+        Task task3 = taskManager.createNewTask("e", "f", 3, "09.08.2004", 5);
+        assertEquals(3, taskManager.getTasks().size(), "Список должен содержать 3 задачи.");
+        assertEquals(task1, taskManager.getTask(1), "Задачи1 не совпадают.");
+        assertEquals(task2, taskManager.getTask(2), "Задачи2 не совпадают.");
+        assertEquals(task3, taskManager.getTask(3), "Задачи3 не совпадают.");
+        taskManager.removeAllTasks(taskManager.getTasks());
+        assertNull(taskManager.getTask(1), "Задача1 не удалена.");
+        assertNull(taskManager.getTask(2), "Задача2 не удалена.");
+        assertNull(taskManager.getTask(3), "Задача3 не удалена.");
+    }
+
+    @Test
+    void removeAllSubtasks() throws ManagerSaveException {
+        assertEquals(0, taskManager.getSubtasks().size());
+        Epic epic = taskManager.createNewEpic("v", "r", 5);
+        Subtask task1 = taskManager.createNewSubtask("a", "b", 1, "09.08.2002",
+                                                3, epic);
+        Subtask task2 = taskManager.createNewSubtask("c", "d", 2, "09.08.2003",
+                                                4, epic);
+        Subtask task3 = taskManager.createNewSubtask("e", "f", 3, "09.08.2004",
+                                                5, epic);
+        assertEquals(3, taskManager.getSubtasks().size(), "Список должен содержать 3 задачи.");
+        assertEquals(1, taskManager.getEpics().size(), "Список должен содержать 1 эпик.");
+        assertEquals(task1, taskManager.getSubtask(1), "Задачи1 не совпадают.");
+        assertEquals(task2, taskManager.getSubtask(2), "Задачи2 не совпадают.");
+        assertEquals(task3, taskManager.getSubtask(3), "Задачи3 не совпадают.");
+        taskManager.removeAllSubtasks(taskManager.getSubtasks());
+        assertNull(taskManager.getSubtask(1), "Задача1 не удалена.");
+        assertNull(taskManager.getSubtask(2), "Задача2 не удалена.");
+        assertNull(taskManager.getSubtask(3), "Задача3 не удалена.");
+        assertNull(taskManager.getEpic(5), "Эпик5 не удален.");
+    }
+
+    @Test
+    void removeAllEpics() throws ManagerSaveException {
+        assertEquals(0, taskManager.getEpics().size(), "Список эпиков должен быть пустым.");
+        Epic epic = taskManager.createNewEpic("v", "r", 5);
+        taskManager.createNewSubtask("a", "b", 1, "09.08.2002",
+                3, epic);
+        taskManager.createNewSubtask("c", "d", 2, "09.08.2003",
+                4, epic);
+        taskManager.createNewSubtask("e", "f", 3, "09.08.2004",
+                5, epic);
+        Epic epic2 = taskManager.createNewEpic("y", "x", 6);
+        Epic epic3 = taskManager.createNewEpic("z", "h", 7);
+        assertEquals(3, taskManager.getSubtasks().size(), "Список должен содержать 3 задачи.");
+        assertEquals(3, taskManager.getEpics().size(), "Список должен содержать 3 эпика.");
+        assertEquals(epic, taskManager.getEpic(5), "Эпики1 не совпадают.");
+        assertEquals(epic2, taskManager.getEpic(6), "Эпики2 не совпадают.");
+        assertEquals(epic3, taskManager.getEpic(7), "Эпики3 не совпадают.");
+        taskManager.removeAllSubtasks(taskManager.getSubtasks());
+        assertNull(taskManager.getSubtask(1), "Задача1 не удалена.");
+        assertNull(taskManager.getSubtask(2), "Задача2 не удалена.");
+        assertNull(taskManager.getSubtask(3), "Задача3 не удалена.");
+        assertNull(taskManager.getEpic(5), "Эпик5 не удален.");
+        assertNull(taskManager.getEpic(6), "Эпик6 не удален.");
+        assertNull(taskManager.getEpic(7), "Эпик7 не удален.");
+        assertEquals(0, taskManager.getEpics().size(), "Список эпиков должен быть пустым.");
+    }
+
+    @Test
     public void removeAllTasks() throws ManagerSaveException {
         assertEquals(0, taskManager.getTasks().size());
         assertEquals(0, taskManager.getSubtasks().size());
@@ -364,5 +428,4 @@ abstract class TaskManagerTest <T extends TaskManager> {
         assertEquals(0, taskManager.getSubtasks().size());
         assertEquals(0, taskManager.getEpics().size());
     }
-
 }
