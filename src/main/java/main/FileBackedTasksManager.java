@@ -78,9 +78,6 @@ public class FileBackedTasksManager extends InMemoryTasksManager {
     }
 
     public static FileBackedTasksManager loadFromFile(File file) throws IOException {
-        if (file == null) {
-            return new FileBackedTasksManager();
-        }
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
         List<String> list = new LinkedList<>();
         FileReader reader = new FileReader(file, StandardCharsets.UTF_8);

@@ -1,7 +1,7 @@
 package main;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tasktracker.Epic;
@@ -17,12 +17,25 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class HttpTaskServerTest extends TaskManagerTest<TaskManager> {
+class HttpTaskServerTest extends TaskManagerTest<HTTPTaskManager> {
     Gson gson;
+    KVServer kvServer;
+    HttpTaskServer server;
 
     @BeforeEach
-    void started() {
+    public void startServer() throws IOException, InterruptedException {
+        kvServer = new KVServer();
+        kvServer.start();
+        taskManager = Managers.getDefault();
+        server = new HttpTaskServer(taskManager);
+        server.start();
         gson = server.fileBacked.getGson();
+    }
+
+    @AfterEach
+    public void stopServer() {
+        server.stop();
+        kvServer.stop();
     }
 
     @Test

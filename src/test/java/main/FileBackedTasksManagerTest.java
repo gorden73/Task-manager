@@ -9,13 +9,24 @@ import tasktracker.Task;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class FileBackedTasksManagerTest extends TaskManagerTest<TaskManager> {
+class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager> {
     File fileToSave;
+
+    @BeforeEach
+    void start() {
+        fileToSave = new File("backup.csv");
+        taskManager = new FileBackedTasksManager(fileToSave);
+    }
+
+    @AfterEach
+    void end() throws ManagerSaveException {
+        taskManager.removeAllTasks(taskManager.getTasks(), taskManager.getSubtasks(), taskManager.getEpics());
+    }
 
     @Test
     public void saveWhenFileIsEmpty() throws ManagerSaveException, IOException {

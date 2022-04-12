@@ -17,24 +17,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 abstract class TaskManagerTest <T extends TaskManager> {
-    protected InMemoryTasksManager taskManager;
-    KVServer kvServer;
-    HttpTaskServer server;
-
-    @BeforeEach
-    public void startServer() throws IOException, InterruptedException {
-        kvServer = new KVServer();
-        kvServer.start();
-        taskManager = Managers.getDefault();
-        server = new HttpTaskServer((HTTPTaskManager) taskManager);
-        server.start();
-    }
-
-    @AfterEach
-    public void stopServer() {
-        server.stop();
-        kvServer.stop();
-    }
+    protected T taskManager;
 
     @Test
     public void getPrioritizedTasks() {
@@ -121,7 +104,6 @@ abstract class TaskManagerTest <T extends TaskManager> {
     public void setStatus() throws ManagerSaveException {
         Task task = taskManager.createNewTask("a", "b", 1, "09.08.2002", 3);
         Epic epic = taskManager.createNewEpic("a", "b", 2);
-        //у эпика setStatus() проверил в EpicTest
         Subtask subtask = taskManager.createNewSubtask("a", "b", 3, "05.07.2005",
                 3, epic);
         task.setStatus("NEW");
@@ -182,7 +164,6 @@ abstract class TaskManagerTest <T extends TaskManager> {
         assertEquals(2, taskManager.getEpics().size(), "Таблица эпиков должна содержать 2 эпика.");
         assertEquals(epic1, taskManager.getEpics().get(3L), "Эпики не совпадают.");
     }
-    //setTasks(), setSubtasks(), setEpics() проверяются внутри геттеров выше
 
     @Test
     public void getHistoryManager() {
@@ -215,12 +196,12 @@ abstract class TaskManagerTest <T extends TaskManager> {
     public void getTask() throws ManagerSaveException {
         assertEquals(0, taskManager.getTasks().size());
         Task task2 = taskManager.getTasks().get(2L);
-        assertNull(task2); //проверка при пустом списке задач
+        assertNull(task2);
         Task task = taskManager.createNewTask("a", "b", 1, "09.08.2002", 3);
         assertEquals(task, taskManager.getTask(1), "Задачи не совпадают.");
         assertEquals(1, taskManager.getTasks().size());
         Task task3 = taskManager.getTasks().get(2L);
-        assertNull(task3);//проверка при неверном id и с 1 задачей в списке
+        assertNull(task3);
     }
 
     @Test
@@ -228,26 +209,26 @@ abstract class TaskManagerTest <T extends TaskManager> {
         taskManager.save();
         assertEquals(0, taskManager.getSubtasks().size());
         Subtask subtask1 = taskManager.getSubtasks().get(2L);
-        assertNull(subtask1); //проверка при пустом списке задач
+        assertNull(subtask1);
         Epic epic = taskManager.createNewEpic("a", "b", 2);
         Subtask subtask = taskManager.createNewSubtask("a", "b", 3, "05.07.2005",
                 3, epic);
         assertEquals(subtask, taskManager.getSubtask(3), "Задачи не совпадают.");
         assertEquals(1, taskManager.getSubtasks().size());
         Subtask task3 = taskManager.getSubtasks().get(5L);
-        assertNull(task3);//проверка при неверном id и с 1 задачей в списке
+        assertNull(task3);
     }
 
     @Test
     public void getEpic() throws ManagerSaveException {
         assertEquals(0, taskManager.getEpics().size());
         Epic task2 = taskManager.getEpics().get(2L);
-        assertNull(task2); //проверка при пустом списке задач
+        assertNull(task2);
         Epic epic = taskManager.createNewEpic("a", "b", 2);
         assertEquals(epic, taskManager.getEpic(2), "Задачи не совпадают.");
         assertEquals(1, taskManager.getEpics().size());
         Epic task3 = taskManager.getEpics().get(5L);
-        assertNull(task3);//проверка при неверном id и с 1 задачей в списке
+        assertNull(task3);
     }
 
     @Test
