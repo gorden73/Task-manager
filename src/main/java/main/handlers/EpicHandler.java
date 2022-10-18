@@ -14,8 +14,8 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class EpicHandler implements HttpHandler {
-    private HTTPTaskManager httpTaskManager;
-    private EpicAdapter epicAdapter;
+    private final HTTPTaskManager httpTaskManager;
+    private final EpicAdapter epicAdapter;
 
     public EpicHandler(HTTPTaskManager httpTaskManager, EpicAdapter epicAdapter) {
         this.httpTaskManager = httpTaskManager;

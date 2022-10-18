@@ -14,8 +14,8 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class TaskHandler implements HttpHandler {
-    private HTTPTaskManager httpTaskManager;
-    private TaskAdapter taskAdapter;
+    private final HTTPTaskManager httpTaskManager;
+    private final TaskAdapter taskAdapter;
 
     public TaskHandler(HTTPTaskManager httpTaskManager, TaskAdapter taskAdapter) {
         this.httpTaskManager = httpTaskManager;

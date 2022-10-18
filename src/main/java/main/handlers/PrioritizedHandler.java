@@ -16,10 +16,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class PrioritizedHandler implements HttpHandler {
-    private HTTPTaskManager httpTaskManager;
-    private TaskAdapter taskAdapter;
-    private SubtaskAdapter subtaskAdapter;
-    private EpicAdapter epicAdapter;
+    private final HTTPTaskManager httpTaskManager;
+    private final TaskAdapter taskAdapter;
+    private final SubtaskAdapter subtaskAdapter;
+    private final EpicAdapter epicAdapter;
 
     public PrioritizedHandler(HTTPTaskManager httpTaskManager, TaskAdapter taskAdapter, SubtaskAdapter subtaskAdapter,
                               EpicAdapter epicAdapter) {

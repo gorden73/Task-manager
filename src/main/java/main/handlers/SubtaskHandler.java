@@ -15,8 +15,8 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class SubtaskHandler implements HttpHandler {
-    private HTTPTaskManager httpTaskManager;
-    private SubtaskAdapter subtaskAdapter;
+    private final HTTPTaskManager httpTaskManager;
+    private final SubtaskAdapter subtaskAdapter;
 
     public SubtaskHandler(HTTPTaskManager httpTaskManager, SubtaskAdapter subtaskAdapter) {
         this.httpTaskManager = httpTaskManager;
@@ -52,7 +52,7 @@ public class SubtaskHandler implements HttpHandler {
                     break;
                 } else if (pathGet.split("/")[3].contains("id=")) {
                     long id = Long.parseLong(pathGet.split("=")[1]);
-                    if (!httpTaskManager.getSubtasks().containsKey(id)) {///////////////////////////////////
+                    if (!httpTaskManager.getSubtasks().containsKey(id)) {
                         response = "Подзадачи " + id + " нет.";
                         break;
                     }
